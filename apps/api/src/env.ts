@@ -1,4 +1,5 @@
-import { fileURLToPath } from "node:url";
-import { config } from "dotenv";
+import { fileURLToPath } from 'node:url'
 
-config({ path: fileURLToPath(new URL("../../../.env", import.meta.url)), quiet: true });
+import { config } from 'dotenv'
+
+config({ path: fileURLToPath(new URL('../../../.env', import.meta.url)), quiet: true })

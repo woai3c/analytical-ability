@@ -8,13 +8,13 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>目标分析工作台</title>
     <script>
-      (() => {
-        const theme = localStorage.getItem("analysis-theme") === "dark" ? "dark" : "light";
-        const language = localStorage.getItem("analysis-language") === "en" ? "en" : "zh-CN";
-        document.documentElement.classList.toggle("dark", theme === "dark");
-        document.documentElement.dataset.theme = theme;
-        document.documentElement.lang = language;
-      })();
+      ;(() => {
+        const theme = localStorage.getItem('analysis-theme') === 'dark' ? 'dark' : 'light'
+        const language = localStorage.getItem('analysis-language') === 'en' ? 'en' : 'zh-CN'
+        document.documentElement.classList.toggle('dark', theme === 'dark')
+        document.documentElement.dataset.theme = theme
+        document.documentElement.lang = language
+      })()
     </script>
   </head>
   <body>

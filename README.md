@@ -36,6 +36,21 @@ OPENAI_MODEL=gpt-5.6-sol
 - 主题只支持 Light 和 Dark，首次访问默认 Light，不跟随操作系统。
 - 语言与主题选择保存在当前浏览器中。
 
+## 代码质量
+
+```bash
+pnpm lint          # ESLint 检查
+pnpm lint:fix      # 自动修复可修复的 ESLint 问题
+pnpm format        # Prettier 格式化
+pnpm format:check  # 检查格式但不修改文件
+pnpm run ci        # lint、格式、类型、测试和构建的完整本地检查
+```
+
+- VS Code 默认在保存时运行 Prettier，并显式提供 ESLint 修复和删除未使用导入操作。
+- 提交前由 Husky 和 lint-staged 检查暂存文件。
+- 提交信息采用英文 Conventional Commits，例如 `feat: add goal evidence tracking`。
+- Pull Request 和 `main` 分支推送会触发 GitHub Actions；CI 只检查，不自动改写或推送代码。
+
 ## 目录
 
 ```text

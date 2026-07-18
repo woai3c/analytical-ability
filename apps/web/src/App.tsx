@@ -1,7 +1,8 @@
-import { BrowserRouter, Route, Routes } from "react-router";
-import { AppShell } from "@/components/app-shell";
-import { TrainingPage } from "@/pages/training-page";
-import { WorkspacePage } from "@/pages/workspace-page";
+import { BrowserRouter, Route, Routes } from 'react-router'
+
+import { AppShell } from '@/components/app-shell'
+import { TrainingPage } from '@/pages/training-page'
+import { WorkspacePage } from '@/pages/workspace-page'
 
 export default function App() {
   return (
@@ -13,5 +14,5 @@ export default function App() {
         </Route>
       </Routes>
     </BrowserRouter>
-  );
+  )
 }

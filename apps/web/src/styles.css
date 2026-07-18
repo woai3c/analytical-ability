@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "@clarity/design-tokens/theme.css";
+@import 'tailwindcss';
+@import '@clarity/design-tokens/theme.css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -24,8 +24,10 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --radius-xl: var(--radius);
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter Variable", Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-serif: Palatino, "Palatino Linotype", "Songti SC", "STSong", Georgia, serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', Inter, 'Segoe UI', 'PingFang SC',
+    'Microsoft YaHei', sans-serif;
+  --font-serif: Palatino, 'Palatino Linotype', 'Songti SC', 'STSong', Georgia, serif;
 }
 
 * {
