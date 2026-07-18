@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="把模糊目标转化为可验证、可执行的分析路径。" />
+    <meta name="theme-color" content="#fcfbf7" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>目标分析工作台</title>
+    <script>
+      (() => {
+        const theme = localStorage.getItem("analysis-theme") === "dark" ? "dark" : "light";
+        const language = localStorage.getItem("analysis-language") === "en" ? "en" : "zh-CN";
+        document.documentElement.classList.toggle("dark", theme === "dark");
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.lang = language;
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

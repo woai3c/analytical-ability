@@ -1,0 +1,17 @@
+{
+  "name": "analysis-workbench",
+  "private": true,
+  "packageManager": "pnpm@10.7.1",
+  "scripts": {
+    "dev": "pnpm build:packages && pnpm --parallel --filter @clarity/web --filter @clarity/api dev",
+    "dev:web": "pnpm build:packages && pnpm --filter @clarity/web dev",
+    "dev:api": "pnpm build:packages && pnpm --filter @clarity/api dev",
+    "build:packages": "pnpm --filter @clarity/domain build && pnpm --filter @clarity/analysis-engine build && pnpm --filter @clarity/llm build",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm build:packages && pnpm -r typecheck",
+    "test": "pnpm -r test"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}
