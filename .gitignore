@@ -145,3 +145,5 @@ vite.config.ts.timestamp-*
 # Workspace build helpers
 .turbo/
 apps/web/dev-dist/
+
+*.pdf
