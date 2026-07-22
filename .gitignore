@@ -148,3 +148,4 @@ apps/web/dev-dist/
 
 *.pdf
 .x-code
+docs/pdfs/rendered/
