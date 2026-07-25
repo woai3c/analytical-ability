@@ -16,6 +16,19 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
+  "dependencies": {
+    "@ai-sdk/alibaba": "^1.0.0",
+    "@ai-sdk/anthropic": "^3.0.0",
+    "@ai-sdk/deepseek": "^2.0.0",
+    "@ai-sdk/google": "^3.0.0",
+    "@ai-sdk/moonshotai": "^2.0.25",
+    "@ai-sdk/openai": "^3.0.0",
+    "@ai-sdk/openai-compatible": "^2.0.50",
+    "@ai-sdk/xai": "^3.0.0",
+    "ai": "^6.0.0",
+    "zhipu-ai-provider": "^0.2.0",
+    "zod": "^4.0.0"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.8.0",

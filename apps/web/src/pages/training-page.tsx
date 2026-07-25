@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { CircleCheck, Clock, TriangleAlert } from 'lucide-react'
+
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -18,8 +20,8 @@ export function TrainingPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-      <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">{t('轻量训练')}</div>
-      <h1 className="mt-3 font-serif text-3xl tracking-tight">{t('用真实目标练分析，而不是背术语')}</h1>
+      <div className="text-eyebrow font-medium uppercase text-muted-foreground">{t('轻量训练')}</div>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight">{t('用真实目标练分析，而不是背术语')}</h1>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
         {t('每次目标分析会暴露一个具体能力缺口。训练中心据此生成 1—3 分钟练习，先让你判断，再给提示和反馈。')}
       </p>
@@ -29,7 +31,10 @@ export function TrainingPage() {
           <CardHeader className="border-b border-border">
             <div className="flex items-center justify-between gap-3">
               <CardTitle>{t('区分事实与假设')}</CardTitle>
-              <Badge variant="outline">{t('约 1 分钟')}</Badge>
+              <Badge variant="outline">
+                <Clock className="mr-1 size-3" />
+                {t('约 1 分钟')}
+              </Badge>
             </div>
             <CardDescription>{t('以下陈述属于哪一类？先独立判断，再查看解释。')}</CardDescription>
           </CardHeader>
@@ -61,7 +66,14 @@ export function TrainingPage() {
                     : 'border-[var(--warning)]/35 bg-[var(--warning)]/8',
                 )}
               >
-                <div className="font-medium">{t(correct ? '判断正确：这是假设' : '再想一步：这是尚未验证的假设')}</div>
+                <div className="flex items-center gap-1.5 font-medium">
+                  {correct ? (
+                    <CircleCheck className="size-4 text-[var(--success)]" />
+                  ) : (
+                    <TriangleAlert className="size-4 text-[var(--warning)]" />
+                  )}
+                  {t(correct ? '判断正确：这是假设' : '再想一步：这是尚未验证的假设')}
+                </div>
                 <p className="mt-1 text-muted-foreground">
                   {t(
                     '“每周 10 小时”是投入条件，“六个月内成功转行”是结果。两者是否足够，需要岗位要求、能力基线、历史基准率和实际试验来验证。',

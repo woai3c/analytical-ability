@@ -1,29 +1,19 @@
-import { cn } from '@/lib/utils'
-import { type Language, useI18n } from '@/providers/i18n-provider'
+import { Languages } from 'lucide-react'
 
-const options: Array<{ value: Language; label: string }> = [
-  { value: 'zh-CN', label: '中文' },
-  { value: 'en', label: 'EN' },
-]
+import { useI18n } from '@/providers/i18n-provider'
 
 export function LanguageSwitcher() {
   const { language, setLanguage, t } = useI18n()
+  const isChinese = language === 'zh-CN'
   return (
-    <div className="inline-flex rounded-md border border-border bg-card p-0.5" aria-label={t('语言')}>
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          className={cn(
-            'h-7 rounded px-2 text-[11px] text-muted-foreground outline-none transition focus-visible:ring-1 focus-visible:ring-ring',
-            language === option.value && 'bg-secondary text-secondary-foreground',
-          )}
-          onClick={() => setLanguage(option.value)}
-          aria-pressed={language === option.value}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      className="flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring"
+      onClick={() => setLanguage(isChinese ? 'en' : 'zh-CN')}
+      aria-label={t(isChinese ? '切换到英文' : '切换到中文')}
+      title={t(isChinese ? '切换到英文' : '切换到中文')}
+    >
+      <Languages className="size-4" />
+    </button>
   )
 }

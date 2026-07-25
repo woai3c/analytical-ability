@@ -18,8 +18,17 @@ export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElemen
   return <div className={cn('flex flex-col gap-1.5 p-5', className)} {...props} />
 }
 
-export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn('text-sm font-semibold tracking-tight', className)} {...props} />
+export function CardTitle({
+  className,
+  size = 'sm',
+  ...props
+}: HTMLAttributes<HTMLHeadingElement> & { size?: 'sm' | 'lg' }) {
+  return (
+    <h3
+      className={cn(size === 'lg' ? 'text-lg font-semibold tracking-tight' : 'text-sm font-semibold', className)}
+      {...props}
+    />
+  )
 }
 
 export function CardDescription({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {

@@ -1,28 +1,21 @@
-import { cn } from '@/lib/utils'
-import { useI18n } from '@/providers/i18n-provider'
-import { type Theme, useTheme } from '@/providers/theme-provider'
+import { Moon, Sun } from 'lucide-react'
 
-const options: Theme[] = ['light', 'dark']
+import { useI18n } from '@/providers/i18n-provider'
+import { useTheme } from '@/providers/theme-provider'
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme()
   const { t } = useI18n()
+  const isDark = theme === 'dark'
   return (
-    <div className="inline-flex rounded-md border border-border bg-card p-0.5" aria-label={t('主题')}>
-      {options.map((option) => (
-        <button
-          key={option}
-          type="button"
-          className={cn(
-            'h-7 rounded px-2 text-[11px] text-muted-foreground outline-none transition focus-visible:ring-1 focus-visible:ring-ring',
-            theme === option && 'bg-secondary text-secondary-foreground',
-          )}
-          onClick={() => setTheme(option)}
-          aria-pressed={theme === option}
-        >
-          {t(option === 'light' ? '浅色' : '深色')}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      className="flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring"
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      aria-label={t(isDark ? '切换到浅色主题' : '切换到深色主题')}
+      title={t(isDark ? '切换到浅色主题' : '切换到深色主题')}
+    >
+      {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+    </button>
   )
 }

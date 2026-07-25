@@ -496,6 +496,10 @@ function buildActionSteps(
   ]
 }
 
+export * from './methods/registry.js'
+export * from './methods/router.js'
+export * from './methods/compute.js'
+
 export function analyzeGoal(input: GoalInput, locale: AnalysisLocale = 'zh-CN'): AnalysisPreview {
   const en = locale === 'en'
   const taskType = inferTaskType(input)

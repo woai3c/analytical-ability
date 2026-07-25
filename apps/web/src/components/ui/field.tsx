@@ -6,11 +6,15 @@ export function Field({
   label,
   hint,
   htmlFor,
+  required = false,
+  error,
   children,
 }: {
   label: string
   hint?: string
   htmlFor: string
+  required?: boolean
+  error?: string
   children: React.ReactNode
 }) {
   return (
@@ -18,10 +22,20 @@ export function Field({
       <div className="flex items-baseline justify-between gap-4">
         <label className="text-sm font-medium" htmlFor={htmlFor}>
           {label}
+          {required ? (
+            <span className="ml-0.5 text-destructive" aria-hidden="true">
+              *
+            </span>
+          ) : null}
         </label>
         {hint ? <span className="text-xs text-muted-foreground">{hint}</span> : null}
       </div>
       {children}
+      {error ? (
+        <p className="text-xs leading-5 text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }
