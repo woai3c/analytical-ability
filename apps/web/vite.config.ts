@@ -8,7 +8,6 @@ import { defineConfig } from 'vitest/config'
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
-  envDir: path.resolve(currentDir, '../..'),
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -18,12 +17,6 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8787',
-        changeOrigin: true,
-      },
-    },
   },
   test: {
     environment: 'jsdom',

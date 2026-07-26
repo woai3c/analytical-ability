@@ -11,6 +11,11 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "^2.0.0",
+    "@ai-sdk/google": "^3.0.0",
+    "@ai-sdk/openai": "^3.0.0",
+    "@ai-sdk/openai-compatible": "^2.0.50",
+    "@ai-sdk/xai": "^3.0.0",
     "@clarity/analysis-engine": "workspace:*",
     "@clarity/design-tokens": "workspace:*",
     "@clarity/domain": "workspace:*",
@@ -18,6 +23,7 @@
     "@radix-ui/react-dialog": "^1.1.20",
     "@radix-ui/react-popover": "^1.1.20",
     "@radix-ui/react-slot": "^1.0.0",
+    "ai": "^6.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "date-fns": "^4.4.0",

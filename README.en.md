@@ -1,78 +1,110 @@
-# Clarity — Learn How to Analyze
+<div align="center">
 
-Don't just get answers. Build the skill to find them yourself.
+<h1>Clarity</h1>
 
-Clarity is a training platform for analytical thinking. It teaches you **when** and **how** to apply methods like Fishbone diagrams, 5 Whys, MCDA, and more — through AI-generated scenarios and immediate feedback.
+Learn analysis methods. Do the analysis yourself.
 
-[中文](./README.md)
+[中文](./README.md) · [Get Started](#get-started) · [Deploy](#deploy)
+
+</div>
+
+## What is this
+
+Clarity doesn't analyze for you — it teaches you **how to analyze**.
+
+Practice 12 analysis methods (Fishbone, 5 Why, MCDA, etc.) through scenario-based training. AI generates realistic scenarios where you decide which method to apply, then gives you immediate feedback. All data stays in your browser. Bring your own API key.
 
 ## Features
 
 - **Method Library** — 12 analysis methods with full introductions, step-by-step guides, and worked examples
-- **Scenario Training** — AI generates realistic problems; you choose the right method, explain your reasoning, and get detailed feedback
-- **Progress Tracking** — Review your practice history by scenario type and method
+- **Scenario Training** — AI-generated real-world scenarios; pick the right method, explain your reasoning, get feedback
+- **Progress Tracking** — Practice history organized by scenario type and method
+- **Pure Frontend** — No backend required; deploy to Vercel / Netlify / GitHub Pages
+- **Data Ownership** — Practice data stored in browser localStorage with export / import
 
-## Getting Started
+## Get Started <a id="get-started"></a>
+
+> Pure frontend app. No server or database to configure.
+
+### Local Development
 
 ```bash
-# Install dependencies
+git clone https://github.com/[your-username]/analytical-ability.git
+cd analytical-ability
 pnpm install
-
-# Set up environment (fill in at least one API key)
-cp .env.example .env
-
-# Start dev server
 pnpm dev
 ```
 
-Default URLs:
+Open `http://localhost:5173`, go to **Settings** and configure your API Key.
 
-- Web: `http://localhost:5173`
-- API: `http://localhost:8787`
+### Deploy <a id="deploy"></a>
 
-## LLM Configuration
+Clarity is a static SPA deployable to any hosting platform:
 
-Add any supported provider's API key to `.env`:
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/[your-username]/analytical-ability)
 
-```dotenv
-DEEPSEEK_API_KEY=your-key-here
+```bash
+pnpm build     # Output: apps/web/dist
 ```
 
-Supported providers: DeepSeek, Anthropic, OpenAI, Google Gemini, xAI, Qwen, Zhipu, Moonshot, and any OpenAI-compatible endpoint.
+No server-side environment variables needed — users configure their own API Key in the Settings page.
 
-The system automatically selects the first configured provider. No manual model selection needed.
+## Supported AI Providers
+
+| Provider          | Default Model    |
+| ----------------- | ---------------- |
+| DeepSeek          | deepseek-chat    |
+| OpenAI            | gpt-4o           |
+| Google Gemini     | gemini-2.5-flash |
+| xAI (Grok)        | grok-3           |
+| Moonshot (Kimi)   | moonshot-v1-128k |
+| OpenAI Compatible | Custom           |
+
+Select a provider and enter your API Key in the Settings page. Keys are stored only in your browser.
 
 ## Tech Stack
 
-| Layer           | Technology                  |
-| --------------- | --------------------------- |
-| Frontend        | React + Vite + Tailwind CSS |
-| Backend         | Fastify + Vercel AI SDK     |
-| Language        | TypeScript (monorepo)       |
-| Package Manager | pnpm workspaces             |
+| Layer           | Technology                         |
+| --------------- | ---------------------------------- |
+| Framework       | React 19 + Vite                    |
+| Styling         | Tailwind CSS 4                     |
+| AI              | Vercel AI SDK (`ai` + `@ai-sdk/*`) |
+| Language        | TypeScript (monorepo)              |
+| Package Manager | pnpm workspaces                    |
 
 ## Project Structure
 
 ```
-apps/web                  React web application
-apps/api                  Fastify API server
-packages/domain           Shared types and contracts
-packages/analysis-engine  Method registry and rules
-packages/llm              Multi-provider LLM adapter
-packages/design-tokens    Design variables (light/dark)
+apps/web                  React SPA
+packages/domain           Data contracts & types
+packages/analysis-engine  Method registry & rules
+packages/design-tokens    Theme variables (Light / Dark)
 ```
 
 ## Development
 
 ```bash
-pnpm dev            # Start Web + API concurrently
-pnpm build          # Full build
-pnpm lint           # ESLint
-pnpm format         # Prettier
-pnpm test           # Run tests
-pnpm ci             # Full CI check (lint + format + typecheck + test + build)
+pnpm dev        # Start dev server
+pnpm build      # Production build
+pnpm lint       # ESLint
+pnpm test       # Run tests
+pnpm ci         # lint + format + typecheck + test + build
 ```
+
+## FAQ
+
+**Q: Do I need my own API Key?**
+
+Yes. Clarity is a pure frontend app — AI calls go directly from your browser. Get an API Key from DeepSeek / OpenAI / Google and configure it in Settings.
+
+**Q: Where is my data stored?**
+
+All practice data is stored in your browser's localStorage. You can export it as a JSON file for backup or migration in Settings.
+
+**Q: Can I use it offline?**
+
+The Method Library pages work offline. Scenario Training requires a network connection to call AI models.
 
 ## License
 
-MIT
+[MIT](./LICENSE)

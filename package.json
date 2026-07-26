@@ -7,11 +7,9 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "dev": "pnpm build:packages && pnpm --parallel --filter @clarity/web --filter @clarity/api dev",
-    "dev:web": "pnpm build:packages && pnpm --filter @clarity/web dev",
-    "dev:api": "pnpm build:packages && pnpm --filter @clarity/api dev",
-    "build:packages": "pnpm --filter @clarity/domain build && pnpm --filter @clarity/analysis-engine build && pnpm --filter @clarity/llm build",
-    "build": "pnpm -r build",
+    "dev": "pnpm build:packages && pnpm --filter @clarity/web dev",
+    "build:packages": "pnpm --filter @clarity/domain build && pnpm --filter @clarity/analysis-engine build",
+    "build": "pnpm build:packages && pnpm --filter @clarity/web build",
     "typecheck": "pnpm build:packages && pnpm -r typecheck",
     "test": "pnpm -r test",
     "lint": "eslint .",

@@ -434,6 +434,24 @@ const english: Record<string, string> = {
     'No practice records yet. Start your first practice in scenario training!',
   按场景类型: 'By scenario type',
   按方法使用: 'By method used',
+
+  // settings page
+  设置: 'Settings',
+  '配置 AI 模型和管理数据。API Key 仅存储在你的浏览器中，不会发送到任何第三方服务器。':
+    'Configure AI model and manage data. Your API Key is stored only in your browser and never sent to any third-party server.',
+  'AI 模型配置': 'AI Model',
+  模型提供商: 'Provider',
+  模型名称: 'Model name',
+  保存: 'Save',
+  数据管理: 'Data',
+  '所有练习数据存储在浏览器本地。导出后可迁移到其他设备。':
+    'All practice data is stored locally in your browser. Export to migrate to another device.',
+  导出数据: 'Export data',
+  导入数据: 'Import data',
+  导入成功: 'Import successful',
+  文件解析失败: 'Failed to parse file',
+  文件格式不兼容: 'Incompatible file format',
+  '还没有练习记录。': 'No practice records yet.',
 }
 
 interface I18nContextValue {

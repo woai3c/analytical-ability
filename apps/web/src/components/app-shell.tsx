@@ -9,12 +9,14 @@ const navigation: Array<{ to: string; label: string; end: boolean }> = [
   { to: '/', label: '方法库', end: true },
   { to: '/practice', label: '场景训练', end: false },
   { to: '/progress', label: '我的进度', end: false },
+  { to: '/settings', label: '设置', end: false },
 ]
 
 const pageTitles: Record<string, string> = {
   '/': '方法库',
   '/practice': '场景训练',
   '/progress': '我的进度',
+  '/settings': '设置',
 }
 
 export function AppShell() {
@@ -69,7 +71,7 @@ export function AppShell() {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid h-12 grid-cols-3 border-t border-border bg-background lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid h-12 grid-cols-4 border-t border-border bg-background lg:hidden"
         aria-label={t('移动端导航')}
       >
         {navigation.map((item) => (

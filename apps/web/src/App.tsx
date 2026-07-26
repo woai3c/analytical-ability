@@ -5,6 +5,7 @@ import { MethodDetailPage } from '@/pages/method-detail-page'
 import { MethodsPage } from '@/pages/methods-page'
 import { PracticePage } from '@/pages/practice-page'
 import { ProgressPage } from '@/pages/progress-page'
+import { SettingsPage } from '@/pages/settings-page'
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="methods/:methodId" element={<MethodDetailPage />} />
           <Route path="practice" element={<PracticePage />} />
           <Route path="progress" element={<ProgressPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
