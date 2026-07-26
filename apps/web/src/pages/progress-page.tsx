@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
 import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@clarity/analysis-engine'
@@ -10,10 +10,16 @@ import { useI18n } from '@/providers/i18n-provider'
 interface PracticeRecord {
   scenarioId: string
   scenarioTitle: string
+  scenarioDescription?: string
+  scenarioContext?: string
+  applicableMethods?: string[]
   taskType: string
   selectedMethods: string[]
   correct: boolean
   score: number
+  feedback?: string
+  improvementTip?: string
+  methodExplanations?: Array<{ methodId: string; explanation: string; isBestFit: boolean }>
   completedAt: string
 }
 
@@ -30,6 +36,7 @@ export function ProgressPage() {
   const en = language === 'en'
   const labels = en ? taskTypeLabelsEn : taskTypeLabels
   const records = useMemo(() => loadRecords(), [])
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
 
   const totalPractices = records.length
   const correctCount = records.filter((r) => r.correct).length
@@ -139,28 +146,39 @@ export function ProgressPage() {
           <section className="mt-8 border-t border-border pt-6">
             <h2 className="text-sm font-medium">{t('最近练习')}</h2>
             <div className="mt-3 divide-y divide-border rounded-lg border border-border">
-              {recentRecords.map((record, i) => (
-                <div key={`${record.scenarioId}-${i}`} className="flex items-center justify-between px-3.5 py-2.5">
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm">{record.scenarioTitle}</div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">
-                      {labels[record.taskType as TaskType] ?? record.taskType}
-                      {' · '}
-                      {formatDate(record.completedAt)}
-                    </div>
+              {recentRecords.map((record, i) => {
+                const globalIdx = records.length - 1 - i
+                const isExpanded = expandedIdx === globalIdx
+                return (
+                  <div key={`${record.scenarioId}-${i}`}>
+                    <button
+                      type="button"
+                      onClick={() => setExpandedIdx(isExpanded ? null : globalIdx)}
+                      className="flex w-full items-center justify-between px-3.5 py-2.5 text-left transition-colors hover:bg-secondary"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm">{record.scenarioTitle}</div>
+                        <div className="mt-0.5 text-xs text-muted-foreground">
+                          {labels[record.taskType as TaskType] ?? record.taskType}
+                          {' · '}
+                          {formatDate(record.completedAt)}
+                        </div>
+                      </div>
+                      <span
+                        className={cn(
+                          'ml-3 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium',
+                          record.correct
+                            ? 'bg-[color-mix(in_srgb,var(--success)_12%,transparent)] text-(--success)'
+                            : 'bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] text-(--warning)',
+                        )}
+                      >
+                        {record.score}
+                      </span>
+                    </button>
+                    {isExpanded && <RecordDetail record={record} t={t} en={en} />}
                   </div>
-                  <span
-                    className={cn(
-                      'ml-3 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium',
-                      record.correct
-                        ? 'bg-[color-mix(in_srgb,var(--success)_12%,transparent)] text-[var(--success)]'
-                        : 'bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] text-[var(--warning)]',
-                    )}
-                  >
-                    {record.score}
-                  </span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </section>
         </>
@@ -192,4 +210,68 @@ function formatDate(iso: string): string {
   } catch {
     return iso
   }
+}
+
+function RecordDetail({ record, t, en }: { record: PracticeRecord; t: (s: string) => string; en: boolean }) {
+  const hasDetail = record.scenarioDescription || record.feedback
+  if (!hasDetail) {
+    return (
+      <div className="border-t border-border px-3.5 py-3 text-xs text-muted-foreground">
+        {t('该记录保存时未包含详情数据。')}
+      </div>
+    )
+  }
+
+  return (
+    <div className="border-t border-border px-3.5 py-3 space-y-3 text-sm">
+      {record.scenarioDescription && (
+        <div>
+          <h4 className="text-xs font-medium text-muted-foreground">{t('场景描述')}</h4>
+          <p className="mt-1 leading-relaxed">{record.scenarioDescription}</p>
+        </div>
+      )}
+      {record.scenarioContext && (
+        <div>
+          <h4 className="text-xs font-medium text-muted-foreground">{t('背景信息')}</h4>
+          <p className="mt-1 leading-relaxed">{record.scenarioContext}</p>
+        </div>
+      )}
+      {record.applicableMethods && (
+        <div>
+          <h4 className="text-xs font-medium text-muted-foreground">{t('最佳方法')}</h4>
+          <p className="mt-1">
+            {record.applicableMethods
+              .map((id) => {
+                const spec = methodRegistry.find((m) => m.id === id)
+                return spec ? (en ? spec.name.en : spec.name.zh) : id
+              })
+              .join('、')}
+          </p>
+        </div>
+      )}
+      <div>
+        <h4 className="text-xs font-medium text-muted-foreground">{t('你的选择')}</h4>
+        <p className="mt-1">
+          {record.selectedMethods
+            .map((id) => {
+              const spec = methodRegistry.find((m) => m.id === id)
+              return spec ? (en ? spec.name.en : spec.name.zh) : id
+            })
+            .join('、')}
+        </p>
+      </div>
+      {record.feedback && (
+        <div>
+          <h4 className="text-xs font-medium text-muted-foreground">{t('AI 反馈')}</h4>
+          <p className="mt-1 leading-relaxed">{record.feedback}</p>
+        </div>
+      )}
+      {record.improvementTip && (
+        <div>
+          <h4 className="text-xs font-medium text-muted-foreground">{t('改进建议')}</h4>
+          <p className="mt-1 leading-relaxed">{record.improvementTip}</p>
+        </div>
+      )}
+    </div>
+  )
 }

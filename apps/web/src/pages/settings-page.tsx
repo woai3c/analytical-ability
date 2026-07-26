@@ -175,7 +175,7 @@ export function SettingsPage() {
             <select
               value={settings.provider}
               onChange={(e) => setSettings({ ...settings, provider: e.target.value, model: '' })}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
             >
               {providers.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -192,7 +192,7 @@ export function SettingsPage() {
               value={settings.apiKey}
               onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
               placeholder={currentProvider?.placeholder ?? 'sk-...'}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono focus:border-ring focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono"
             />
           </div>
 
@@ -202,7 +202,7 @@ export function SettingsPage() {
               <select
                 value={settings.model || availableModels[0]}
                 onChange={(e) => setSettings({ ...settings, model: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
               >
                 {availableModels.map((m) => (
                   <option key={m} value={m}>
@@ -222,7 +222,7 @@ export function SettingsPage() {
                   value={settings.baseUrl ?? ''}
                   onChange={(e) => setSettings({ ...settings, baseUrl: e.target.value })}
                   placeholder="https://api.example.com/v1"
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono focus:border-ring focus:outline-none"
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono"
                 />
               </div>
               <div>
@@ -232,7 +232,7 @@ export function SettingsPage() {
                   value={settings.model ?? ''}
                   onChange={(e) => setSettings({ ...settings, model: e.target.value })}
                   placeholder="gpt-4o"
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono focus:border-ring focus:outline-none"
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono"
                 />
               </div>
             </>

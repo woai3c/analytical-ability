@@ -112,3 +112,54 @@ export const learnerProfileSchema = z.object({
 })
 
 export type LearnerProfile = z.infer<typeof learnerProfileSchema>
+
+// ── 引导式训练 ─────────────────────────────────────────────────
+
+export const guidedStepNumbers = [1, 2, 3, 4, 5] as const
+export type GuidedStepNumber = (typeof guidedStepNumbers)[number]
+
+export const stepResponseSchema = z.object({
+  feedback: z.string().min(1),
+  hint: z.string().optional(),
+})
+
+export type StepResponse = z.infer<typeof stepResponseSchema>
+
+export const reflectionSchema = z.object({
+  overallFeedback: z.string().min(1),
+  score: z.number().min(0).max(100),
+  dimensions: z.array(
+    z.object({
+      name: z.string().min(1),
+      score: z.number().min(0).max(100),
+      comment: z.string().min(1),
+    }),
+  ),
+  tips: z.array(z.string().min(1)),
+})
+
+export type Reflection = z.infer<typeof reflectionSchema>
+
+export interface GuidedStepData {
+  problemDefinition: { userAnswer: string; aiResponse: string } | null
+  methodSelection: { selectedMethods: string[]; reasoning: string; aiResponse: string } | null
+  methodApplication: { userWork: string; aiResponse: string } | null
+  conclusion: { userAnswer: string; aiResponse: string } | null
+  reflection: {
+    aiFeedback: string
+    score: number
+    dimensions: Array<{ name: string; score: number; comment: string }>
+    tips: string[]
+  } | null
+}
+
+export interface GuidedSession {
+  id: string
+  scenario: Scenario
+  difficulty: Difficulty
+  currentStep: GuidedStepNumber
+  steps: GuidedStepData
+  tokenUsage: { promptTokens: number; completionTokens: number }
+  startedAt: string
+  completedAt: string | null
+}

@@ -98,6 +98,17 @@ function getModel(): LanguageModel {
   return createModel(settings)
 }
 
+export interface TokenUsage {
+  promptTokens: number
+  completionTokens: number
+  totalTokens: number
+}
+
+export interface StructuredGenerationResult<T> {
+  object: T
+  usage: TokenUsage
+}
+
 export interface StructuredGenerationInput<S extends z.ZodType> {
   schema: S
   system: string
@@ -106,13 +117,13 @@ export interface StructuredGenerationInput<S extends z.ZodType> {
 
 export async function generateStructured<S extends z.ZodType>(
   input: StructuredGenerationInput<S>,
-): Promise<z.infer<S>> {
+): Promise<StructuredGenerationResult<z.infer<S>>> {
   const model = getModel()
 
   let lastError: unknown
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
-      const { object } = await generateObject({
+      const { object, usage } = await generateObject({
         model,
         schema: input.schema,
         system: input.system,
@@ -120,7 +131,14 @@ export async function generateStructured<S extends z.ZodType>(
         maxOutputTokens: 6000,
         abortSignal: AbortSignal.timeout(90000),
       })
-      return object as z.infer<S>
+      return {
+        object: object as z.infer<S>,
+        usage: {
+          promptTokens: usage?.inputTokens ?? 0,
+          completionTokens: usage?.outputTokens ?? 0,
+          totalTokens: (usage?.inputTokens ?? 0) + (usage?.outputTokens ?? 0),
+        },
+      }
     } catch (error) {
       lastError = error
       if (!NoObjectGeneratedError.isInstance(error)) throw normalizeLlmError(error)

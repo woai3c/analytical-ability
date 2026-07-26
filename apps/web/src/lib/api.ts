@@ -4,8 +4,10 @@ import { methodRegistry } from '@clarity/analysis-engine'
 import { methodIdSchema, scenarioSchema } from '@clarity/domain'
 
 import { LlmError, generateStructured } from './llm'
+import type { TokenUsage } from './llm'
 
 export { LlmError as ApiError }
+export type { TokenUsage }
 
 export interface Scenario {
   id: string
@@ -63,7 +65,7 @@ export async function generateScenario(params: {
   taskType?: string
   methodId?: string
   difficulty?: string
-}): Promise<{ result: Scenario }> {
+}): Promise<{ result: Scenario; usage: TokenUsage }> {
   const en = isEnglish()
   const difficulty = params.difficulty ?? 'beginner'
   const methodCatalog = buildMethodCatalog(en)
@@ -99,6 +101,7 @@ export async function generateScenario(params: {
           'Include 1-2 common mistakes (methods that seem relevant but are not the best fit) with clear explanations.',
           'The id must be a short unique slug like "startup-pricing-q1".',
           'All explanations should teach WHY a method fits or does not fit this specific scenario.',
+          'Respond entirely in English.',
         ].join('\n')
       : [
           '你是分析思维方法的教师。请生成一个真实的训练场景。',
@@ -108,6 +111,7 @@ export async function generateScenario(params: {
           '包含 1-2 个常见误选（看起来相关但并非最佳的方法），并给出清晰解释。',
           'id 用简短的英文短横线命名，如 "startup-pricing-q1"。',
           '所有解释都要说明为什么某方法适合或不适合这个具体场景。',
+          '所有内容必须使用中文回答，id 字段除外。',
         ].join('\n'),
     prompt: [
       en ? 'Generate a training scenario with these requirements:' : '请按以下要求生成训练场景：',
@@ -116,7 +120,7 @@ export async function generateScenario(params: {
     ].join('\n\n'),
   })
 
-  return { result: result as Scenario }
+  return { result: result.object as Scenario, usage: result.usage }
 }
 
 export async function submitPractice(params: {
@@ -126,7 +130,7 @@ export async function submitPractice(params: {
   applicableMethods: string[]
   selectedMethods: string[]
   reasoning: string
-}): Promise<{ result: PracticeFeedback }> {
+}): Promise<{ result: PracticeFeedback; usage: TokenUsage }> {
   const en = isEnglish()
 
   const result = await generateStructured({
@@ -138,6 +142,7 @@ export async function submitPractice(params: {
           'Be specific about WHY their choice works or does not work for THIS scenario.',
           'Give constructive feedback that helps them build transferable judgment.',
           'The improvement tip should be one actionable insight they can apply next time.',
+          'Respond entirely in English.',
         ].join('\n')
       : [
           '你是严谨但鼓励型的分析思维教练。',
@@ -145,6 +150,7 @@ export async function submitPractice(params: {
           '具体说明为什么他们的选择在这个场景下有效或无效。',
           '给出有建设性的反馈，帮助他们建立可迁移的判断力。',
           '改进建议应该是一条下次可以直接用的可操作洞察。',
+          '所有内容必须使用中文回答。',
         ].join('\n'),
     prompt: [
       `${en ? 'Scenario' : '场景'}：${params.scenarioTitle}`,
@@ -156,5 +162,5 @@ export async function submitPractice(params: {
     ].join('\n'),
   })
 
-  return { result: result as PracticeFeedback }
+  return { result: result.object as PracticeFeedback, usage: result.usage }
 }

@@ -72,8 +72,21 @@ button:disabled {
   opacity: 0.5;
 }
 
-/* GitHub focus style: blue ring outline */
-:focus-visible {
+/* GitHub focus style: subtle border-color + glow shadow for inputs */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 30%, transparent);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+a:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
   border-radius: var(--radius-sm);

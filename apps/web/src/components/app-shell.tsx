@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { ThemeSwitcher } from '@/components/theme-switcher'
 import { cn } from '@/lib/utils'
+import { loadSettings } from '@/pages/settings-page'
 import { useI18n } from '@/providers/i18n-provider'
 
 const navigation: Array<{ to: string; label: string; end: boolean }> = [
@@ -25,6 +26,9 @@ export function AppShell() {
 
   const currentTitle =
     pageTitles[location.pathname] ?? (location.pathname.startsWith('/methods/') ? '方法详情' : 'Clarity')
+
+  const settings = loadSettings()
+  const needsApiKey = !settings?.apiKey
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
@@ -64,6 +68,17 @@ export function AppShell() {
             <ThemeSwitcher />
           </div>
         </header>
+
+        {needsApiKey && location.pathname !== '/settings' && (
+          <div className="border-b border-border bg-accent px-4 py-2.5 sm:px-6">
+            <p className="text-sm text-foreground">
+              {t('请先配置 AI API Key 才能使用场景训练。')}{' '}
+              <NavLink to="/settings" className="font-medium underline">
+                {t('前往设置')}
+              </NavLink>
+            </p>
+          </div>
+        )}
 
         <main className="pb-14 lg:pb-0">
           <Outlet />
