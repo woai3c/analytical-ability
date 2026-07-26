@@ -48,6 +48,28 @@ export function MethodDetailPage() {
         </p>
       </section>
 
+      {/* 什么时候用 / 不用 */}
+      <section className="mt-8 border-t border-border pt-6">
+        <h2 className="text-sm font-medium">{t('什么时候用')}</h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          {en ? spec.whenToUse.en : spec.whenToUse.zh}
+        </p>
+      </section>
+
+      <section className="mt-8 border-t border-border pt-6">
+        <h2 className="text-sm font-medium">{t('什么时候不用')}</h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          {en ? spec.whenNotToUse.en : spec.whenNotToUse.zh}
+        </p>
+      </section>
+
+      <section className="mt-8 border-t border-border pt-6">
+        <h2 className="text-sm font-medium">{t('和其他方法的区别')}</h2>
+        <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+          {en ? spec.vsOtherMethods.en : spec.vsOtherMethods.zh}
+        </p>
+      </section>
+
       {/* 步骤 */}
       <section className="mt-8 border-t border-border pt-6">
         <h2 className="text-sm font-medium">{t('操作步骤')}</h2>

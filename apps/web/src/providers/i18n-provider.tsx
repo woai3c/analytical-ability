@@ -383,6 +383,9 @@ const english: Record<string, string> = {
   你需要准备: 'What you need',
   你会得到: 'What you get',
   完整示例: 'Full example',
+  什么时候用: 'When to use',
+  什么时候不用: 'When NOT to use',
+  和其他方法的区别: 'How it differs from similar methods',
   使用边界与常见误区: 'Boundaries & common pitfalls',
   '想在真实场景中练习这个方法？': 'Want to practice this method in a real scenario?',
   '去场景训练中遇到需要用到这个方法的问题，在实践中加深理解。':

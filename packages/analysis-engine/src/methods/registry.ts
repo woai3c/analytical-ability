@@ -12,6 +12,12 @@ export interface MethodSpec {
   taskTypes: TaskType[]
   /** 方法的完整介绍：起源、核心思想、适用场景。 */
   introduction: LocalizedText
+  /** 什么时候该用这个方法——具体的触发信号。 */
+  whenToUse: LocalizedText
+  /** 什么时候不该用——常见的误用场景。 */
+  whenNotToUse: LocalizedText
+  /** 与易混淆方法的对比：关键区别在哪。 */
+  vsOtherMethods: LocalizedText
   /** 运行该方法前必须先补齐的条件（也是动态问题的生成依据）。 */
   requiredInputs: LocalizedText[]
   /** 具体的操作步骤说明。 */
@@ -35,6 +41,18 @@ export const methodRegistry: readonly MethodSpec[] = [
     introduction: {
       zh: '鱼骨图（又称石川图、因果图）由日本质量管理专家石川馨于 1960 年代提出。核心思想是：面对一个问题时，不要急着猜答案，而是先按「人、机、料、法、环、测」等类别系统地展开所有可能的原因。它的价值在于防止遗漏——团队往往只关注最显眼的原因，鱼骨图强制你扫描每个类别。适合问题刚出现、原因不明确、需要头脑风暴列出候选原因的阶段。',
       en: "The fishbone diagram (also called Ishikawa or cause-and-effect diagram) was developed by Kaoru Ishikawa in the 1960s. The core idea: when facing a problem, don't jump to conclusions—systematically list all possible causes organized by categories such as People, Machine, Material, Method, Environment, and Measurement. Its value lies in preventing blind spots: teams tend to fixate on the most obvious cause, and the fishbone forces you to scan every category. Best used when a problem has just surfaced, root causes are unclear, and you need structured brainstorming.",
+    },
+    whenToUse: {
+      zh: '问题刚出现，你还不确定原因在哪个方向；需要带团队一起发散思考；担心遗漏了某类原因。触发信号："我们只是在猜"、"每个人说的原因都不一样"、"上次修了没用，可能不是那个原因"。',
+      en: 'A problem just appeared and you\'re unsure which direction the cause lies; you need the team to brainstorm broadly; you worry about blind spots. Trigger signals: "we\'re just guessing," "everyone has a different theory," "last fix didn\'t work—maybe wrong root cause."',
+    },
+    whenNotToUse: {
+      zh: '原因已经很明确（比如日志直接报了错误行），不需要发散。或者问题太笼统还没定义清楚——先定义问题再画鱼骨。问题有 20+ 个变量互相缠绕时，鱼骨图的树状结构不够用，考虑因果图。',
+      en: 'The cause is already clear (e.g., logs show the exact error line)—no need to brainstorm. Or the problem is too vague to define—define it first. When 20+ variables are intertwined, the tree structure is insufficient—consider a causal graph instead.',
+    },
+    vsOtherMethods: {
+      zh: '鱼骨图 vs 5 Why：鱼骨是"广度优先"（列出所有可能方向），5 Why 是"深度优先"（沿一条线追到底）。通常先鱼骨找到 3-5 个候选方向，再对最可疑的那条用 5 Why 深挖。\n鱼骨图 vs 因果图：鱼骨是单向的（原因→问题），因果图允许变量之间互相影响和环路。',
+      en: 'Fishbone vs 5 Whys: Fishbone is "breadth-first" (list all possible directions), 5 Whys is "depth-first" (drill one chain to the bottom). Typically use fishbone first to find 3-5 candidates, then 5 Whys on the most suspicious one.\nFishbone vs Causal graph: Fishbone is one-directional (causes→problem); causal graphs allow mutual influence and loops between variables.',
     },
     requiredInputs: [
       { zh: '要解释的异常或问题是什么', en: 'The problem or anomaly to explain' },
@@ -89,6 +107,18 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '5 Why 由丰田生产系统创始人大野耐一推广，是精益管理的基础工具。核心逻辑：对一个问题反复问"为什么"（通常 5 次左右），穿透表面现象直达根因。它的前提是你已经锁定了一条可能的因果链（如鱼骨图筛选后的重点），需要深挖到可以直接行动的层面。注意：不是机械地问 5 次，而是每一层都用事实验证，问到"我可以对这个原因采取行动"为止。',
       en: 'The 5 Whys was popularized by Taiichi Ohno, father of the Toyota Production System. Core logic: repeatedly ask "why?" (typically around 5 times) to penetrate surface symptoms and reach the root cause. Prerequisite: you\'ve already identified a likely causal chain (e.g., from a fishbone analysis) and need to drill down to an actionable level. Note: it\'s not about mechanically asking 5 times—each layer must be fact-checked, and you stop when you reach a cause you can directly act on.',
     },
+    whenToUse: {
+      zh: '你已经有一个明确的嫌疑方向（比如鱼骨图筛出来的），但停在表面层——需要深挖到"我明天能做什么来解决它"的层面。触发信号："原因我知道，但感觉还不够深"、"修了表面问题但反复出现"。',
+      en: 'You already have a suspected direction (e.g., from a fishbone) but are stuck at a surface level—need to drill to "what can I do tomorrow to fix this." Trigger signals: "I know the cause, but it feels too shallow," "fixed the surface issue but it keeps recurring."',
+    },
+    whenNotToUse: {
+      zh: '你还没锁定方向（原因可能在多个完全不同的类别）——先用鱼骨图发散。或者问题涉及多个变量互相纠缠——5 Why 只能追一条线性链，处理不了网状因果。',
+      en: "You haven't locked onto a direction yet (causes might be in multiple unrelated categories)—use fishbone first. Or the problem involves multiple intertwined variables—5 Whys only handles one linear chain, not a causal web.",
+    },
+    vsOtherMethods: {
+      zh: '5 Why vs 鱼骨图：鱼骨是发散（"有哪些可能原因？"），5 Why 是收敛（"沿这条线，根因到底是什么？"）。两者是前后搭配关系。\n5 Why vs 因果图：5 Why 假设因果链是线性的（A→B→C），因果图允许 A 和 B 互相影响、有共同原因等复杂结构。简单问题用 5 Why，复杂系统用因果图。',
+      en: '5 Whys vs Fishbone: Fishbone diverges ("what are all possible causes?"), 5 Whys converges ("down this line, what\'s the root?"). They\'re sequential partners.\n5 Whys vs Causal graph: 5 Whys assumes a linear chain (A→B→C); causal graphs allow mutual influence, common causes, and loops. Simple problems: 5 Whys. Complex systems: causal graph.',
+    },
     requiredInputs: [
       { zh: '一个具体的、可观察的问题现象', en: 'One concrete, observable symptom' },
       { zh: '问题发生时的现场事实或记录', en: 'First-hand facts or records from when the problem occurred' },
@@ -136,6 +166,18 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: 'KJ 法由日本人类学家川喜田二郎发明，用于从大量零散信息中发现结构。做法是把每条信息写成一张卡片，然后不预设分类地将相似卡片自然聚拢成组，再给每组命名。它特别适合：你有一堆原始材料（用户访谈、竞品评论、问题反馈）但还不知道该怎么组织时。KJ 法的关键是"先分组后命名"——避免用预设框架强行塞信息。',
       en: 'The KJ method was invented by Japanese anthropologist Jiro Kawakita to find structure in large amounts of scattered information. Write each piece of information on a card, then naturally group similar cards without predefined categories, and finally name each group. Best used when you have raw materials (user interviews, reviews, feedback) but don\'t yet know how to organize them. The key principle is "group first, name later" — avoid forcing information into predefined frameworks.',
     },
+    whenToUse: {
+      zh: '你面前有大量碎片信息（20+ 条笔记、评论、反馈），但还没有分类框架。触发信号："信息太多不知道从哪看起"、"每条都有道理但看不出规律"、"老板问总结我不知道怎么归纳"。',
+      en: 'You have a pile of fragmented information (20+ notes, comments, feedback) with no classification framework yet. Trigger signals: "too much info, don\'t know where to start," "each piece makes sense but I can\'t see a pattern," "boss asked for a summary and I don\'t know how to group this."',
+    },
+    whenNotToUse: {
+      zh: '你已经有明确的分类框架（比如按部门、按时间线），直接用那个框架就好。或者信息量太少（< 10 条），用不着 KJ 法，直接读一遍就能看出规律。',
+      en: "You already have a clear framework (e.g., by department, by timeline)—just use it directly. Or the amount of information is too small (< 10 items)—just read through and you'll spot patterns without KJ.",
+    },
+    vsOtherMethods: {
+      zh: 'KJ 法 vs 鱼骨图：鱼骨图是"已知问题，找原因"（有方向性），KJ 法是"不知道问题是什么，先从材料中发现结构"（无预设方向）。\nKJ 法 vs ABC 分析：KJ 法归纳"是什么"（定性分组），ABC 分析回答"哪个重要"（定量排序）。通常先 KJ 分出类别，再 ABC 对类别排优先级。',
+      en: 'KJ vs Fishbone: Fishbone is "known problem, find causes" (directional); KJ is "don\'t know what the problem is, discover structure from raw material" (no predefined direction).\nKJ vs ABC: KJ answers "what are the categories" (qualitative grouping); ABC answers "which matters most" (quantitative ranking). Often use KJ first to find categories, then ABC to prioritize them.',
+    },
     requiredInputs: [
       { zh: '一批原始材料（每条一句话左右的笔记或摘录）', en: 'A batch of raw notes or excerpts, one idea per card' },
     ],
@@ -181,6 +223,18 @@ export const methodRegistry: readonly MethodSpec[] = [
     introduction: {
       zh: 'ABC 分析基于帕累托原则（80/20 法则）：少数项目往往贡献了大部分价值。做法是按某个统一指标（收入、频次、成本）对所有项目排序，计算累计占比，把前 70-80% 标为 A 类（重点管理）、接下来 15-20% 为 B 类、最后为 C 类。适合你面对一长串项目不知道先做哪个时，快速找出"关键少数"。注意：80/20 只是经验规则，不是自然法则。',
       en: 'ABC analysis is based on the Pareto principle (80/20 rule): a few items often contribute most of the value. Rank all items by a single metric (revenue, frequency, cost), compute cumulative share, and label the top 70-80% as A (manage closely), next 15-20% as B, rest as C. Use it when facing a long list and you need to identify the "vital few" quickly. Note: 80/20 is a heuristic, not a law of nature.',
+    },
+    whenToUse: {
+      zh: '你有一长串项目/任务/客户/产品，资源有限，需要决定"先搞哪些"。触发信号："什么都想做但做不完"、"客户那么多该重点服务谁"、"库存品类太多管不过来"。',
+      en: 'You have a long list of items/tasks/customers/products, limited resources, and need to decide "which first." Trigger signals: "want to do everything but can\'t," "too many customers—who gets priority," "too many SKUs to manage."',
+    },
+    whenNotToUse: {
+      zh: '你的项目之间有强依赖关系（A 做完才能做 B），单纯按价值排序没意义——需要 PERT 排期。或者"价值"没法用一个统一维度衡量——需要 MCDA 多准则。',
+      en: 'Items have strong dependencies (A must finish before B)—simple value ranking is meaningless, use PERT. Or "value" can\'t be measured on a single dimension—use MCDA for multi-criteria.',
+    },
+    vsOtherMethods: {
+      zh: 'ABC vs MCDA：ABC 只按一个维度排序（收入 or 频次 or 成本），够用就用 ABC，够简单。MCDA 是多个冲突维度（便宜 vs 质量 vs 速度）需要综合权衡时才用。\nABC vs KJ：KJ 回答"这些东西怎么分类"，ABC 回答"分好类后哪类最重要"。',
+      en: 'ABC vs MCDA: ABC ranks by one dimension (revenue OR frequency OR cost)—if one metric suffices, use ABC for simplicity. MCDA is for multiple conflicting dimensions (cheap vs quality vs speed) that need weighted trade-offs.\nABC vs KJ: KJ answers "how to categorize these," ABC answers "after categorizing, which category matters most."',
     },
     requiredInputs: [
       { zh: '一组可比较的项目清单', en: 'A comparable list of items' },
@@ -228,6 +282,18 @@ export const methodRegistry: readonly MethodSpec[] = [
     introduction: {
       zh: '因果图（DAG，有向无环图）是把"我认为 A 会影响 B"这种假设显式画出来的工具。当你观察到两个变量相关时，可能是 A→B、B→A、或者有个共同原因 C 同时影响了它们。因果图强迫你把每条假设的方向画清楚，从而暴露混杂变量和虚假相关。适合你需要区分"相关"和"因果"的场景。',
       en: 'A causal graph (DAG, Directed Acyclic Graph) makes your assumptions about cause-and-effect explicit. When two variables are correlated, it could be A→B, B→A, or a common cause C affecting both. Causal graphs force you to draw each assumed direction clearly, exposing confounders and spurious correlations. Use it when you need to distinguish "correlation" from "causation".',
+    },
+    whenToUse: {
+      zh: '你观察到两件事总是一起出现，想搞清楚"是 A 导致 B，还是巧合"。或者有人拿相关性当因果在做决策（"培训多的员工绩效好，所以加培训预算"）。触发信号："相关不等于因果"、"可能有第三个变量在背后"、"这个结论怎么这么方便"。',
+      en: 'You observe two things always co-occurring and want to know "does A cause B, or is it coincidence?" Or someone is treating correlation as causation in a decision. Trigger signals: "correlation ≠ causation," "maybe a third variable lurks behind," "this conclusion is suspiciously convenient."',
+    },
+    whenNotToUse: {
+      zh: '因果方向已经很明确（物理机制清楚，如"加热→水沸腾"），不需要画图来分辨。或者你还没收集到足够数据判断哪些变量相关——先收数据。',
+      en: 'Causal direction is already clear (physical mechanism obvious, e.g., "heat→water boils")—no need to diagram. Or you haven\'t collected enough data to know which variables correlate—gather data first.',
+    },
+    vsOtherMethods: {
+      zh: '因果图 vs 鱼骨图：鱼骨图是"一个问题有哪些可能原因"（单向树），因果图是"多个变量之间的因果网络是什么样"（可以有多个结果、互相影响）。鱼骨图用于头脑风暴阶段，因果图用于验证假设阶段。\n因果图 vs 5 Why：5 Why 是线性追问，因果图允许分叉、合流、混杂。',
+      en: 'Causal graph vs Fishbone: Fishbone is "what could cause this one problem" (one-directional tree); causal graph is "what does the full causal network among variables look like" (multiple outcomes, mutual influence). Fishbone for brainstorming, causal graph for hypothesis testing.\nCausal graph vs 5 Whys: 5 Whys is linear; causal graph allows branching, merging, confounding.',
     },
     requiredInputs: [
       {
@@ -284,6 +350,18 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: 'MCDA 解决的是"鱼和熊掌不可兼得"的问题：当你有多个评价标准且它们互相冲突时（便宜 vs 质量高 vs 交付快），如何系统地比较方案？做法是给每个标准赋权重、给每个方案在每个标准上打分、计算加权总分。关键不是追求"唯一正确答案"，而是让决策过程透明可审视：别人能看到你为什么选了这个，权重调一调结论会不会翻转。',
       en: 'MCDA addresses "you can\'t have it all": when you have multiple conflicting criteria (cheap vs high quality vs fast delivery), how do you systematically compare options? Assign weights to each criterion, score each option on each criterion, compute weighted totals. The goal isn\'t finding "the one right answer" but making the decision process transparent and auditable: others can see why you chose this, and whether tweaking weights flips the conclusion.',
     },
+    whenToUse: {
+      zh: '你有 2-5 个现实方案且各有优劣（没有一个全面碾压其他的），需要说服别人（或说服自己）选哪个。触发信号："A 便宜但功能少，B 贵但好，怎么选"、"每个人偏好不同，需要一个透明的比较框架"。',
+      en: 'You have 2-5 realistic options, each with trade-offs (none dominates all others), and need to justify the choice to others or yourself. Trigger signals: "A is cheap but limited, B is expensive but good—how to choose," "everyone has different preferences, need a transparent framework."',
+    },
+    whenNotToUse: {
+      zh: '只有一个维度在乎（比如只看价格）——直接排序就好，不需要 MCDA。或者某个方案在所有维度都最优——不需要分析，直接选。方案数量超过 10 个时先用 ABC 分析缩小到 3-5 个再做 MCDA。',
+      en: 'Only one dimension matters (e.g., just price)—sort directly, no MCDA needed. Or one option dominates on all dimensions—just pick it. If you have 10+ options, first use ABC to narrow to 3-5, then MCDA.',
+    },
+    vsOtherMethods: {
+      zh: 'MCDA vs ABC：ABC 是单维度排序，MCDA 是多维度权衡。如果只在乎一个指标就用 ABC，多个冲突指标才用 MCDA。\nMCDA vs FMEA：MCDA 比较"哪个方案更好"，FMEA 检查"选定方案可能怎么出错"。通常先 MCDA 选方案，再 FMEA 做风险检查。\nMCDA vs 价值分析：MCDA 比较并选择方案，价值分析审查已有支出是否值得。',
+      en: 'MCDA vs ABC: ABC is single-dimension ranking; MCDA is multi-dimension trade-off. One metric → ABC; conflicting metrics → MCDA.\nMCDA vs FMEA: MCDA compares "which option is better"; FMEA checks "how might the chosen option fail." Typically MCDA first to select, then FMEA for risk check.\nMCDA vs Value analysis: MCDA selects among options; value analysis audits whether existing spending is worthwhile.',
+    },
     requiredInputs: [
       { zh: '至少两个现实可行的候选方案（含"维持现状"）', en: 'At least two feasible options, including "do nothing"' },
       { zh: '不能突破的硬约束', en: 'Hard constraints that must not be violated' },
@@ -331,6 +409,18 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '价值分析的核心问题是"这个功能值得花这么多钱吗？"。它要求你把每个功能/支出拆开看：这个东西为目标贡献了什么？成本是多少？有没有更便宜的方式达到同样效果？适合你感觉"钱花了不少但效果不明显"的时候做一次体检式审视。',
       en: 'Value analysis asks: "Is this function worth what it costs?" Break each function/expense apart: What does it contribute to the goal? What does it cost? Is there a cheaper way to achieve the same effect? Use it when you feel "spending a lot but results are unclear" — it\'s like a financial health check.',
     },
+    whenToUse: {
+      zh: '你在做"缩减预算"或"优化支出"类决策：手上有一堆在付费的东西/功能/流程，不确定哪些该砍。触发信号："预算超了需要砍"、"这个工具/功能真的有用吗"、"我在为什么不用的东西付费"。',
+      en: 'You\'re making "cut budget" or "optimize spending" decisions: you have multiple things you\'re paying for and aren\'t sure which to cut. Trigger signals: "over budget, need to cut," "is this tool/feature actually useful," "why am I paying for things I don\'t use."',
+    },
+    whenNotToUse: {
+      zh: '你在比较新方案该选哪个（还没选定）——那是 MCDA 的场景。或者问题不是"花太多"而是"效果不好"——那可能需要 DMAIC 改进流程。',
+      en: 'You\'re comparing new options you haven\'t chosen yet—that\'s MCDA. Or the problem isn\'t "spending too much" but "not getting results"—that might need DMAIC to fix the process.',
+    },
+    vsOtherMethods: {
+      zh: '价值分析 vs MCDA：价值分析审查"已有的东西值不值"，MCDA 比较"新方案选哪个"。一个向后看（优化现状），一个向前看（选择未来）。\n价值分析 vs ABC：ABC 找出"哪些贡献大"，价值分析找出"哪些成本高但贡献小"。ABC 是正向筛选（重点关注什么），价值分析是逆向筛选（砍什么）。',
+      en: 'Value analysis vs MCDA: Value analysis audits "is what we have worth it"; MCDA compares "which new option to pick." One looks backward (optimize current state), the other forward (choose the future).\nValue analysis vs ABC: ABC finds "what contributes most"; value analysis finds "what costs a lot but contributes little." ABC is positive selection (focus on what); value analysis is negative selection (cut what).',
+    },
     requiredInputs: [
       { zh: '要评估的功能或支出清单', en: 'The list of functions or expenses to evaluate' },
       { zh: '每项的大致成本', en: 'Rough cost per item' },
@@ -375,6 +465,18 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: 'FMEA（失效模式与效果分析）是一种"事前验尸"工具：在方案执行前，系统性地想象"哪里可能出错"，然后对每种失效按严重度（S）、发生概率（O）、可探测度（D）三个维度打分，乘积为 RPN（风险优先数）。RPN 最高的先处理。它的价值在于把"可能出问题"从模糊焦虑变成可排序的待办。',
       en: 'FMEA (Failure Mode and Effects Analysis) is a "pre-mortem" tool: before execution, systematically imagine "what could go wrong," then score each failure mode on Severity (S), Occurrence (O), and Detection (D). The product is RPN (Risk Priority Number). Handle highest RPN first. Its value: turning vague worry about "things might go wrong" into a sorted, actionable list.',
     },
+    whenToUse: {
+      zh: '你已经选定了一个方案，准备执行——但想提前知道哪里最可能翻车。触发信号："这个方案风险大不大"、"万一出问题怎么办"、"上线前我们该检查什么"。不是在"选方案"而是在"给已选方案做体检"。',
+      en: 'You\'ve already chosen a plan and are about to execute—but want to know where it might derail. Trigger signals: "how risky is this plan," "what if something goes wrong," "what should we check before launch." Not choosing between options, but stress-testing the chosen one.',
+    },
+    whenNotToUse: {
+      zh: '你还在比较多个方案该选哪个——那是 MCDA 的事。FMEA 假设方案已定，只做风险检查。或者问题已经发生了（不是"可能出错"而是"已经出错了"）——用鱼骨/5 Why 诊断。',
+      en: 'You\'re still comparing options—that\'s MCDA. FMEA assumes the plan is set and only does risk checking. Or the problem already happened (not "might fail" but "already failed")—use fishbone/5 Whys to diagnose.',
+    },
+    vsOtherMethods: {
+      zh: 'FMEA vs MCDA：MCDA 是"选哪个方案"，FMEA 是"选完之后检查风险"。顺序：先 MCDA 选方案 → 再 FMEA 找风险。\nFMEA vs PDSA：FMEA 是执行前的风险扫描（纸上推演），PDSA 是执行中的小试验（实际跑一遍）。FMEA 找出你该担心什么，PDSA 用实验验证那些担心是否成立。',
+      en: 'FMEA vs MCDA: MCDA selects the plan; FMEA risk-checks it afterward. Sequence: MCDA to choose → FMEA to stress-test.\nFMEA vs PDSA: FMEA is pre-execution risk scanning (paper exercise); PDSA is mid-execution experimentation (actually run it). FMEA identifies what to worry about; PDSA tests whether those worries materialize.',
+    },
     requiredInputs: [
       { zh: '要检查的方案或计划', en: 'The plan or option to stress-test' },
       { zh: '什么后果算不可接受', en: 'What consequences are unacceptable' },
@@ -415,6 +517,18 @@ export const methodRegistry: readonly MethodSpec[] = [
     introduction: {
       zh: 'DMAIC 是六西格玛的核心方法论，专门用于改进已存在但表现不佳的流程。五个阶段：Define（定义问题）→ Measure（测量现状）→ Analyze（分析根因）→ Improve（实施改进）→ Control（固化成果）。适合你有一个"一直在跑但跑得不好"的流程，需要系统性提升而非推倒重来。',
       en: 'DMAIC is the core Six Sigma methodology for improving existing but underperforming processes. Five phases: Define → Measure → Analyze → Improve → Control. Use it when you have a process that "keeps running but runs poorly" and needs systematic improvement rather than a complete redesign.',
+    },
+    whenToUse: {
+      zh: '有一个已在运行的流程/系统/服务，性能指标不达标，需要从"现状"提升到"目标"。触发信号："这个流程太慢了"、"错误率太高"、"客户一直在投诉同一个问题"、"我们知道有问题但不知道根因是什么"。',
+      en: 'An existing process/system/service is running but performance metrics are below target, and you need to go from "current state" to "target state." Trigger signals: "this process is too slow," "error rate is too high," "customers keep complaining about the same thing," "we know there\'s a problem but not the root cause."',
+    },
+    whenNotToUse: {
+      zh: '流程还不存在（需要从零设计）——那是 PERT 排期的事。或者问题很小、原因很明确——直接用 PDSA 试一轮就行，不需要完整五阶段。DMAIC 适合中到大型改进项目。',
+      en: "The process doesn't exist yet (needs to be designed from scratch)—that's PERT's job. Or the problem is small and the cause is obvious—just run a PDSA cycle, no need for the full five phases. DMAIC suits medium-to-large improvement projects.",
+    },
+    vsOtherMethods: {
+      zh: 'DMAIC vs PDSA：DMAIC 是完整的改进项目框架（几周到几个月），PDSA 是单次小试验（几天）。DMAIC 的 Improve 阶段内部可以嵌套多轮 PDSA。问题大用 DMAIC 框架，问题小直接 PDSA。\nDMAIC vs 鱼骨/5 Why：鱼骨和 5 Why 是 DMAIC 第三阶段（Analyze）的具体工具。DMAIC 是整个项目的框架，鱼骨/5 Why 是框架里某一步用的工具。',
+      en: "DMAIC vs PDSA: DMAIC is a full improvement project framework (weeks to months); PDSA is a single small experiment (days). DMAIC's Improve phase can embed multiple PDSA cycles. Big problem → DMAIC framework; small problem → straight to PDSA.\nDMAIC vs Fishbone/5 Whys: Fishbone and 5 Whys are tools used inside DMAIC's third phase (Analyze). DMAIC is the project framework; fishbone/5 Whys are specific tools within one step.",
     },
     requiredInputs: [
       { zh: '一个已存在、可测量的流程', en: 'An existing, measurable process' },
@@ -463,6 +577,18 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: 'PDSA（Plan-Do-Study-Act）是最小的改进循环：先预测结果，再小范围试，把实际结果和预测比较，然后决定下一步。和 DMAIC 的区别是 PDSA 更轻量，适合"试一试看看行不行"的场景。关键纪律：必须先写下预测（"我认为这样做会让 X 指标提高 Y%"），否则事后怎么说都对。',
       en: 'PDSA (Plan-Do-Study-Act) is the smallest improvement cycle: predict the result, test small, compare actual vs predicted, then decide next step. Unlike DMAIC, PDSA is lightweight — suited for "let\'s try and see." Key discipline: you must write down your prediction first ("I believe this will improve X by Y%"), otherwise hindsight bias makes everything seem obvious.',
     },
+    whenToUse: {
+      zh: '你有一个想法/改动，不确定会不会有效，想低成本验证。触发信号："试试看呗"、"我觉得这样会好，但没把握"、"先小范围跑一下"。重点：改动范围可控、可以随时停止、有明确的衡量指标。',
+      en: 'You have an idea/change, unsure if it\'ll work, and want to validate cheaply. Trigger signals: "let\'s just try it," "I think this would help but I\'m not sure," "let\'s pilot it first." Key: the change is controllable, stoppable, and has a clear metric to measure.',
+    },
+    whenNotToUse: {
+      zh: '改动不可逆（比如裁员、签长期合同）——不能"试试看"。或者问题很大很复杂，需要先诊断清楚根因——先用 DMAIC 的 Define/Measure/Analyze 阶段。PDSA 假设你已经有了假设，只是要验证。',
+      en: 'The change is irreversible (e.g., layoffs, long-term contracts)—can\'t "just try." Or the problem is large and complex, needing diagnosis first—use DMAIC\'s Define/Measure/Analyze phases. PDSA assumes you already have a hypothesis to test.',
+    },
+    vsOtherMethods: {
+      zh: 'PDSA vs DMAIC：PDSA 是一次迭代（几天），DMAIC 是完整改进项目（几周~几个月）。小问题直接 PDSA；大问题用 DMAIC 框架，其中 Improve 阶段嵌套 PDSA。\nPDSA vs 概率预测：两者都强调"先写预测再验证"，但 PDSA 验证的是"行动有没有效"，概率预测验证的是"事件会不会发生"。一个是干预实验，一个是观察判断。',
+      en: 'PDSA vs DMAIC: PDSA is one iteration (days); DMAIC is a full improvement project (weeks to months). Small problem → PDSA directly; big problem → DMAIC with PDSA nested in Improve phase.\nPDSA vs Probabilistic forecast: Both emphasize "predict first, then verify," but PDSA validates "does this action work" while forecasting validates "will this event happen." One is an intervention experiment; the other is observational judgment.',
+    },
     requiredInputs: [
       { zh: '一个想要验证的改动假设', en: 'A change hypothesis to validate' },
       { zh: '可以小范围试验且可停止的范围', en: 'A small, stoppable test scope' },
@@ -510,6 +636,18 @@ export const methodRegistry: readonly MethodSpec[] = [
     introduction: {
       zh: '概率预测是"用数字表达不确定性"的方法。不说"可能涨价"，而说"我认为 70% 概率三个月内涨价"。然后事后回顾：你说 70% 的事情里，真的有 70% 发生了吗？如果你说 70% 的事情 90% 都发生了，说明你太保守。这个校准过程会逐渐提升你对不确定性的判断能力。起点是基准率：类似的事以前多大比例发生过？',
       en: 'Probabilistic forecasting means "expressing uncertainty with numbers." Don\'t say "might increase" — say "I believe there\'s a 70% chance of a price increase within 3 months." Then review: of things you said were 70%, did 70% actually happen? If 90% happened, you were underconfident. This calibration process gradually improves your judgment under uncertainty. Start with base rates: how often did similar things happen before?',
+    },
+    whenToUse: {
+      zh: '你需要对未来做判断，而且这个判断会影响决策（是否囤货、是否提前招人、是否投入研发）。触发信号："竞品会不会降价"、"这个项目能按时交付吗"、"市场会不会变差"——所有关于未来的"会不会"问题。',
+      en: 'You need to judge the future and that judgment will affect decisions (stockpile or not, hire early or not, invest in R&D or not). Trigger signals: "will competitors cut prices," "will this project deliver on time," "will the market decline"—all "will it or won\'t it" questions about the future.',
+    },
+    whenNotToUse: {
+      zh: '问题是关于过去或现在的（"为什么出了问题"）——那是诊断类方法（鱼骨/5 Why）。或者结果完全在你控制之内（"我的代码能跑通吗"——跑一遍就知道了，不需要预测）。',
+      en: 'The question is about the past or present ("why did this fail")—use diagnostic methods (fishbone/5 Whys). Or the outcome is entirely within your control ("will my code run?"—just run it, no prediction needed).',
+    },
+    vsOtherMethods: {
+      zh: '概率预测 vs FMEA：FMEA 问"我的计划可能怎么失败"（关于你能控制的事），概率预测问"外部环境会怎么变"（关于你不能控制的事）。一个是风险管理，一个是不确定性判断。\n概率预测 vs PDSA：PDSA 是"做实验验证假设"，概率预测是"观察并等待结果"。你能干预的用 PDSA，只能观察的用概率预测。',
+      en: 'Forecast vs FMEA: FMEA asks "how might my plan fail" (things you control); forecast asks "how will the environment change" (things you can\'t control). One is risk management, the other is uncertainty judgment.\nForecast vs PDSA: PDSA is "run an experiment to test a hypothesis"; forecast is "observe and wait for the outcome." If you can intervene → PDSA; if you can only observe → forecast.',
     },
     requiredInputs: [
       { zh: '一句可验证、有截止时间的预测陈述', en: 'A verifiable prediction statement with a deadline' },
@@ -562,6 +700,18 @@ export const methodRegistry: readonly MethodSpec[] = [
     introduction: {
       zh: 'PERT（计划评审技术）和 CPM（关键路径法）是项目排期工具。核心思想：把一个大目标拆成多个任务，标明谁依赖谁（B 必须在 A 做完后才能开始），然后找出最长的那条依赖链——这就是"关键路径"，它决定了项目最短工期。不在关键路径上的任务有"浮动时间"，可以延迟而不影响整体。适合你需要排期但不确定"到底要多久"的场景。',
       en: 'PERT (Program Evaluation and Review Technique) and CPM (Critical Path Method) are project scheduling tools. Core idea: break a big goal into tasks, mark dependencies (B can\'t start until A finishes), then find the longest dependency chain — the "critical path" — which determines minimum project duration. Tasks not on the critical path have "float" — they can be delayed without affecting the whole. Use when you need to schedule but aren\'t sure "how long will this really take."',
+    },
+    whenToUse: {
+      zh: '你有一个大目标要在限定时间内完成，涉及多个并行/串行的子任务。触发信号："这个项目到底要多久"、"哪些事情可以同时做"、"如果 X 延迟了会影响什么"、"deadline 能不能赶上"。',
+      en: 'You have a big goal to complete within a deadline, involving multiple parallel/serial subtasks. Trigger signals: "how long will this project really take," "what can be done in parallel," "if X is delayed, what else is affected," "can we meet the deadline."',
+    },
+    whenNotToUse: {
+      zh: '任务之间没有依赖关系（都是独立的）——直接用 ABC 排优先级就行。或者范围还没确定（"做什么"还没定清楚）——先定义范围再排期。',
+      en: 'Tasks have no dependencies (all independent)—just use ABC to prioritize. Or scope isn\'t defined yet ("what to build" is unclear)—define scope before scheduling.',
+    },
+    vsOtherMethods: {
+      zh: 'PERT vs ABC：ABC 回答"先做哪个"（优先级），PERT 回答"什么时候做什么"（时间线）。没有依赖关系时用 ABC 排序就够，有依赖关系时必须用 PERT 画出网络。\nPERT vs DMAIC：DMAIC 改进已有流程，PERT 规划新项目的执行顺序。一个是"怎么做得更好"，一个是"怎么排得更准"。',
+      en: 'PERT vs ABC: ABC answers "which first" (priority); PERT answers "when to do what" (timeline). No dependencies → ABC is enough; with dependencies → PERT network required.\nPERT vs DMAIC: DMAIC improves existing processes; PERT schedules new project execution. One is "how to do better," the other is "how to schedule accurately."',
     },
     requiredInputs: [
       { zh: '最终要交付的成果', en: 'The final deliverable' },
