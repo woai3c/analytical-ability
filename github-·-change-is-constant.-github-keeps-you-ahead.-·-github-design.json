@@ -1,0 +1,175 @@
+{
+  "color": {
+    "text": {
+      "$type": "color",
+      "$value": "#ffffff",
+      "$description": "Frequency rank #1 (1842 occurrences); token importance textCandidate: repeated text-role usage (1842 hits)"
+    },
+    "text-2": {
+      "$type": "color",
+      "$value": "#000000",
+      "$description": "Frequency rank #2 (357 occurrences); token importance textCandidate: repeated text-role usage (357 hits)"
+    },
+    "text-3": {
+      "$type": "color",
+      "$value": "#8dd6ff",
+      "$description": "Frequency rank #3 (262 occurrences); token importance textCandidate: repeated text-role usage (262 hits)"
+    },
+    "text-4": {
+      "$type": "color",
+      "$value": "#a4aea6",
+      "$description": "Frequency rank #4 (194 occurrences); token importance textCandidate: repeated text-role usage (194 hits)"
+    },
+    "text-5": {
+      "$type": "color",
+      "$value": "#58635b",
+      "$description": "Frequency rank #5 (148 occurrences); token importance textCandidate: repeated text-role usage (148 hits)"
+    },
+    "text-6": {
+      "$type": "color",
+      "$value": "#f0f6fc",
+      "$description": "Frequency rank #6 (71 occurrences); token importance textCandidate: repeated text-role usage (71 hits)"
+    },
+    "text-7": {
+      "$type": "color",
+      "$value": "#1f2328",
+      "$description": "Frequency rank #7 (9 occurrences); token importance textCandidate: repeated text-role usage (9 hits)"
+    },
+    "text-8": {
+      "$type": "color",
+      "$value": "#59636e",
+      "$description": "Frequency rank #8 (6 occurrences); token importance textCandidate: repeated text-role usage (6 hits)"
+    },
+    "color-9": {
+      "$type": "color",
+      "$value": "#24292f",
+      "$description": "Frequency rank #9 (6 occurrences)"
+    },
+    "local-accent": {
+      "$type": "color",
+      "$value": "#191f1b",
+      "$description": "Frequency rank #10 (6 occurrences); token importance localAccent: localized usage with limited global footprint"
+    }
+  },
+  "typography": {
+    "type-1": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Mona Sans",
+        "fontSize": "16px",
+        "fontWeight": 400,
+        "lineHeight": "24px",
+        "letterSpacing": "normal"
+      },
+      "$description": "Frequency rank #1"
+    },
+    "type-2": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Mona Sans",
+        "fontSize": "16px",
+        "fontWeight": 500,
+        "lineHeight": "24px",
+        "letterSpacing": "normal"
+      },
+      "$description": "Frequency rank #2"
+    },
+    "type-3": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Mona Sans",
+        "fontSize": "14px",
+        "fontWeight": 400,
+        "lineHeight": "21px",
+        "letterSpacing": "normal"
+      },
+      "$description": "Frequency rank #3"
+    },
+    "type-4": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Mona Sans",
+        "fontSize": "18px",
+        "fontWeight": 400,
+        "lineHeight": "27px",
+        "letterSpacing": "0.18px"
+      },
+      "$description": "Frequency rank #4"
+    },
+    "type-5": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Mona Sans",
+        "fontSize": "14px",
+        "fontWeight": 500,
+        "lineHeight": "21px",
+        "letterSpacing": "0.21px"
+      },
+      "$description": "Frequency rank #5"
+    }
+  },
+  "spacing": {
+    "space-1": {
+      "$type": "dimension",
+      "$value": "4px"
+    },
+    "space-2": {
+      "$type": "dimension",
+      "$value": "8px"
+    },
+    "space-3": {
+      "$type": "dimension",
+      "$value": "16px"
+    },
+    "space-4": {
+      "$type": "dimension",
+      "$value": "24px"
+    },
+    "space-5": {
+      "$type": "dimension",
+      "$value": "32px"
+    },
+    "space-6": {
+      "$type": "dimension",
+      "$value": "20px"
+    },
+    "space-7": {
+      "$type": "dimension",
+      "$value": "12px"
+    },
+    "space-8": {
+      "$type": "dimension",
+      "$value": "2.1px"
+    },
+    "space-9": {
+      "$type": "dimension",
+      "$value": "48px"
+    },
+    "space-10": {
+      "$type": "dimension",
+      "$value": "3px"
+    }
+  },
+  "borderRadius": {
+    "radius-1": {
+      "$type": "dimension",
+      "$value": "6px"
+    },
+    "radius-2": {
+      "$type": "dimension",
+      "$value": "60px"
+    },
+    "radius-3": {
+      "$type": "dimension",
+      "$value": "8px"
+    },
+    "radius-4": {
+      "$type": "dimension",
+      "$value": "24px"
+    },
+    "radius-5": {
+      "$type": "dimension",
+      "$value": "16px"
+    }
+  }
+}

@@ -86,7 +86,7 @@ export function MethodDetailPage() {
       {/* 示例 */}
       <section className="mt-8 border-t border-border pt-6">
         <h2 className="text-sm font-medium">{t('完整示例')}</h2>
-        <div className="mt-3 rounded-md border border-border bg-secondary px-4 py-3">
+        <div className="mt-3 rounded-lg border border-border bg-secondary px-4 py-3">
           <pre className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
             {en ? spec.exampleWalkthrough.en : spec.exampleWalkthrough.zh}
           </pre>
@@ -106,7 +106,7 @@ export function MethodDetailPage() {
         </p>
         <Link
           to={`/practice?method=${methodId}`}
-          className="mt-3 inline-block rounded-md border border-border bg-secondary px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          className="mt-3 inline-block rounded-lg border border-border bg-secondary px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
         >
           {t('开始练习')}
         </Link>

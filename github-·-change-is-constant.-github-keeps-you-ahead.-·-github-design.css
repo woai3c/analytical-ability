@@ -1,0 +1,66 @@
+:root {
+  /* Colors */
+  --color-text: #ffffff;
+  --color-text-2: #000000;
+  --color-text-3: #8dd6ff;
+  --color-text-4: #a4aea6;
+  --color-text-5: #58635b;
+  --color-text-6: #f0f6fc;
+  --color-text-7: #1f2328;
+  --color-text-8: #59636e;
+  --color-color-9: #24292f;
+  --color-local-accent: #191f1b;
+  --color-text: #ffffff;
+  --color-text-2: #000000;
+  --color-text-3: #8dd6ff;
+  --color-text-4: #a4aea6;
+  --color-text-5: #58635b;
+  --color-text-6: #f0f6fc;
+  --color-text-7: #1f2328;
+  --color-text-8: #59636e;
+  --color-color-9: #24292f;
+  --color-local-accent: #191f1b;
+
+  /* Typography */
+  --font-type-1-family: Mona Sans;
+  --font-type-1-size: 16px;
+  --font-type-1-weight: 400;
+  --font-type-1-line-height: 24px;
+  --font-type-2-family: Mona Sans;
+  --font-type-2-size: 16px;
+  --font-type-2-weight: 500;
+  --font-type-2-line-height: 24px;
+  --font-type-3-family: Mona Sans;
+  --font-type-3-size: 14px;
+  --font-type-3-weight: 400;
+  --font-type-3-line-height: 21px;
+  --font-type-4-family: Mona Sans;
+  --font-type-4-size: 18px;
+  --font-type-4-weight: 400;
+  --font-type-4-line-height: 27px;
+  --font-type-4-letter-spacing: 0.18px;
+  --font-type-5-family: Mona Sans;
+  --font-type-5-size: 14px;
+  --font-type-5-weight: 500;
+  --font-type-5-line-height: 21px;
+  --font-type-5-letter-spacing: 0.21px;
+
+  /* Spacing */
+  --spacing-space-1: 4px;
+  --spacing-space-2: 8px;
+  --spacing-space-3: 16px;
+  --spacing-space-4: 24px;
+  --spacing-space-5: 32px;
+  --spacing-space-6: 20px;
+  --spacing-space-7: 12px;
+  --spacing-space-8: 2.1px;
+  --spacing-space-9: 48px;
+  --spacing-space-10: 3px;
+
+  /* Border Radius */
+  --radius-radius-1: 6px;
+  --radius-radius-2: 60px;
+  --radius-radius-3: 8px;
+  --radius-radius-4: 24px;
+  --radius-radius-5: 16px;
+}

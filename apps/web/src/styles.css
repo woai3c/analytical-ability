@@ -25,14 +25,13 @@
   --color-ring: var(--ring);
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius);
-  --radius-lg: var(--radius);
-  --radius-xl: var(--radius-lg);
-  --text-eyebrow: 0.75rem;
-  --text-eyebrow--line-height: 1.25rem;
-  --text-eyebrow--letter-spacing: 0.02em;
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  /* GitHub typography scale: 14px body, 16px emphasis, 18px heading */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei',
-    sans-serif;
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji';
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 }
 
@@ -53,7 +52,8 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   font-size: 14px;
-  line-height: 1.5;
+  font-weight: 400;
+  line-height: 21px;
 }
 
 button,
@@ -69,10 +69,18 @@ button {
 
 button:disabled {
   cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* GitHub focus style: blue ring outline */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--ring) 25%, transparent);
+  background: color-mix(in srgb, var(--ring) 30%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

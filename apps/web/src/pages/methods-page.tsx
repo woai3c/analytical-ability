@@ -46,7 +46,7 @@ export function MethodsPage() {
         ))}
       </div>
 
-      <div className="mt-6 divide-y divide-border rounded-md border border-border">
+      <div className="mt-6 divide-y divide-border overflow-hidden rounded-lg border border-border">
         {filtered.map((method) => {
           const name = en ? method.name.en : method.name.zh
           const purpose = en ? method.purpose.en : method.purpose.zh

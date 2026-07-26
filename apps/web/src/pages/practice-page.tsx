@@ -165,7 +165,7 @@ export function PracticePage() {
             type="button"
             onClick={handleNewScenario}
             disabled={loading}
-            className="rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
+            className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
           >
             {t('换一个')}
           </button>
@@ -173,7 +173,7 @@ export function PracticePage() {
       </div>
 
       {error && (
-        <div className="mt-5 rounded-md border border-[var(--destructive)]/30 px-4 py-3 text-sm text-[var(--destructive)]">
+        <div className="mt-5 rounded-lg border border-[var(--destructive)]/30 px-4 py-3 text-sm text-[var(--destructive)]">
           {error}
         </div>
       )}
@@ -186,7 +186,7 @@ export function PracticePage() {
       ) : scenario ? (
         <div className="mt-6 space-y-6">
           {/* 场景描述 */}
-          <section className="rounded-md border border-border">
+          <section className="rounded-lg border border-border">
             <div className="border-b border-border px-4 py-3">
               <div className="flex items-baseline gap-2">
                 <h2 className="font-medium">{scenario.title}</h2>
@@ -218,7 +218,7 @@ export function PracticePage() {
                         type="button"
                         onClick={() => toggleMethod(method.id)}
                         className={cn(
-                          'rounded-md border px-3 py-2 text-left text-sm transition-colors',
+                          'rounded-lg border px-3 py-2 text-left text-sm transition-colors',
                           selected
                             ? 'border-foreground bg-foreground text-background'
                             : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
@@ -238,7 +238,7 @@ export function PracticePage() {
                   {t('为什么选这个方法？你打算怎么用它？（可选但强烈建议填写，帮助你理清思路）')}
                 </p>
                 <textarea
-                  className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:border-ring focus:outline-none"
+                  className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:border-ring focus:outline-none"
                   rows={4}
                   placeholder={t('例如：这个场景的核心问题是...所以我选择...因为...')}
                   value={reasoning}
@@ -251,7 +251,7 @@ export function PracticePage() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={selectedMethods.length === 0 || submitting}
-                  className="inline-flex items-center rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity disabled:opacity-50"
+                  className="inline-flex items-center rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity disabled:opacity-50"
                 >
                   {submitting && <Loader2 className="mr-1.5 size-3.5 animate-spin" />}
                   {t('提交答案')}
@@ -268,7 +268,7 @@ export function PracticePage() {
           <button
             type="button"
             onClick={handleNewScenario}
-            className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background"
+            className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background"
           >
             {t('开始训练')}
           </button>
@@ -293,7 +293,7 @@ function FeedbackPanel({
 }) {
   return (
     <div className="space-y-5">
-      <section className="rounded-md border border-border">
+      <section className="rounded-lg border border-border">
         <div className="flex items-center gap-3 border-b border-border px-4 py-3">
           <span className="font-medium">{t(feedback.correct ? '判断正确' : '需要调整')}</span>
           <span className="rounded-full bg-secondary px-2 py-0.5 text-xs tabular-nums">{feedback.score}/100</span>
@@ -307,7 +307,7 @@ function FeedbackPanel({
               const spec = methodRegistry.find((m) => m.id === item.methodId)
               const name = spec ? (en ? spec.name.en : spec.name.zh) : item.methodId
               return (
-                <div key={item.methodId} className="rounded-md border border-border px-3 py-2.5 text-sm">
+                <div key={item.methodId} className="rounded-lg border border-border px-3 py-2.5 text-sm">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{name}</span>
                     <span
@@ -337,7 +337,7 @@ function FeedbackPanel({
       </section>
 
       {scenario.commonMistakes.length > 0 && (
-        <section className="rounded-md border border-border px-4 py-3">
+        <section className="rounded-lg border border-border px-4 py-3">
           <h3 className="text-sm font-medium">{t('常见误区')}</h3>
           <div className="mt-2 space-y-1.5">
             {scenario.commonMistakes.map((mistake) => {
@@ -358,7 +358,7 @@ function FeedbackPanel({
         <button
           type="button"
           onClick={onNext}
-          className="rounded-md border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+          className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
         >
           {t('下一个场景')}
         </button>
@@ -383,7 +383,7 @@ function DifficultySelector({
   ]
 
   return (
-    <div className="flex overflow-hidden rounded-md border border-border">
+    <div className="flex overflow-hidden rounded-lg border border-border">
       {options.map((opt) => (
         <button
           key={opt.id}

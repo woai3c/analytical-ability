@@ -68,7 +68,7 @@ export function ProgressPage() {
         {t('追踪你的学习情况，了解哪些场景类型和方法你已经掌握，哪些还需要练习。')}
       </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border sm:grid-cols-4">
         <StatCell label={t('总练习')} value={String(totalPractices)} />
         <StatCell label={t('正确率')} value={`${accuracy}%`} />
         <StatCell label={t('正确数')} value={String(correctCount)} />
@@ -138,7 +138,7 @@ export function ProgressPage() {
 
           <section className="mt-8 border-t border-border pt-6">
             <h2 className="text-sm font-medium">{t('最近练习')}</h2>
-            <div className="mt-3 divide-y divide-border rounded-md border border-border">
+            <div className="mt-3 divide-y divide-border rounded-lg border border-border">
               {recentRecords.map((record, i) => (
                 <div key={`${record.scenarioId}-${i}`} className="flex items-center justify-between px-3.5 py-2.5">
                   <div className="min-w-0 flex-1">

@@ -26,13 +26,13 @@ export function AppShell() {
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-border lg:flex lg:flex-col">
-        <div className="flex h-14 items-center px-5">
-          <span className="text-base font-semibold">Clarity</span>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 border-r border-border lg:flex lg:flex-col">
+        <div className="flex h-12 items-center px-4">
+          <span className="text-sm font-semibold">Clarity</span>
         </div>
 
-        <nav className="flex-1 px-3 py-2" aria-label={t('主要导航')}>
-          <div className="space-y-0.5">
+        <nav className="flex-1 px-2 py-3" aria-label={t('主要导航')}>
+          <div className="space-y-px">
             {navigation.map((item) => (
               <NavLink
                 key={item.to}
@@ -54,8 +54,8 @@ export function AppShell() {
         </nav>
       </aside>
 
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-background px-5 sm:px-6">
+      <div className="lg:pl-56">
+        <header className="sticky top-0 z-20 flex h-12 items-center justify-between border-b border-border bg-background px-4 sm:px-6">
           <span className="text-sm font-medium">{t(currentTitle)}</span>
           <div className="flex items-center gap-1">
             <LanguageSwitcher />
@@ -63,13 +63,13 @@ export function AppShell() {
           </div>
         </header>
 
-        <main className="pb-16 lg:pb-0">
+        <main className="pb-14 lg:pb-0">
           <Outlet />
         </main>
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-border bg-background px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid h-12 grid-cols-3 border-t border-border bg-background lg:hidden"
         aria-label={t('移动端导航')}
       >
         {navigation.map((item) => (
@@ -79,7 +79,7 @@ export function AppShell() {
             end={item.end}
             className={({ isActive }) =>
               cn(
-                'flex items-center justify-center rounded-md py-2 text-xs',
+                'flex items-center justify-center text-xs',
                 isActive ? 'font-medium text-foreground' : 'text-muted-foreground',
               )
             }
