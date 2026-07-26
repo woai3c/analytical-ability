@@ -2,8 +2,6 @@ import type { TaskType } from '../domain'
 
 export { methodRegistry, methodRegistryMap, getMethodSpec } from './registry'
 export type { MethodSpec, LocalizedText } from './registry'
-export { routeMethods } from './router'
-export type { MethodRoute } from './router'
 
 export const taskTypeLabels: Record<TaskType, string> = {
   diagnosis: '诊断问题',

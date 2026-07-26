@@ -2,8 +2,8 @@ import { NavLink, Outlet, useLocation } from 'react-router'
 
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { ThemeSwitcher } from '@/components/theme-switcher'
+import { loadSettings } from '@/lib/settings'
 import { cn } from '@/lib/utils'
-import { loadSettings } from '@/pages/settings-page'
 import { useI18n } from '@/providers/i18n-provider'
 
 const navigation: Array<{ to: string; label: string; end: boolean }> = [

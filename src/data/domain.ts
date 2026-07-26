@@ -66,53 +66,6 @@ export const scenarioSchema = z.object({
 
 export type Scenario = z.infer<typeof scenarioSchema>
 
-/** 用户对一个场景的练习记录。 */
-export const practiceRecordSchema = z.object({
-  scenarioId: z.string().min(1),
-  /** 用户选择的方法。 */
-  selectedMethods: z.array(methodIdSchema),
-  /** 是否命中了 applicableMethods 中的至少一个。 */
-  correct: z.boolean(),
-  /** 用户的分析思路（自由文本）。 */
-  reasoning: z.string(),
-  /** AI 给出的反馈。 */
-  feedback: z.string(),
-  /** 完成时间。 */
-  completedAt: z.string().min(1),
-  /** 耗时（秒）。 */
-  durationSeconds: z.number().min(0),
-})
-
-export type PracticeRecord = z.infer<typeof practiceRecordSchema>
-
-/** 用户对某方法的掌握状态。 */
-export const methodProgressSchema = z.object({
-  methodId: methodIdSchema,
-  /** 0-100 掌握度。 */
-  mastery: z.number().min(0).max(100),
-  /** 总练习次数。 */
-  totalPractices: z.number().min(0),
-  /** 正确次数。 */
-  correctCount: z.number().min(0),
-  /** 上次练习时间。 */
-  lastPracticedAt: z.string().nullable(),
-})
-
-export type MethodProgress = z.infer<typeof methodProgressSchema>
-
-/** 用户整体能力档案。 */
-export const learnerProfileSchema = z.object({
-  methodProgress: z.array(methodProgressSchema),
-  totalScenarios: z.number().min(0),
-  totalCorrect: z.number().min(0),
-  /** 按任务类型的正确率。 */
-  taskTypeAccuracy: z.record(taskTypeSchema, z.number().min(0).max(100)),
-  streak: z.number().min(0),
-  lastActiveAt: z.string().nullable(),
-})
-
-export type LearnerProfile = z.infer<typeof learnerProfileSchema>
-
 // ── 引导式训练 ─────────────────────────────────────────────────
 
 export const guidedStepNumbers = [1, 2, 3, 4, 5] as const

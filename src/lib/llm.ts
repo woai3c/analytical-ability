@@ -8,8 +8,8 @@ import { APICallError, NoObjectGeneratedError, generateObject } from 'ai'
 import type { LanguageModel } from 'ai'
 import type { z } from 'zod'
 
-import type { ClaritySettings } from '@/pages/settings-page'
-import { loadSettings } from '@/pages/settings-page'
+import type { ClaritySettings } from '@/lib/settings'
+import { loadSettings } from '@/lib/settings'
 
 export type LlmErrorCode =
   | 'LLM_NOT_CONFIGURED'

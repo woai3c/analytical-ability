@@ -1,17 +1,11 @@
 import { useCallback, useRef, useState } from 'react'
 
+import { loadSettings, saveSettings } from '@/lib/settings'
+import type { ClaritySettings } from '@/lib/settings'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
 
-const SETTINGS_KEY = 'clarity-settings'
 const RECORDS_KEY = 'clarity-practice-records'
-
-export interface ClaritySettings {
-  provider: string
-  apiKey: string
-  baseUrl?: string
-  model?: string
-}
 
 interface ProviderConfig {
   id: string
@@ -77,20 +71,6 @@ const providers: ProviderConfig[] = [
   },
 ]
 
-export function loadSettings(): ClaritySettings | null {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY)
-    if (!raw) return null
-    return JSON.parse(raw) as ClaritySettings
-  } catch {
-    return null
-  }
-}
-
-export function saveSettings(settings: ClaritySettings) {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
-}
-
 export function SettingsPage() {
   const { t } = useI18n()
   const [settings, setSettings] = useState<ClaritySettings>(
@@ -138,7 +118,7 @@ export function SettingsPage() {
           return
         }
         if (data.settings) {
-          localStorage.setItem(SETTINGS_KEY, JSON.stringify(data.settings))
+          saveSettings(data.settings)
           setSettings(data.settings)
         }
         if (Array.isArray(data.practiceRecords)) {
