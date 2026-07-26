@@ -46,7 +46,9 @@ Clarity is a static SPA deployable to any hosting platform:
 #### Vercel Deployment Steps
 
 1. Click the button above or go to [vercel.com/new](https://vercel.com/new) and import this repository
-2. Keep default settings (the project includes a `vercel.json` — no manual build configuration needed)
+2. Configure:
+   - **Root Directory**: `apps/web`
+   - Keep other settings as default
 3. No environment variables needed — click **Deploy**
 4. After deployment, open the site and go to **Settings** to configure your AI API Key
 

@@ -46,7 +46,9 @@ Clarity 是纯静态 SPA，可部署到任何静态托管平台：
 #### Vercel 部署步骤
 
 1. 点击上方按钮或进入 [vercel.com/new](https://vercel.com/new)，Import 本仓库
-2. 保持默认配置（项目已包含 `vercel.json`，无需手动配置 Build Command）
+2. 配置：
+   - **Root Directory**: `apps/web`
+   - 其他保持默认
 3. 无需设置任何环境变量，点击 **Deploy** 即可
 4. 部署完成后打开网站，进入「设置」页面配置你自己的 AI API Key
 
