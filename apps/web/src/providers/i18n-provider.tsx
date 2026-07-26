@@ -444,6 +444,7 @@ const english: Record<string, string> = {
     'Configure AI model and manage data. Your API Key is stored only in your browser and never sent to any third-party server.',
   'AI 模型配置': 'AI Model',
   模型提供商: 'Provider',
+  模型: 'Model',
   模型名称: 'Model name',
   保存: 'Save',
   数据管理: 'Data',

@@ -1,3 +1,4 @@
+import { createAnthropic } from '@ai-sdk/anthropic'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenAI } from '@ai-sdk/openai'
@@ -31,46 +32,59 @@ export class LlmError extends Error {
 }
 
 const defaultModels: Record<string, string> = {
-  deepseek: 'deepseek-v4-pro',
-  openai: 'gpt-4o',
-  anthropic: 'claude-sonnet-4-20250514',
-  google: 'gemini-2.5-flash',
-  xai: 'grok-3',
-  moonshot: 'moonshot-v1-128k',
+  deepseek: 'deepseek-v4-flash',
+  anthropic: 'claude-sonnet-5',
+  openai: 'gpt-5.6-sol',
+  google: 'gemini-3.5-flash',
+  xai: 'grok-4.3',
+  alibaba: 'qwen3.7-max',
+  zhipu: 'glm-5.2',
+  moonshot: 'kimi-k3',
   custom: '',
 }
 
 function createModel(settings: ClaritySettings): LanguageModel {
   const { provider, apiKey, baseUrl, model } = settings
+  const modelId = model || defaultModels[provider] || ''
 
   switch (provider) {
     case 'deepseek':
-      return createDeepSeek({ apiKey })('deepseek-chat')
+      return createDeepSeek({ apiKey })(modelId as any)
+    case 'anthropic':
+      return createAnthropic({ apiKey })(modelId as any)
     case 'openai':
-      return createOpenAI({ apiKey })(model || defaultModels.openai!)
-    case 'anthropic': {
-      const openai = createOpenAI({ apiKey, baseURL: 'https://api.anthropic.com/v1' })
-      return openai(model || defaultModels.anthropic!)
-    }
+      return createOpenAI({ apiKey })(modelId as any)
     case 'google':
-      return createGoogleGenerativeAI({ apiKey })(model || (defaultModels.google! as any))
+      return createGoogleGenerativeAI({ apiKey })(modelId as any)
     case 'xai':
-      return createXai({ apiKey })(model || (defaultModels.xai! as any))
+      return createXai({ apiKey })(modelId as any)
+    case 'alibaba':
+      return createOpenAICompatible({
+        name: 'alibaba',
+        apiKey,
+        baseURL: baseUrl || 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+      })(modelId)
+    case 'zhipu':
+      return createOpenAICompatible({
+        name: 'zhipu',
+        apiKey,
+        baseURL: baseUrl || 'https://open.bigmodel.cn/api/paas/v4',
+      })(modelId)
     case 'moonshot':
       return createOpenAICompatible({
         name: 'moonshot',
         apiKey,
         baseURL: baseUrl || 'https://api.moonshot.cn/v1',
-      })(model || defaultModels.moonshot!)
+      })(modelId)
     case 'custom':
-      if (!baseUrl || !model) {
+      if (!baseUrl || !modelId) {
         throw new LlmError('LLM_NOT_CONFIGURED', 'Custom provider requires Base URL and Model name.')
       }
       return createOpenAICompatible({
         name: 'custom',
         apiKey,
         baseURL: baseUrl,
-      })(model)
+      })(modelId)
     default:
       throw new LlmError('LLM_NOT_CONFIGURED', `Unknown provider: ${provider}`)
   }
