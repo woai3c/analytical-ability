@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { methodRegistry } from '@clarity/analysis-engine'
-import { methodIdSchema, scenarioSchema } from '@clarity/domain'
+import { methodIdSchema, scenarioSchema } from '@/data/domain'
+import { methodRegistry } from '@/data/methods'
 
 import { LlmError, generateStructured } from './llm'
 import type { TokenUsage } from './llm'

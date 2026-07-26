@@ -1,6 +1,6 @@
 // 方法路由 —— 确定性规则，对应 product.md 15.1/15.3。
 // LLM 不参与路由决策，只负责解释"为什么推荐这个方法"；用户可以换方法。
-import type { MethodId, TaskType } from '@clarity/domain'
+import type { MethodId, TaskType } from '../domain'
 
 export interface MethodRoute {
   primary: MethodId[]

@@ -1,9 +1,11 @@
-export { methodRegistry, methodRegistryMap, getMethodSpec } from './methods/registry.js'
-export type { MethodSpec, LocalizedText } from './methods/registry.js'
-export { routeMethods } from './methods/router.js'
-export type { MethodRoute } from './methods/router.js'
+import type { TaskType } from '../domain'
 
-export const taskTypeLabels: Record<import('@clarity/domain').TaskType, string> = {
+export { methodRegistry, methodRegistryMap, getMethodSpec } from './registry'
+export type { MethodSpec, LocalizedText } from './registry'
+export { routeMethods } from './router'
+export type { MethodRoute } from './router'
+
+export const taskTypeLabels: Record<TaskType, string> = {
   diagnosis: '诊断问题',
   improvement: '改进现状',
   selection: '比较选择',
@@ -13,7 +15,7 @@ export const taskTypeLabels: Record<import('@clarity/domain').TaskType, string> 
   learning: '学习成长',
 }
 
-export const taskTypeLabelsEn: Record<import('@clarity/domain').TaskType, string> = {
+export const taskTypeLabelsEn: Record<TaskType, string> = {
   diagnosis: 'Diagnose a problem',
   improvement: 'Improve a situation',
   selection: 'Compare and choose',

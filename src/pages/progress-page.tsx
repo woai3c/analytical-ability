@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
-import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@clarity/analysis-engine'
-import type { TaskType } from '@clarity/domain'
-
+import type { TaskType } from '@/data/domain'
+import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
 

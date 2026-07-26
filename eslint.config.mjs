@@ -26,7 +26,7 @@ export default defineConfig(
     },
   },
   {
-    files: ['apps/web/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}'],
     plugins: {
       'react-hooks': reactHooks,
     },

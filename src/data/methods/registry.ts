@@ -1,4 +1,4 @@
-import type { MethodId, TaskType } from '@clarity/domain'
+import type { MethodId, TaskType } from '../domain'
 
 export interface LocalizedText {
   zh: string

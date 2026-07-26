@@ -1,6 +1,6 @@
-import { methodRegistry } from '@clarity/analysis-engine'
-import type { GuidedSession, GuidedStepNumber, Scenario } from '@clarity/domain'
-import { reflectionSchema, scenarioSchema, stepResponseSchema } from '@clarity/domain'
+import type { GuidedSession, GuidedStepNumber, Scenario } from '@/data/domain'
+import { reflectionSchema, scenarioSchema, stepResponseSchema } from '@/data/domain'
+import { methodRegistry } from '@/data/methods'
 
 import type { TokenUsage } from './llm'
 import { generateStructured } from './llm'

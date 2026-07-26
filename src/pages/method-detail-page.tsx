@@ -1,9 +1,8 @@
 import { Link, useParams } from 'react-router'
 
-import { getMethodSpec, taskTypeLabels, taskTypeLabelsEn } from '@clarity/analysis-engine'
-import { methodIds } from '@clarity/domain'
-import type { MethodId } from '@clarity/domain'
-
+import { methodIds } from '@/data/domain'
+import type { MethodId } from '@/data/domain'
+import { getMethodSpec, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
 import { useI18n } from '@/providers/i18n-provider'
 
 export function MethodDetailPage() {

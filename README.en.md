@@ -17,7 +17,7 @@ Practice 12 analysis methods (Fishbone, 5 Why, MCDA, etc.) through scenario-base
 ## Features
 
 - **Method Library** — 12 analysis methods with full introductions, step-by-step guides, and worked examples
-- **Scenario Training** — AI-generated real-world scenarios; pick the right method, explain your reasoning, get feedback
+- **Scenario Training** — AI-generated real-world scenarios; 5-step guided analysis training with feedback
 - **Progress Tracking** — Practice history organized by scenario type and method
 - **Pure Frontend** — No backend required; deploy to Vercel / Netlify / GitHub Pages
 - **Data Ownership** — Practice data stored in browser localStorage with export / import
@@ -46,19 +46,17 @@ Clarity is a static SPA deployable to any hosting platform:
 #### Vercel Deployment Steps
 
 1. Click the button above or go to [vercel.com/new](https://vercel.com/new) and import this repository
-2. Configure:
-   - **Root Directory**: `apps/web`
-   - Keep other settings as default
+2. Keep default settings (Framework Preset will auto-detect as Vite)
 3. No environment variables needed — click **Deploy**
 4. After deployment, open the site and go to **Settings** to configure your AI API Key
 
 #### Other Platforms
 
 ```bash
-pnpm build     # Output: apps/web/dist
+pnpm build     # Output: dist/
 ```
 
-Deploy the `apps/web/dist` directory to Netlify / GitHub Pages / Cloudflare Pages or any static hosting.
+Deploy the `dist` directory to Netlify / GitHub Pages / Cloudflare Pages or any static hosting.
 
 ## Supported AI Providers
 
@@ -80,19 +78,25 @@ Select a provider and enter your API Key in the Settings page. Keys are stored o
 
 | Layer           | Technology                         |
 | --------------- | ---------------------------------- |
-| Framework       | React 19 + Vite                    |
+| Framework       | React 19 + Vite 8                  |
 | Styling         | Tailwind CSS 4                     |
 | AI              | Vercel AI SDK (`ai` + `@ai-sdk/*`) |
-| Language        | TypeScript (monorepo)              |
-| Package Manager | pnpm workspaces                    |
+| Language        | TypeScript                         |
+| Package Manager | pnpm                               |
 
 ## Project Structure
 
 ```
-apps/web                  React SPA
-packages/domain           Data contracts & types
-packages/analysis-engine  Method registry & rules
-packages/design-tokens    Theme variables (Light / Dark)
+src/
+  data/           Data contracts, method registry & routing rules
+  lib/            LLM calls, API wrappers
+  components/     UI components
+  pages/          Page components
+  providers/      Context Providers
+  styles/         Theme variables (Light / Dark)
+public/           Static assets
+index.html        Entry HTML
+vite.config.ts    Vite config
 ```
 
 ## Development
@@ -101,6 +105,7 @@ packages/design-tokens    Theme variables (Light / Dark)
 pnpm dev        # Start dev server
 pnpm build      # Production build
 pnpm lint       # ESLint
+pnpm typecheck  # TypeScript type checking
 pnpm test       # Run tests
 pnpm ci         # lint + format + typecheck + test + build
 ```

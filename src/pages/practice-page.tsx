@@ -3,10 +3,9 @@ import { useSearchParams } from 'react-router'
 
 import { ChevronDown, ChevronRight, Loader2 } from 'lucide-react'
 
-import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@clarity/analysis-engine'
-import type { GuidedSession, GuidedStepNumber, Scenario } from '@clarity/domain'
-import type { TaskType } from '@clarity/domain'
-
+import type { GuidedSession, GuidedStepNumber, Scenario } from '@/data/domain'
+import type { TaskType } from '@/data/domain'
+import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
 import { generateGuidedScenario, processStep } from '@/lib/guided-api'
 import type { ProcessStepResult } from '@/lib/guided-api'
 import { LlmError } from '@/lib/llm'

@@ -17,7 +17,7 @@ Clarity 不替你分析——它教你**怎么分析**。
 ## 主要功能
 
 - **方法库** — 12 种分析方法，每种包含完整介绍、操作步骤、输入输出和示例演练
-- **场景训练** — AI 生成真实决策场景，判断该用什么方法并写出思路，获得针对性反馈
+- **场景训练** — AI 生成真实决策场景，5 步引导式分析训练，获得针对性反馈
 - **进度追踪** — 记录练习历史，按场景类型和方法维度查看掌握情况
 - **纯前端** — 无需后端服务，Vercel / Netlify / GitHub Pages 一键部署
 - **数据可控** — 练习数据存储在浏览器 localStorage，支持导出 / 导入迁移
@@ -46,19 +46,17 @@ Clarity 是纯静态 SPA，可部署到任何静态托管平台：
 #### Vercel 部署步骤
 
 1. 点击上方按钮或进入 [vercel.com/new](https://vercel.com/new)，Import 本仓库
-2. 配置：
-   - **Root Directory**: `apps/web`
-   - 其他保持默认
-3. 无需设置任何环境变量，点击 **Deploy** 即可
+2. 保持默认配置即可（Framework Preset 会自动识别为 Vite）
+3. 无需设置任何环境变量，点击 **Deploy**
 4. 部署完成后打开网站，进入「设置」页面配置你自己的 AI API Key
 
 #### 其他平台
 
 ```bash
-pnpm build     # 输出到 apps/web/dist
+pnpm build     # 输出到 dist/
 ```
 
-将 `apps/web/dist` 目录部署到 Netlify / GitHub Pages / Cloudflare Pages 等静态托管平台即可。
+将 `dist` 目录部署到 Netlify / GitHub Pages / Cloudflare Pages 等静态托管平台即可。
 
 ## 支持的 AI 提供商
 
@@ -80,19 +78,25 @@ pnpm build     # 输出到 apps/web/dist
 
 | 层     | 技术                               |
 | ------ | ---------------------------------- |
-| 框架   | React 19 + Vite                    |
+| 框架   | React 19 + Vite 8                  |
 | 样式   | Tailwind CSS 4                     |
 | AI     | Vercel AI SDK (`ai` + `@ai-sdk/*`) |
-| 语言   | TypeScript (monorepo)              |
-| 包管理 | pnpm workspaces                    |
+| 语言   | TypeScript                         |
+| 包管理 | pnpm                               |
 
 ## 项目结构
 
 ```
-apps/web                  React SPA
-packages/domain           数据契约与类型
-packages/analysis-engine  方法注册表与规则
-packages/design-tokens    设计变量（Light / Dark）
+src/
+  data/           数据契约、方法注册表与路由规则
+  lib/            LLM 调用、API 封装
+  components/     UI 组件
+  pages/          页面组件
+  providers/      Context Provider
+  styles/         设计变量（Light / Dark）
+public/           静态资源
+index.html        入口 HTML
+vite.config.ts    Vite 配置
 ```
 
 ## 开发命令
@@ -101,6 +105,7 @@ packages/design-tokens    设计变量（Light / Dark）
 pnpm dev        # 启动开发服务
 pnpm build      # 生产构建
 pnpm lint       # ESLint
+pnpm typecheck  # TypeScript 类型检查
 pnpm test       # 测试
 pnpm ci         # lint + format + typecheck + test + build
 ```
