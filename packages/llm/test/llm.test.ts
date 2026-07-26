@@ -5,7 +5,7 @@ import { getConfiguredProviders } from '../src/providers.js'
 
 describe('model resolution', () => {
   it('uses the first configured provider in detection order', () => {
-    expect(resolveModelId({ DEEPSEEK_API_KEY: 'k', MOONSHOT_API_KEY: 'k' })).toBe('moonshotai:kimi-k3')
+    expect(resolveModelId({ DEEPSEEK_API_KEY: 'k', MOONSHOT_API_KEY: 'k' })).toBe('deepseek:deepseek-chat')
     expect(resolveModelId({ OPENAI_API_KEY: 'k' })).toBe('openai:gpt-5.6-sol')
   })
 
@@ -31,7 +31,7 @@ describe('model resolution', () => {
   })
 
   it('never exposes API keys in resolved values', () => {
-    const resolved = resolveModel({ MOONSHOT_API_KEY: 'super-secret-key' })
+    const resolved = resolveModel({ DEEPSEEK_API_KEY: 'super-secret-key' })
     expect(JSON.stringify({ modelId: resolved.modelId, providerId: resolved.providerId })).not.toContain(
       'super-secret-key',
     )

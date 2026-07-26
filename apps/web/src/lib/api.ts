@@ -1,72 +1,100 @@
-import type { ActionRoute, AnalysisPlan, AnswerValue, Answers, IntakeResult, MethodId, TaskType } from '@clarity/domain'
-
-import type { Language } from '@/providers/i18n-provider'
-
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '')
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 
 export class ApiError extends Error {
   constructor(
+    public status: number,
     message: string,
-    public code?: string,
   ) {
     super(message)
-    this.name = 'ApiError'
   }
 }
 
-async function request<T>(path: string, body: unknown, language: Language): Promise<T> {
-  let response: Response
-  try {
-    response = await fetch(`${apiBaseUrl}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept-Language': language },
-      body: JSON.stringify(body),
-    })
-  } catch {
-    throw new ApiError(
-      language === 'en'
-        ? 'Cannot reach the analysis API. Make sure it is running (pnpm dev:api).'
-        : '连不上分析服务，请确认后端已启动（pnpm dev:api）。',
-      'API_UNREACHABLE',
-    )
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const locale = document.documentElement.lang === 'en' ? 'en' : 'zh-CN'
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept-Language': locale,
+      ...options?.headers,
+    },
+  })
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new ApiError(res.status, body.message ?? `Request failed: ${res.status}`)
   }
-  const data = (await response.json().catch(() => ({}))) as T & { message?: string; error?: string }
-  if (!response.ok) throw new ApiError(data.message || `HTTP ${response.status}`, data.error)
-  return data
+
+  return res.json()
 }
 
-export interface AnsweredQuestion {
-  question: string
-  answer: AnswerValue
+export interface MethodSummary {
+  id: string
+  name: string
+  purpose: string
+  taskTypes: string[]
+  caution: string
+  depth: string
 }
 
-export function runIntake(input: { rawGoal: string; answered: AnsweredQuestion[] }, language: Language) {
-  return request<{ result: IntakeResult }>('/api/analysis/intake', input, language)
+export interface MethodDetail extends MethodSummary {
+  requiredInputs: string[]
+  outputs: string[]
 }
 
-export function runPlan(
-  input: { rawGoal: string; taskType: TaskType; intake: IntakeResult; answers: Answers },
-  language: Language,
-) {
-  return request<{ result: AnalysisPlan }>('/api/analysis/plan', input, language)
+export interface Scenario {
+  id: string
+  title: string
+  description: string
+  context: string
+  difficulty: string
+  taskType: string
+  applicableMethods: string[]
+  explanations: Record<string, string>
+  commonMistakes: Array<{ methodId: string; why: string }>
 }
 
-export function runMethodRun(
-  input: { methodId: MethodId; rawGoal: string; intake: IntakeResult; answers: Answers; material: string },
-  language: Language,
-) {
-  return request<{ result: unknown }>('/api/analysis/method-run', input, language)
+export interface PracticeFeedback {
+  correct: boolean
+  score: number
+  feedback: string
+  methodExplanations: Array<{
+    methodId: string
+    fit: 'good' | 'partial' | 'poor'
+    explanation: string
+  }>
+  improvementTip: string
 }
 
-export function runRoute(
-  input: {
-    rawGoal: string
-    intake: IntakeResult
-    answers: Answers
-    plan: AnalysisPlan
-    methodRuns: Record<string, unknown>
-  },
-  language: Language,
-) {
-  return request<{ result: ActionRoute }>('/api/analysis/route', input, language)
+export function fetchMethods(): Promise<MethodSummary[]> {
+  return request('/api/methods')
+}
+
+export function fetchMethod(id: string): Promise<MethodDetail> {
+  return request(`/api/methods/${id}`)
+}
+
+export function generateScenario(params: {
+  taskType?: string
+  methodId?: string
+  difficulty?: string
+}): Promise<{ result: Scenario }> {
+  return request('/api/scenarios/generate', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  })
+}
+
+export function submitPractice(params: {
+  scenarioTitle: string
+  scenarioDescription: string
+  scenarioContext: string
+  applicableMethods: string[]
+  selectedMethods: string[]
+  reasoning: string
+}): Promise<{ result: PracticeFeedback }> {
+  return request('/api/practice/feedback', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  })
 }

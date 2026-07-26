@@ -357,6 +357,80 @@ const english: Record<string, string> = {
   '不知道的字段可以先留空。': 'Leave unknown fields blank.',
   已保存到项目列表: 'Saved to the project list',
   删除: 'Delete',
+
+  // new: app shell & navigation
+  思径: 'Clarity',
+  学习: 'Learn',
+  方法库: 'Methods',
+  场景训练: 'Practice',
+  我的进度: 'My Progress',
+  方法详情: 'Method Detail',
+  '学会分析方法，自己做分析。': 'Master analysis methods, do your own analysis.',
+
+  // new: methods page
+  分析方法库: 'Analysis Methods',
+  '掌握这些方法，学会什么场景用什么工具。点击任一方法，了解它的适用条件、步骤和常见误区。':
+    'Master these methods and learn which tool fits which scenario. Click any method to learn when to use it, how it works, and common pitfalls.',
+  全部: 'All',
+
+  // new: method detail page
+  方法不存在: 'Method not found',
+  返回方法库: 'Back to methods',
+  交互式: 'Interactive',
+  引导式: 'Guided',
+  什么时候用: 'When to use',
+  运行步骤: 'How to use',
+  '准备：': 'Prepare: ',
+  '产出：': 'Output: ',
+  使用边界与常见误区: 'Boundaries & common pitfalls',
+  '想在真实场景中练习这个方法？': 'Want to practice this method in a real scenario?',
+  '去场景训练中遇到需要用到这个方法的问题，在实践中加深理解。':
+    'Try the scenario training to encounter problems that require this method and deepen your understanding through practice.',
+  开始练习: 'Start practicing',
+
+  // new: practice page
+  '阅读场景，判断该用什么分析方法，写出你的思路。提交后获得反馈。':
+    'Read the scenario, decide which method to use, write your reasoning. Get feedback after submission.',
+  换一个: 'New scenario',
+  '正在生成训练场景...': 'Generating training scenario...',
+  加载场景失败请重试: 'Failed to load scenario. Try again.',
+  入门: 'Beginner',
+  进阶: 'Intermediate',
+  挑战: 'Advanced',
+  背景信息: 'Context',
+  '你认为该用什么分析方法？': 'Which analysis method(s) should be used?',
+  '可以选择一个或多个。先独立思考再选择。': 'You may select one or more. Think independently before choosing.',
+  写出你的分析思路: 'Write your reasoning',
+  '为什么选这个方法？你打算怎么用它？（可选但强烈建议填写，帮助你理清思路）':
+    'Why this method? How would you apply it? (Optional but strongly recommended — helps you clarify your thinking)',
+  '例如：这个场景的核心问题是...所以我选择...因为...':
+    'Example: The core issue in this scenario is... so I choose... because...',
+  提交答案: 'Submit',
+  判断正确: 'Correct',
+  需要调整: 'Needs adjustment',
+  方法适配分析: 'Method fit analysis',
+  适合: 'Good fit',
+  部分适合: 'Partial fit',
+  不太合适: 'Poor fit',
+  下次记住: 'Remember for next time',
+  常见误区: 'Common mistakes',
+  下一个场景: 'Next scenario',
+  提交失败请重试: 'Submission failed. Try again.',
+  '加载场景失败，请重试。': 'Failed to load scenario. Please try again.',
+  '提交失败，请重试。': 'Submission failed. Please try again.',
+
+  // new: progress page
+  '追踪你的学习情况，了解哪些场景类型和方法你已经掌握，哪些还需要练习。':
+    'Track your learning progress. See which scenario types and methods you have mastered and which need more practice.',
+  总练习: 'Total practices',
+  正确率: 'Accuracy',
+  正确数: 'Correct',
+  最近练习: 'Last practiced',
+  暂无: 'None yet',
+  '还没有练习记录。去场景训练开始你的第一次练习吧！':
+    'No practice records yet. Start your first practice in scenario training!',
+  按场景类型: 'By scenario type',
+  按方法使用: 'By method used',
 }
 
 interface I18nContextValue {

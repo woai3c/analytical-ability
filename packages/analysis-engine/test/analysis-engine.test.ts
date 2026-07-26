@@ -1,51 +1,62 @@
 import { describe, expect, it } from 'vitest'
 
-import type { GoalInput } from '@clarity/domain'
+import { getMethodSpec, methodRegistry, routeMethods } from '../src/index.js'
 
-import { analyzeGoal, inferTaskType } from '../src/index.js'
-
-const baseGoal: GoalInput = {
-  rawGoal: '我想在六个月内转向 AI 产品经理岗位',
-  currentState: '有三年 Web 开发经验，还没有产品项目经历',
-  desiredOutcome: '获得至少一个 AI 产品经理录用通知',
-  successMetric: '拿到一份满足薪资底线的书面 offer',
-  deadline: '2027-01-31',
-  constraints: ['每周最多投入 10 小时'],
-  knownFacts: ['已经完成两个 AI API 小项目'],
-  preferredTaskType: null,
-}
-
-describe('analysis engine', () => {
-  it('routes learning and career-change goals', () => {
-    expect(inferTaskType(baseGoal)).toBe('learning')
+describe('method registry', () => {
+  it('contains all 12 methods', () => {
+    expect(methodRegistry).toHaveLength(12)
   })
 
-  it('creates a traceable data and action plan', () => {
-    const result = analyzeGoal(baseGoal)
-    expect(result.completeness).toBe(100)
-    expect(result.dataNeeds.some((item) => item.id === 'skill-baseline')).toBe(true)
-    expect(result.actionSteps.at(-1)?.kind).toBe('review')
+  it('getMethodSpec returns correct method', () => {
+    const spec = getMethodSpec('fishbone')
+    expect(spec.id).toBe('fishbone')
+    expect(spec.name.zh).toBe('鱼骨分析')
+    expect(spec.name.en).toBe('Fishbone diagram')
   })
 
-  it('does not hide missing success criteria', () => {
-    const result = analyzeGoal({ ...baseGoal, successMetric: '' })
-    expect(result.completeness).toBeLessThan(100)
-    expect(result.clarifications.some((item) => item.field === 'successMetric')).toBe(true)
+  it('each method has localized name, purpose, and caution', () => {
+    for (const spec of methodRegistry) {
+      expect(spec.name.zh.length).toBeGreaterThan(0)
+      expect(spec.name.en.length).toBeGreaterThan(0)
+      expect(spec.purpose.zh.length).toBeGreaterThan(0)
+      expect(spec.purpose.en.length).toBeGreaterThan(0)
+      expect(spec.caution.zh.length).toBeGreaterThan(0)
+      expect(spec.caution.en.length).toBeGreaterThan(0)
+    }
   })
 
-  it('returns a fully localized English analysis', () => {
-    const result = analyzeGoal(
-      {
-        ...baseGoal,
-        rawGoal: 'Move into an AI product manager role within six months',
-        currentState: 'Three years of web development experience',
-        desiredOutcome: 'Receive one job offer',
-      },
-      'en',
-    )
-    expect(result.taskTypeLabel).toBe('Learn and develop')
-    expect(result.dataNeeds[0]?.title).toBe('Current baseline')
-    expect(result.actionSteps[0]?.doneWhen).toMatch(/recorded|confirmed/)
-    expect(result.cautions.join(' ')).not.toMatch(/[\u3400-\u9fff]/)
+  it('each method has at least one task type', () => {
+    for (const spec of methodRegistry) {
+      expect(spec.taskTypes.length).toBeGreaterThan(0)
+    }
+  })
+})
+
+describe('method router', () => {
+  it('routes diagnosis to fishbone and five-why', () => {
+    const route = routeMethods('diagnosis')
+    expect(route.primary).toContain('fishbone')
+    expect(route.primary).toContain('five-why')
+  })
+
+  it('routes selection to mcda', () => {
+    const route = routeMethods('selection')
+    expect(route.primary).toContain('mcda')
+  })
+
+  it('every task type has at least one primary method', () => {
+    const types = [
+      'diagnosis',
+      'improvement',
+      'selection',
+      'planning',
+      'prediction',
+      'exploration',
+      'learning',
+    ] as const
+    for (const type of types) {
+      const route = routeMethods(type)
+      expect(route.primary.length).toBeGreaterThan(0)
+    }
   })
 })

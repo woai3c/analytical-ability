@@ -17,8 +17,13 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // 5173 常被其他 Vite 项目占用；冲突时自动尝试下一个端口。
     strictPort: false,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8787',
+        changeOrigin: true,
+      },
+    },
   },
   test: {
     environment: 'jsdom',

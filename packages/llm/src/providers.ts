@@ -28,14 +28,14 @@ export interface ProviderSpec {
 
 /** 检测顺序即默认优先级：配置了多个 Key 时取排最前的。 */
 export const providerSpecs: readonly ProviderSpec[] = [
-  { id: 'moonshotai', envKey: 'MOONSHOT_API_KEY', defaultModel: 'kimi-k3' },
-  { id: 'deepseek', envKey: 'DEEPSEEK_API_KEY', defaultModel: 'deepseek-v4-flash' },
+  { id: 'deepseek', envKey: 'DEEPSEEK_API_KEY', defaultModel: 'deepseek-chat' },
   { id: 'anthropic', envKey: 'ANTHROPIC_API_KEY', defaultModel: 'claude-sonnet-5' },
   { id: 'openai', envKey: 'OPENAI_API_KEY', defaultModel: 'gpt-5.6-sol' },
-  { id: 'alibaba', envKey: 'ALIBABA_API_KEY', defaultModel: 'qwen3.7-max' },
-  { id: 'zhipu', envKey: 'ZHIPU_API_KEY', defaultModel: 'glm-5.2' },
   { id: 'google', envKey: 'GOOGLE_GENERATIVE_AI_API_KEY', defaultModel: 'gemini-3.5-flash' },
   { id: 'xai', envKey: 'XAI_API_KEY', defaultModel: 'grok-4.5' },
+  { id: 'alibaba', envKey: 'ALIBABA_API_KEY', defaultModel: 'qwen3.7-max' },
+  { id: 'zhipu', envKey: 'ZHIPU_API_KEY', defaultModel: 'glm-5.2' },
+  { id: 'moonshotai', envKey: 'MOONSHOT_API_KEY', defaultModel: 'kimi-k3' },
 ]
 
 /** 国内 Kimi 平台（platform.moonshot.cn）默认端点；国际站用 MOONSHOT_BASE_URL 覆盖为 https://api.moonshot.ai/v1 */
