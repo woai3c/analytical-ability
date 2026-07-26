@@ -106,7 +106,7 @@ export function PracticePage() {
     try {
       const { scenario, usage } = await generateGuidedScenario({
         difficulty,
-        methodId: methodParam,
+        ...(methodParam ? { methodId: methodParam } : {}),
       })
       const newSession: GuidedSession = {
         id: `gs-${Date.now()}`,

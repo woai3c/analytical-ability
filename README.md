@@ -29,7 +29,7 @@ Clarity 不替你分析——它教你**怎么分析**。
 ### 本地开发
 
 ```bash
-git clone https://github.com/[your-username]/analytical-ability.git
+git clone https://github.com/woai3c/analytical-ability.git
 cd analytical-ability
 pnpm install
 pnpm dev
@@ -41,24 +41,36 @@ pnpm dev
 
 Clarity 是纯静态 SPA，可部署到任何静态托管平台：
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/[your-username]/analytical-ability)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/woai3c/analytical-ability)
+
+#### Vercel 部署步骤
+
+1. 点击上方按钮或进入 [vercel.com/new](https://vercel.com/new)，Import 本仓库
+2. 保持默认配置（项目已包含 `vercel.json`，无需手动配置 Build Command）
+3. 无需设置任何环境变量，点击 **Deploy** 即可
+4. 部署完成后打开网站，进入「设置」页面配置你自己的 AI API Key
+
+#### 其他平台
 
 ```bash
 pnpm build     # 输出到 apps/web/dist
 ```
 
-部署后无需设置任何环境变量——用户在界面的设置页面配置自己的 API Key。
+将 `apps/web/dist` 目录部署到 Netlify / GitHub Pages / Cloudflare Pages 等静态托管平台即可。
 
 ## 支持的 AI 提供商
 
-| 提供商          | 默认模型         |
-| --------------- | ---------------- |
-| DeepSeek        | deepseek-chat    |
-| OpenAI          | gpt-4o           |
-| Google Gemini   | gemini-2.5-flash |
-| xAI (Grok)      | grok-3           |
-| Moonshot (Kimi) | moonshot-v1-128k |
-| OpenAI 兼容     | 自定义           |
+| 提供商          | 默认模型          |
+| --------------- | ----------------- |
+| DeepSeek        | deepseek-v4-flash |
+| Anthropic       | claude-sonnet-5   |
+| OpenAI          | gpt-5.6-sol       |
+| Google Gemini   | gemini-3.5-flash  |
+| xAI (Grok)      | grok-4.3          |
+| 阿里 (通义)     | qwen3.7-max       |
+| 智谱 (GLM)      | glm-5.2           |
+| Moonshot (Kimi) | kimi-k3           |
+| OpenAI 兼容     | 自定义            |
 
 在设置页面选择提供商、填入 API Key 即完成配置。Key 仅保存在你的浏览器中。
 

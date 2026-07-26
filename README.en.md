@@ -29,7 +29,7 @@ Practice 12 analysis methods (Fishbone, 5 Why, MCDA, etc.) through scenario-base
 ### Local Development
 
 ```bash
-git clone https://github.com/[your-username]/analytical-ability.git
+git clone https://github.com/woai3c/analytical-ability.git
 cd analytical-ability
 pnpm install
 pnpm dev
@@ -41,24 +41,36 @@ Open `http://localhost:5173`, go to **Settings** and configure your API Key.
 
 Clarity is a static SPA deployable to any hosting platform:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/[your-username]/analytical-ability)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/woai3c/analytical-ability)
+
+#### Vercel Deployment Steps
+
+1. Click the button above or go to [vercel.com/new](https://vercel.com/new) and import this repository
+2. Keep default settings (the project includes a `vercel.json` — no manual build configuration needed)
+3. No environment variables needed — click **Deploy**
+4. After deployment, open the site and go to **Settings** to configure your AI API Key
+
+#### Other Platforms
 
 ```bash
 pnpm build     # Output: apps/web/dist
 ```
 
-No server-side environment variables needed — users configure their own API Key in the Settings page.
+Deploy the `apps/web/dist` directory to Netlify / GitHub Pages / Cloudflare Pages or any static hosting.
 
 ## Supported AI Providers
 
-| Provider          | Default Model    |
-| ----------------- | ---------------- |
-| DeepSeek          | deepseek-chat    |
-| OpenAI            | gpt-4o           |
-| Google Gemini     | gemini-2.5-flash |
-| xAI (Grok)        | grok-3           |
-| Moonshot (Kimi)   | moonshot-v1-128k |
-| OpenAI Compatible | Custom           |
+| Provider          | Default Model     |
+| ----------------- | ----------------- |
+| DeepSeek          | deepseek-v4-flash |
+| Anthropic         | claude-sonnet-5   |
+| OpenAI            | gpt-5.6-sol       |
+| Google Gemini     | gemini-3.5-flash  |
+| xAI (Grok)        | grok-4.3          |
+| Alibaba (Qwen)    | qwen3.7-max       |
+| Zhipu (GLM)       | glm-5.2           |
+| Moonshot (Kimi)   | kimi-k3           |
+| OpenAI Compatible | Custom            |
 
 Select a provider and enter your API Key in the Settings page. Keys are stored only in your browser.
 
