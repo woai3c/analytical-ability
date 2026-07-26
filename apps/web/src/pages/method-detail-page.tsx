@@ -1,9 +1,6 @@
 import { Link, useParams } from 'react-router'
 
-import { AlertTriangle, ArrowLeft, CheckCircle2, Target } from 'lucide-react'
-
 import { getMethodSpec, taskTypeLabels, taskTypeLabelsEn } from '@clarity/analysis-engine'
-import type { MethodSpec } from '@clarity/analysis-engine'
 import { methodIds } from '@clarity/domain'
 import type { MethodId } from '@clarity/domain'
 
@@ -33,8 +30,7 @@ export function MethodDetailPage() {
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-3.5" />
-        {t('方法库')}
+        ← {t('方法库')}
       </Link>
 
       <h1 className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">{en ? spec.name.en : spec.name.zh}</h1>
@@ -49,68 +45,75 @@ export function MethodDetailPage() {
         <Badge variant="outline">{spec.depth === 'interactive' ? t('交互式') : t('引导式')}</Badge>
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Target className="size-4 text-primary" />
-              {t('什么时候用')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-            <WhenToUse spec={spec} en={en} labels={labels} />
-          </CardContent>
-        </Card>
+      {/* 完整介绍 */}
+      <section className="mt-8">
+        <h2 className="text-lg font-medium">{t('方法介绍')}</h2>
+        <p className="mt-3 text-sm leading-7 text-muted-foreground">
+          {en ? spec.introduction.en : spec.introduction.zh}
+        </p>
+      </section>
 
+      {/* 操作步骤 */}
+      <section className="mt-8">
+        <h2 className="text-lg font-medium">{t('操作步骤')}</h2>
+        <ol className="mt-3 space-y-2">
+          {spec.steps.map((step, i) => (
+            <li key={i} className="flex gap-3 text-sm leading-6">
+              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                {i + 1}
+              </span>
+              <span className="text-muted-foreground">{en ? step.en : step.zh}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* 输入与产出 */}
+      <section className="mt-8 grid gap-6 sm:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CheckCircle2 className="size-4 text-[var(--success)]" />
-              {t('运行步骤')}
-            </CardTitle>
+            <CardTitle className="text-base">{t('你需要准备')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <ol className="space-y-2.5">
+            <ul className="space-y-1.5 text-sm leading-6 text-muted-foreground">
               {spec.requiredInputs.map((input, i) => (
-                <li key={i} className="flex gap-3 text-sm leading-6">
-                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
-                    {i + 1}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {en ? t('准备：') : t('准备：')}
-                    {en ? input.en : input.zh}
-                  </span>
-                </li>
+                <li key={i}>· {en ? input.en : input.zh}</li>
               ))}
-              {spec.outputs.map((output, i) => (
-                <li key={`o-${i}`} className="flex gap-3 text-sm leading-6">
-                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--success)]/10 text-xs font-medium text-[var(--success)]">
-                    ✓
-                  </span>
-                  <span className="text-muted-foreground">
-                    {en ? t('产出：') : t('产出：')}
-                    {en ? output.en : output.zh}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            </ul>
           </CardContent>
         </Card>
-      </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t('你会得到')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-1.5 text-sm leading-6 text-muted-foreground">
+              {spec.outputs.map((output, i) => (
+                <li key={i}>· {en ? output.en : output.zh}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </section>
 
-      <Card className="mt-6 border-[var(--warning)]/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <AlertTriangle className="size-4 text-[var(--warning)]" />
-            {t('使用边界与常见误区')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm leading-6 text-muted-foreground">
-          {en ? spec.caution.en : spec.caution.zh}
-        </CardContent>
-      </Card>
+      {/* 完整示例 */}
+      <section className="mt-8">
+        <h2 className="text-lg font-medium">{t('完整示例')}</h2>
+        <div className="mt-3 rounded-lg border border-border bg-muted/30 p-5">
+          <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">
+            {en ? spec.exampleWalkthrough.en : spec.exampleWalkthrough.zh}
+          </p>
+        </div>
+      </section>
 
-      <div className="mt-8 rounded-lg border border-border bg-muted/50 p-5">
+      {/* 使用边界 */}
+      <section className="mt-8">
+        <h2 className="text-lg font-medium">{t('使用边界与常见误区')}</h2>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">{en ? spec.caution.en : spec.caution.zh}</p>
+      </section>
+
+      {/* 去练习 */}
+      <div className="mt-10 rounded-lg border border-border p-5">
         <h2 className="text-sm font-medium">{t('想在真实场景中练习这个方法？')}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {t('去场景训练中遇到需要用到这个方法的问题，在实践中加深理解。')}
@@ -123,30 +126,5 @@ export function MethodDetailPage() {
         </Link>
       </div>
     </div>
-  )
-}
-
-function WhenToUse({ spec, en, labels }: { spec: MethodSpec; en: boolean; labels: Record<string, string> }) {
-  const scenarios = spec.taskTypes.map((type) => labels[type])
-
-  return (
-    <>
-      <p>
-        {en
-          ? `Use this method when you face a "${scenarios.join('" or "')}" scenario.`
-          : `当你面对「${scenarios.join('」或「')}」类型的问题时，可以考虑这个方法。`}
-      </p>
-      <p>{en ? 'Specifically, you need:' : '具体来说，你需要：'}</p>
-      <ul className="list-disc space-y-1 pl-5">
-        {spec.requiredInputs.map((input, i) => (
-          <li key={i}>{en ? input.en : input.zh}</li>
-        ))}
-      </ul>
-      <p className="text-xs">
-        {en
-          ? "If you don't have these inputs yet, collect them first before attempting this method."
-          : '如果这些输入你还没有，先去收集它们，再来运用这个方法。'}
-      </p>
-    </>
   )
 }

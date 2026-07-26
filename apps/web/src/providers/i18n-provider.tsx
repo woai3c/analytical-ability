@@ -359,7 +359,7 @@ const english: Record<string, string> = {
   删除: 'Delete',
 
   // new: app shell & navigation
-  思径: 'Clarity',
+  Clarity: 'Clarity',
   学习: 'Learn',
   方法库: 'Methods',
   场景训练: 'Practice',
@@ -378,10 +378,11 @@ const english: Record<string, string> = {
   返回方法库: 'Back to methods',
   交互式: 'Interactive',
   引导式: 'Guided',
-  什么时候用: 'When to use',
-  运行步骤: 'How to use',
-  '准备：': 'Prepare: ',
-  '产出：': 'Output: ',
+  方法介绍: 'About this method',
+  操作步骤: 'Steps',
+  你需要准备: 'What you need',
+  你会得到: 'What you get',
+  完整示例: 'Full example',
   使用边界与常见误区: 'Boundaries & common pitfalls',
   '想在真实场景中练习这个方法？': 'Want to practice this method in a real scenario?',
   '去场景训练中遇到需要用到这个方法的问题，在实践中加深理解。':
@@ -418,6 +419,8 @@ const english: Record<string, string> = {
   提交失败请重试: 'Submission failed. Try again.',
   '加载场景失败，请重试。': 'Failed to load scenario. Please try again.',
   '提交失败，请重试。': 'Submission failed. Please try again.',
+  '点击下方按钮生成一个训练场景。': 'Click below to generate a training scenario.',
+  开始训练: 'Start Training',
 
   // new: progress page
   '追踪你的学习情况，了解哪些场景类型和方法你已经掌握，哪些还需要练习。':

@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
-import { ArrowRight } from 'lucide-react'
-
 import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@clarity/analysis-engine'
 import type { TaskType } from '@clarity/domain'
 
@@ -59,13 +57,13 @@ export function MethodsPage() {
             <Link key={method.id} to={`/methods/${method.id}`} className="group">
               <Card className="h-full transition-colors group-hover:border-primary/50">
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center justify-between text-base">
-                    <span>{name}</span>
-                    <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                  </CardTitle>
+                  <CardTitle className="text-base">{name}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm leading-6 text-muted-foreground">{purpose}</p>
+                  <p className="mt-2 text-xs italic leading-5 text-muted-foreground/70">
+                    {en ? method.example.en : method.example.zh}
+                  </p>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {method.taskTypes.map((type) => (
                       <Badge key={type} variant="secondary" className="text-[11px]">

@@ -1,16 +1,14 @@
 import { NavLink, Outlet, useLocation } from 'react-router'
 
-import { BookOpen, Dumbbell, LineChart, type LucideIcon } from 'lucide-react'
-
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { ThemeSwitcher } from '@/components/theme-switcher'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
 
-const navigation: Array<{ to: string; label: string; end: boolean; icon: LucideIcon }> = [
-  { to: '/', label: '方法库', end: true, icon: BookOpen },
-  { to: '/practice', label: '场景训练', end: false, icon: Dumbbell },
-  { to: '/progress', label: '我的进度', end: false, icon: LineChart },
+const navigation: Array<{ to: string; label: string; end: boolean }> = [
+  { to: '/', label: '方法库', end: true },
+  { to: '/practice', label: '场景训练', end: false },
+  { to: '/progress', label: '我的进度', end: false },
 ]
 
 const pageTitles: Record<string, string> = {
@@ -24,16 +22,13 @@ export function AppShell() {
   const { t } = useI18n()
 
   const currentTitle =
-    pageTitles[location.pathname] ?? (location.pathname.startsWith('/methods/') ? '方法详情' : '思径')
+    pageTitles[location.pathname] ?? (location.pathname.startsWith('/methods/') ? '方法详情' : 'Clarity')
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-[232px] border-r border-border bg-card lg:flex lg:flex-col">
-        <div className="flex h-[52px] items-center gap-2.5 border-b border-border px-4">
-          <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <BookOpen className="size-3.5" />
-          </span>
-          <span className="text-sm font-semibold tracking-tight">{t('思径')}</span>
+        <div className="flex h-[52px] items-center border-b border-border px-4">
+          <span className="text-sm font-semibold tracking-tight">Clarity</span>
         </div>
 
         <nav className="flex-1 px-2.5 py-4" aria-label={t('主要导航')}>
@@ -46,12 +41,11 @@ export function AppShell() {
                 end={item.end}
                 className={({ isActive }) =>
                   cn(
-                    'flex h-8 items-center gap-2.5 rounded-md px-2.5 text-[13px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
+                    'flex h-8 items-center rounded-md px-2.5 text-[13px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
                     isActive && 'bg-secondary font-medium text-foreground',
                   )
                 }
               >
-                <item.icon className="size-4 shrink-0" />
                 {t(item.label)}
               </NavLink>
             ))}
@@ -88,12 +82,11 @@ export function AppShell() {
             end={item.end}
             className={({ isActive }) =>
               cn(
-                'flex flex-col items-center justify-center gap-1 rounded-md py-1.5 text-[11px] text-muted-foreground',
+                'flex items-center justify-center rounded-md py-2 text-xs text-muted-foreground',
                 isActive && 'font-medium text-foreground',
               )
             }
           >
-            <item.icon className="size-4" />
             {t(item.label)}
           </NavLink>
         ))}

@@ -28,10 +28,10 @@ export interface ProviderSpec {
 
 /** 检测顺序即默认优先级：配置了多个 Key 时取排最前的。 */
 export const providerSpecs: readonly ProviderSpec[] = [
-  { id: 'deepseek', envKey: 'DEEPSEEK_API_KEY', defaultModel: 'deepseek-chat' },
+  { id: 'deepseek', envKey: 'DEEPSEEK_API_KEY', defaultModel: 'deepseek-v4-pro' },
   { id: 'anthropic', envKey: 'ANTHROPIC_API_KEY', defaultModel: 'claude-sonnet-5' },
   { id: 'openai', envKey: 'OPENAI_API_KEY', defaultModel: 'gpt-5.6-sol' },
-  { id: 'google', envKey: 'GOOGLE_GENERATIVE_AI_API_KEY', defaultModel: 'gemini-3.5-flash' },
+  { id: 'google', envKey: 'GOOGLE_GENERATIVE_AI_API_KEY', defaultModel: 'gemini-3.6-flash' },
   { id: 'xai', envKey: 'XAI_API_KEY', defaultModel: 'grok-4.5' },
   { id: 'alibaba', envKey: 'ALIBABA_API_KEY', defaultModel: 'qwen3.7-max' },
   { id: 'zhipu', envKey: 'ZHIPU_API_KEY', defaultModel: 'glm-5.2' },

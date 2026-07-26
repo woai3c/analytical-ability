@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
-import { CheckCircle2, Loader2, RefreshCw, Send, XCircle } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@clarity/analysis-engine'
 import type { TaskType } from '@clarity/domain'
@@ -14,25 +14,77 @@ import type { PracticeFeedback, Scenario } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
 
+const STORAGE_KEY = 'clarity-practice-session'
+
+interface PracticeSession {
+  scenario: Scenario
+  selectedMethods: string[]
+  reasoning: string
+  feedback: PracticeFeedback | null
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+}
+
+function loadSession(): PracticeSession | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw) as PracticeSession
+  } catch {
+    return null
+  }
+}
+
+function saveSession(session: PracticeSession) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+  } catch {
+    // quota exceeded — ignore
+  }
+}
+
+function clearSession() {
+  sessionStorage.removeItem(STORAGE_KEY)
+}
+
 export function PracticePage() {
   const { language, t } = useI18n()
   const [searchParams] = useSearchParams()
   const en = language === 'en'
   const labels = en ? taskTypeLabelsEn : taskTypeLabels
 
-  const [scenario, setScenario] = useState<Scenario | null>(null)
+  const [initialSession] = useState(loadSession)
+
+  const [scenario, setScenario] = useState<Scenario | null>(initialSession?.scenario ?? null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [selectedMethods, setSelectedMethods] = useState<string[]>([])
-  const [reasoning, setReasoning] = useState('')
-  const [feedback, setFeedback] = useState<PracticeFeedback | null>(null)
+  const [selectedMethods, setSelectedMethods] = useState<string[]>(initialSession?.selectedMethods ?? [])
+  const [reasoning, setReasoning] = useState(initialSession?.reasoning ?? '')
+  const [feedback, setFeedback] = useState<PracticeFeedback | null>(initialSession?.feedback ?? null)
   const [submitting, setSubmitting] = useState(false)
-  const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner')
+  const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>(
+    initialSession?.difficulty ?? 'beginner',
+  )
 
   const methodParam = searchParams.get('method') ?? undefined
-  const initialLoadDone = useRef(false)
+  const loadingRef = useRef(false)
+
+  const persistState = useCallback(
+    (patch: Partial<PracticeSession>) => {
+      const current: PracticeSession = {
+        scenario: patch.scenario ?? scenario!,
+        selectedMethods: patch.selectedMethods ?? selectedMethods,
+        reasoning: patch.reasoning ?? reasoning,
+        feedback: patch.feedback ?? feedback,
+        difficulty: patch.difficulty ?? difficulty,
+      }
+      if (current.scenario) saveSession(current)
+    },
+    [scenario, selectedMethods, reasoning, feedback, difficulty],
+  )
 
   const loadScenario = useCallback(async () => {
+    if (loadingRef.current) return
+    loadingRef.current = true
     setLoading(true)
     setError('')
     setFeedback(null)
@@ -44,24 +96,33 @@ export function PracticePage() {
         ...(methodParam ? { methodId: methodParam } : {}),
       })
       setScenario(result)
+      const session: PracticeSession = {
+        scenario: result,
+        selectedMethods: [],
+        reasoning: '',
+        feedback: null,
+        difficulty,
+      }
+      saveSession(session)
     } catch (e) {
       setError(e instanceof ApiError ? e.message : t('加载场景失败，请重试。'))
     } finally {
       setLoading(false)
+      loadingRef.current = false
     }
   }, [difficulty, methodParam, t])
 
-  useEffect(() => {
-    if (!initialLoadDone.current) {
-      initialLoadDone.current = true
-      void loadScenario()
-      return
-    }
-    void loadScenario()
-  }, [loadScenario])
-
   function toggleMethod(id: string) {
-    setSelectedMethods((prev) => (prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]))
+    setSelectedMethods((prev) => {
+      const next = prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]
+      persistState({ selectedMethods: next })
+      return next
+    })
+  }
+
+  function handleReasoningChange(value: string) {
+    setReasoning(value)
+    persistState({ reasoning: value })
   }
 
   async function handleSubmit() {
@@ -78,12 +139,18 @@ export function PracticePage() {
         reasoning,
       })
       setFeedback(result)
+      persistState({ feedback: result })
       savePracticeRecord(scenario, selectedMethods, result)
     } catch (e) {
       setError(e instanceof ApiError ? e.message : t('提交失败，请重试。'))
     } finally {
       setSubmitting(false)
     }
+  }
+
+  function handleNewScenario() {
+    clearSession()
+    void loadScenario()
   }
 
   return (
@@ -97,8 +164,7 @@ export function PracticePage() {
         </div>
         <div className="flex items-center gap-2">
           <DifficultySelector value={difficulty} onChange={setDifficulty} t={t} />
-          <Button variant="outline" size="sm" onClick={loadScenario} disabled={loading}>
-            <RefreshCw className={cn('mr-1.5 size-3.5', loading && 'animate-spin')} />
+          <Button variant="outline" size="sm" onClick={handleNewScenario} disabled={loading}>
             {t('换一个')}
           </Button>
         </div>
@@ -187,7 +253,7 @@ export function PracticePage() {
                     rows={4}
                     placeholder={t('例如：这个场景的核心问题是...所以我选择...因为...')}
                     value={reasoning}
-                    onChange={(e) => setReasoning(e.target.value)}
+                    onChange={(e) => handleReasoningChange(e.target.value)}
                   />
                 </CardContent>
               </Card>
@@ -198,20 +264,21 @@ export function PracticePage() {
                   disabled={selectedMethods.length === 0 || submitting}
                   className="min-w-[120px]"
                 >
-                  {submitting ? (
-                    <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-                  ) : (
-                    <Send className="mr-1.5 size-3.5" />
-                  )}
+                  {submitting && <Loader2 className="mr-1.5 size-3.5 animate-spin" />}
                   {t('提交答案')}
                 </Button>
               </div>
             </>
           ) : (
-            <FeedbackPanel feedback={feedback} scenario={scenario} t={t} en={en} onNext={loadScenario} />
+            <FeedbackPanel feedback={feedback} scenario={scenario} t={t} en={en} onNext={handleNewScenario} />
           )}
         </div>
-      ) : null}
+      ) : (
+        <div className="mt-12 flex flex-col items-center gap-3">
+          <p className="text-sm text-muted-foreground">{t('点击下方按钮生成一个训练场景。')}</p>
+          <Button onClick={handleNewScenario}>{t('开始训练')}</Button>
+        </div>
+      )}
     </div>
   )
 }
@@ -234,11 +301,6 @@ function FeedbackPanel({
       <Card className={cn(feedback.correct ? 'border-[var(--success)]/30' : 'border-[var(--warning)]/30')}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            {feedback.correct ? (
-              <CheckCircle2 className="size-5 text-[var(--success)]" />
-            ) : (
-              <XCircle className="size-5 text-[var(--warning)]" />
-            )}
             {t(feedback.correct ? '判断正确' : '需要调整')}
             <Badge variant="outline">{feedback.score}/100</Badge>
           </CardTitle>
@@ -304,7 +366,6 @@ function FeedbackPanel({
 
       <div className="flex justify-center">
         <Button onClick={onNext} className="min-w-[140px]">
-          <RefreshCw className="mr-1.5 size-3.5" />
           {t('下一个场景')}
         </Button>
       </div>
@@ -349,7 +410,8 @@ function DifficultySelector({
 function savePracticeRecord(scenario: Scenario, selected: string[], feedback: PracticeFeedback) {
   try {
     const key = 'clarity-practice-records'
-    const existing = JSON.parse(localStorage.getItem(key) ?? '[]')
+    const raw = localStorage.getItem(key)
+    const existing: unknown[] = raw ? JSON.parse(raw) : []
     existing.push({
       scenarioId: scenario.id,
       scenarioTitle: scenario.title,
@@ -361,6 +423,6 @@ function savePracticeRecord(scenario: Scenario, selected: string[], feedback: Pr
     })
     localStorage.setItem(key, JSON.stringify(existing))
   } catch {
-    // 静默失败
+    // quota exceeded — ignore
   }
 }

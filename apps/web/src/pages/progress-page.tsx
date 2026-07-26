@@ -1,7 +1,5 @@
 import { useMemo } from 'react'
 
-import { Award, Calendar, Target, TrendingUp } from 'lucide-react'
-
 import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@clarity/analysis-engine'
 import type { TaskType } from '@clarity/domain'
 
@@ -72,11 +70,10 @@ export function ProgressPage() {
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Target} label={t('总练习')} value={String(totalPractices)} />
-        <StatCard icon={Award} label={t('正确率')} value={`${accuracy}%`} />
-        <StatCard icon={TrendingUp} label={t('正确数')} value={String(correctCount)} />
+        <StatCard label={t('总练习')} value={String(totalPractices)} />
+        <StatCard label={t('正确率')} value={`${accuracy}%`} />
+        <StatCard label={t('正确数')} value={String(correctCount)} />
         <StatCard
-          icon={Calendar}
           label={t('最近练习')}
           value={records.length > 0 ? formatDate(records.at(-1)!.completedAt) : t('暂无')}
         />
@@ -169,17 +166,12 @@ export function ProgressPage() {
   )
 }
 
-function StatCard({ icon: Icon, label, value }: { icon: typeof Target; label: string; value: string }) {
+function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <Card>
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
-          <Icon className="size-5 text-primary" />
-        </div>
-        <div>
-          <div className="text-2xl font-semibold tabular-nums">{value}</div>
-          <div className="text-xs text-muted-foreground">{label}</div>
-        </div>
+      <CardContent className="p-4">
+        <div className="text-2xl font-semibold tabular-nums">{value}</div>
+        <div className="mt-1 text-xs text-muted-foreground">{label}</div>
       </CardContent>
     </Card>
   )

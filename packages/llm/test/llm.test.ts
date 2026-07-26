@@ -5,7 +5,7 @@ import { getConfiguredProviders } from '../src/providers.js'
 
 describe('model resolution', () => {
   it('uses the first configured provider in detection order', () => {
-    expect(resolveModelId({ DEEPSEEK_API_KEY: 'k', MOONSHOT_API_KEY: 'k' })).toBe('deepseek:deepseek-chat')
+    expect(resolveModelId({ DEEPSEEK_API_KEY: 'k', MOONSHOT_API_KEY: 'k' })).toBe('deepseek:deepseek-v4-pro')
     expect(resolveModelId({ OPENAI_API_KEY: 'k' })).toBe('openai:gpt-5.6-sol')
   })
 
