@@ -4,7 +4,7 @@
 
 Learn analysis methods. Do the analysis yourself.
 
-[中文](./README.md) · [Get Started](#get-started) · [Deploy](#deploy)
+[中文](./README.md) · [Get Started](https://analytical-ability-web.vercel.app/) · [Deploy](#deploy)
 
 </div>
 
