@@ -6,9 +6,6 @@ import { Loader2 } from 'lucide-react'
 import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@clarity/analysis-engine'
 import type { TaskType } from '@clarity/domain'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ApiError, generateScenario, submitPractice } from '@/lib/api'
 import type { PracticeFeedback, Scenario } from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -38,7 +35,7 @@ function saveSession(session: PracticeSession) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session))
   } catch {
-    // quota exceeded — ignore
+    // quota exceeded
   }
 }
 
@@ -154,119 +151,111 @@ export function PracticePage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+    <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">{t('场景训练')}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <h1 className="text-xl font-semibold">{t('场景训练')}</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
             {t('阅读场景，判断该用什么分析方法，写出你的思路。提交后获得反馈。')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <DifficultySelector value={difficulty} onChange={setDifficulty} t={t} />
-          <Button variant="outline" size="sm" onClick={handleNewScenario} disabled={loading}>
+          <button
+            type="button"
+            onClick={handleNewScenario}
+            disabled={loading}
+            className="rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
+          >
             {t('换一个')}
-          </Button>
+          </button>
         </div>
       </div>
 
-      {error ? (
-        <div className="mt-6 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+      {error && (
+        <div className="mt-5 rounded-md border border-[var(--destructive)]/30 px-4 py-3 text-sm text-[var(--destructive)]">
           {error}
         </div>
-      ) : null}
+      )}
 
       {loading ? (
         <div className="mt-12 flex flex-col items-center gap-3 text-muted-foreground">
-          <Loader2 className="size-6 animate-spin" />
+          <Loader2 className="size-5 animate-spin" />
           <span className="text-sm">{t('正在生成训练场景...')}</span>
         </div>
       ) : scenario ? (
-        <div className="mt-8 space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex flex-wrap items-center gap-2">
-                <CardTitle className="text-lg">{scenario.title}</CardTitle>
-                <Badge variant="outline">{labels[scenario.taskType as TaskType] ?? scenario.taskType}</Badge>
-                <Badge variant="secondary">
-                  {t(
-                    scenario.difficulty === 'beginner'
-                      ? '入门'
-                      : scenario.difficulty === 'intermediate'
-                        ? '进阶'
-                        : '挑战',
-                  )}
-                </Badge>
+        <div className="mt-6 space-y-6">
+          {/* 场景描述 */}
+          <section className="rounded-md border border-border">
+            <div className="border-b border-border px-4 py-3">
+              <div className="flex items-baseline gap-2">
+                <h2 className="font-medium">{scenario.title}</h2>
+                <span className="text-xs text-muted-foreground">
+                  {labels[scenario.taskType as TaskType] ?? scenario.taskType}
+                </span>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm leading-7">{scenario.description}</p>
-              <div className="rounded-md bg-muted p-4">
-                <div className="text-xs font-medium text-muted-foreground">{t('背景信息')}</div>
-                <p className="mt-1 text-sm leading-6">{scenario.context}</p>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="px-4 py-3 text-sm leading-relaxed">{scenario.description}</div>
+            <div className="border-t border-border bg-secondary px-4 py-3">
+              <div className="text-xs font-medium text-muted-foreground">{t('背景信息')}</div>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{scenario.context}</p>
+            </div>
+          </section>
 
           {!feedback ? (
             <>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">{t('你认为该用什么分析方法？')}</CardTitle>
-                  <p className="text-xs text-muted-foreground">{t('可以选择一个或多个。先独立思考再选择。')}</p>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-                    {methodRegistry.map((method) => {
-                      const name = en ? method.name.en : method.name.zh
-                      const selected = selectedMethods.includes(method.id)
-                      return (
-                        <button
-                          key={method.id}
-                          type="button"
-                          onClick={() => toggleMethod(method.id)}
-                          className={cn(
-                            'rounded-md border px-3 py-2.5 text-left text-sm transition',
-                            selected
-                              ? 'border-primary bg-primary/5 font-medium text-foreground'
-                              : 'border-border text-muted-foreground hover:border-ring',
-                          )}
-                        >
-                          {name}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
+              {/* 方法选择 */}
+              <section>
+                <h2 className="text-sm font-medium">{t('你认为该用什么分析方法？')}</h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">{t('可以选择一个或多个。先独立思考再选择。')}</p>
+                <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+                  {methodRegistry.map((method) => {
+                    const name = en ? method.name.en : method.name.zh
+                    const selected = selectedMethods.includes(method.id)
+                    return (
+                      <button
+                        key={method.id}
+                        type="button"
+                        onClick={() => toggleMethod(method.id)}
+                        className={cn(
+                          'rounded-md border px-3 py-2 text-left text-sm transition-colors',
+                          selected
+                            ? 'border-foreground bg-foreground text-background'
+                            : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
+                        )}
+                      >
+                        {name}
+                      </button>
+                    )
+                  })}
+                </div>
+              </section>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">{t('写出你的分析思路')}</CardTitle>
-                  <p className="text-xs text-muted-foreground">
-                    {t('为什么选这个方法？你打算怎么用它？（可选但强烈建议填写，帮助你理清思路）')}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <textarea
-                    className="w-full rounded-md border border-border bg-background p-3 text-sm leading-6 placeholder:text-muted-foreground/60 focus:border-ring focus:outline-none"
-                    rows={4}
-                    placeholder={t('例如：这个场景的核心问题是...所以我选择...因为...')}
-                    value={reasoning}
-                    onChange={(e) => handleReasoningChange(e.target.value)}
-                  />
-                </CardContent>
-              </Card>
+              {/* 思路 */}
+              <section>
+                <h2 className="text-sm font-medium">{t('写出你的分析思路')}</h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t('为什么选这个方法？你打算怎么用它？（可选但强烈建议填写，帮助你理清思路）')}
+                </p>
+                <textarea
+                  className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:border-ring focus:outline-none"
+                  rows={4}
+                  placeholder={t('例如：这个场景的核心问题是...所以我选择...因为...')}
+                  value={reasoning}
+                  onChange={(e) => handleReasoningChange(e.target.value)}
+                />
+              </section>
 
               <div className="flex justify-end">
-                <Button
+                <button
+                  type="button"
                   onClick={handleSubmit}
                   disabled={selectedMethods.length === 0 || submitting}
-                  className="min-w-[120px]"
+                  className="inline-flex items-center rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity disabled:opacity-50"
                 >
                   {submitting && <Loader2 className="mr-1.5 size-3.5 animate-spin" />}
                   {t('提交答案')}
-                </Button>
+                </button>
               </div>
             </>
           ) : (
@@ -276,7 +265,13 @@ export function PracticePage() {
       ) : (
         <div className="mt-12 flex flex-col items-center gap-3">
           <p className="text-sm text-muted-foreground">{t('点击下方按钮生成一个训练场景。')}</p>
-          <Button onClick={handleNewScenario}>{t('开始训练')}</Button>
+          <button
+            type="button"
+            onClick={handleNewScenario}
+            className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background"
+          >
+            {t('开始训练')}
+          </button>
         </div>
       )}
     </div>
@@ -297,59 +292,54 @@ function FeedbackPanel({
   onNext: () => void
 }) {
   return (
-    <div className="space-y-4">
-      <Card className={cn(feedback.correct ? 'border-[var(--success)]/30' : 'border-[var(--warning)]/30')}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            {t(feedback.correct ? '判断正确' : '需要调整')}
-            <Badge variant="outline">{feedback.score}/100</Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm leading-6">{feedback.feedback}</p>
+    <div className="space-y-5">
+      <section className="rounded-md border border-border">
+        <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+          <span className="font-medium">{t(feedback.correct ? '判断正确' : '需要调整')}</span>
+          <span className="rounded-full bg-secondary px-2 py-0.5 text-xs tabular-nums">{feedback.score}/100</span>
+        </div>
+        <div className="px-4 py-3 text-sm leading-relaxed">{feedback.feedback}</div>
 
-          <div>
-            <h3 className="text-sm font-medium">{t('方法适配分析')}</h3>
-            <div className="mt-2 space-y-2">
-              {feedback.methodExplanations.map((item) => {
-                const spec = methodRegistry.find((m) => m.id === item.methodId)
-                const name = spec ? (en ? spec.name.en : spec.name.zh) : item.methodId
-                return (
-                  <div
-                    key={item.methodId}
-                    className={cn(
-                      'rounded-md border p-3 text-sm',
-                      item.fit === 'good' && 'border-[var(--success)]/30 bg-[var(--success)]/5',
-                      item.fit === 'partial' && 'border-border bg-muted/50',
-                      item.fit === 'poor' && 'border-[var(--warning)]/30 bg-[var(--warning)]/5',
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{name}</span>
-                      <Badge variant={item.fit === 'good' ? 'success' : item.fit === 'partial' ? 'outline' : 'warning'}>
-                        {t(item.fit === 'good' ? '适合' : item.fit === 'partial' ? '部分适合' : '不太合适')}
-                      </Badge>
-                    </div>
-                    <p className="mt-1 text-muted-foreground">{item.explanation}</p>
+        <div className="border-t border-border px-4 py-3">
+          <h3 className="text-sm font-medium">{t('方法适配分析')}</h3>
+          <div className="mt-2 space-y-2">
+            {feedback.methodExplanations.map((item) => {
+              const spec = methodRegistry.find((m) => m.id === item.methodId)
+              const name = spec ? (en ? spec.name.en : spec.name.zh) : item.methodId
+              return (
+                <div key={item.methodId} className="rounded-md border border-border px-3 py-2.5 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{name}</span>
+                    <span
+                      className={cn(
+                        'rounded-full px-1.5 py-0.5 text-xs',
+                        item.fit === 'good' &&
+                          'bg-[color-mix(in_srgb,var(--success)_12%,transparent)] text-[var(--success)]',
+                        item.fit === 'partial' && 'bg-secondary text-muted-foreground',
+                        item.fit === 'poor' &&
+                          'bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] text-[var(--warning)]',
+                      )}
+                    >
+                      {t(item.fit === 'good' ? '适合' : item.fit === 'partial' ? '部分适合' : '不太合适')}
+                    </span>
                   </div>
-                )
-              })}
-            </div>
+                  <p className="mt-1 text-muted-foreground">{item.explanation}</p>
+                </div>
+              )
+            })}
           </div>
+        </div>
 
-          <div className="rounded-md bg-primary/5 p-4">
-            <h3 className="text-sm font-medium text-primary">{t('下次记住')}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{feedback.improvementTip}</p>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="border-t border-border bg-secondary px-4 py-3">
+          <h3 className="text-sm font-medium">{t('下次记住')}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{feedback.improvementTip}</p>
+        </div>
+      </section>
 
-      {scenario.commonMistakes.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t('常见误区')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+      {scenario.commonMistakes.length > 0 && (
+        <section className="rounded-md border border-border px-4 py-3">
+          <h3 className="text-sm font-medium">{t('常见误区')}</h3>
+          <div className="mt-2 space-y-1.5">
             {scenario.commonMistakes.map((mistake) => {
               const spec = methodRegistry.find((m) => m.id === mistake.methodId)
               const name = spec ? (en ? spec.name.en : spec.name.zh) : mistake.methodId
@@ -360,14 +350,18 @@ function FeedbackPanel({
                 </div>
               )
             })}
-          </CardContent>
-        </Card>
-      ) : null}
+          </div>
+        </section>
+      )}
 
       <div className="flex justify-center">
-        <Button onClick={onNext} className="min-w-[140px]">
+        <button
+          type="button"
+          onClick={onNext}
+          className="rounded-md border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+        >
           {t('下一个场景')}
-        </Button>
+        </button>
       </div>
     </div>
   )
@@ -389,15 +383,17 @@ function DifficultySelector({
   ]
 
   return (
-    <div className="flex rounded-md border border-border">
+    <div className="flex overflow-hidden rounded-md border border-border">
       {options.map((opt) => (
         <button
           key={opt.id}
           type="button"
           onClick={() => onChange(opt.id)}
           className={cn(
-            'px-3 py-1.5 text-xs transition first:rounded-l-md last:rounded-r-md',
-            value === opt.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted',
+            'px-2.5 py-1.5 text-xs transition-colors',
+            value === opt.id
+              ? 'bg-foreground text-background'
+              : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
           )}
         >
           {opt.label}
@@ -423,6 +419,6 @@ function savePracticeRecord(scenario: Scenario, selected: string[], feedback: Pr
     })
     localStorage.setItem(key, JSON.stringify(existing))
   } catch {
-    // quota exceeded — ignore
+    // quota exceeded
   }
 }

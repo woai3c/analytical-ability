@@ -26,13 +26,12 @@ export function AppShell() {
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[232px] border-r border-border bg-card lg:flex lg:flex-col">
-        <div className="flex h-[52px] items-center border-b border-border px-4">
-          <span className="text-sm font-semibold tracking-tight">Clarity</span>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-border lg:flex lg:flex-col">
+        <div className="flex h-14 items-center px-5">
+          <span className="text-base font-semibold">Clarity</span>
         </div>
 
-        <nav className="flex-1 px-2.5 py-4" aria-label={t('主要导航')}>
-          <div className="px-2 pb-2 text-eyebrow font-medium uppercase text-muted-foreground">{t('学习')}</div>
+        <nav className="flex-1 px-3 py-2" aria-label={t('主要导航')}>
           <div className="space-y-0.5">
             {navigation.map((item) => (
               <NavLink
@@ -41,8 +40,10 @@ export function AppShell() {
                 end={item.end}
                 className={({ isActive }) =>
                   cn(
-                    'flex h-8 items-center rounded-md px-2.5 text-[13px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
-                    isActive && 'bg-secondary font-medium text-foreground',
+                    'block rounded-md px-3 py-1.5 text-sm transition-colors',
+                    isActive
+                      ? 'bg-secondary font-medium text-foreground'
+                      : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
                   )
                 }
               >
@@ -51,14 +52,10 @@ export function AppShell() {
             ))}
           </div>
         </nav>
-
-        <div className="flex gap-2 border-t border-border px-4 py-3 text-[11px] leading-5 text-muted-foreground">
-          <span>{t('学会分析方法，自己做分析。')}</span>
-        </div>
       </aside>
 
-      <div className="lg:pl-[232px]">
-        <header className="sticky top-0 z-20 flex min-h-[52px] items-center justify-between gap-3 border-b border-border bg-background px-4 py-2 sm:px-6 lg:px-7">
+      <div className="lg:pl-64">
+        <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-background px-5 sm:px-6">
           <span className="text-sm font-medium">{t(currentTitle)}</span>
           <div className="flex items-center gap-1">
             <LanguageSwitcher />
@@ -72,7 +69,7 @@ export function AppShell() {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-border bg-card px-2 pb-[max(.4rem,env(safe-area-inset-bottom))] pt-1.5 lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-border bg-background px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 lg:hidden"
         aria-label={t('移动端导航')}
       >
         {navigation.map((item) => (
@@ -82,8 +79,8 @@ export function AppShell() {
             end={item.end}
             className={({ isActive }) =>
               cn(
-                'flex items-center justify-center rounded-md py-2 text-xs text-muted-foreground',
-                isActive && 'font-medium text-foreground',
+                'flex items-center justify-center rounded-md py-2 text-xs',
+                isActive ? 'font-medium text-foreground' : 'text-muted-foreground',
               )
             }
           >
