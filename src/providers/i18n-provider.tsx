@@ -490,6 +490,8 @@ const english: Record<string, string> = {
   教练反馈: 'Coach feedback',
   '在这里写下你对核心问题的理解...': 'Write your understanding of the core problem here...',
   提交并继续: 'Submit & Continue',
+  '跳过，看答案': 'Skip, show answer',
+  '处理中...': 'Processing...',
   '准备好获取综合评价了吗？': 'Ready to receive your comprehensive review?',
   'AI 教练将对你整个分析过程进行综合评审和打分。': 'The AI coach will review and score your entire analysis process.',
   获取评价: 'Get Review',

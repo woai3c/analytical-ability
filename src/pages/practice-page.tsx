@@ -102,6 +102,7 @@ function saveRecord(session: GuidedSession) {
       methodApplication: session.steps.methodApplication?.userWork,
       conclusion: session.steps.conclusion?.userAnswer,
       dimensions: session.steps.reflection?.dimensions,
+      steps: session.steps,
     })
     localStorage.setItem(RECORDS_KEY, JSON.stringify(existing))
   } catch {
@@ -366,6 +367,7 @@ function GuidedTraining({
       setSession(withAi)
       saveSession(withAi)
       setTokenUsage(newUsage)
+      setExpandedSteps((prev) => new Set([...prev, session.currentStep]))
     } catch (e) {
       setError(e instanceof LlmError ? e.message : t('提交失败，请重试。'))
     } finally {
@@ -595,10 +597,10 @@ function CompletedStep({
 // ── Active Step ──────────────────────────────────────────────────
 
 type StepUserInput =
-  | { step: 1; userAnswer: string }
-  | { step: 2; selectedMethods: string[]; reasoning: string }
-  | { step: 3; userWork: string }
-  | { step: 4; userAnswer: string }
+  | { step: 1; userAnswer: string; skipped?: boolean }
+  | { step: 2; selectedMethods: string[]; reasoning: string; skipped?: boolean }
+  | { step: 3; userWork: string; skipped?: boolean }
+  | { step: 4; userAnswer: string; skipped?: boolean }
   | { step: 5 }
 
 function ActiveStep({
@@ -693,7 +695,12 @@ function Step1Input({
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <div className="mt-3 flex justify-end">
+      <div className="mt-3 flex items-center justify-end gap-2">
+        <SkipButton
+          submitting={submitting}
+          onClick={() => onSubmit({ step: 1, userAnswer: en ? '(skipped)' : '（跳过）', skipped: true })}
+          t={t}
+        />
         <SubmitButton
           disabled={!value.trim() || submitting}
           loading={submitting}
@@ -786,7 +793,19 @@ function Step2Input({
         value={reasoning}
         onChange={(e) => setReasoning(e.target.value)}
       />
-      <div className="mt-3 flex justify-end">
+      <div className="mt-3 flex items-center justify-end gap-2">
+        <SkipButton
+          submitting={submitting}
+          onClick={() =>
+            onSubmit({
+              step: 2,
+              selectedMethods: scenario.applicableMethods ?? [],
+              reasoning: en ? '(skipped)' : '（跳过）',
+              skipped: true,
+            })
+          }
+          t={t}
+        />
         <SubmitButton
           disabled={selected.length === 0 || !reasoning.trim() || submitting}
           loading={submitting}
@@ -877,7 +896,12 @@ function Step3Input({
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <div className="mt-3 flex justify-end">
+      <div className="mt-3 flex items-center justify-end gap-2">
+        <SkipButton
+          submitting={submitting}
+          onClick={() => onSubmit({ step: 3, userWork: en ? '(skipped)' : '（跳过）', skipped: true })}
+          t={t}
+        />
         <SubmitButton
           disabled={!value.trim() || submitting}
           loading={submitting}
@@ -938,7 +962,12 @@ function Step4Input({
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <div className="mt-3 flex justify-end">
+      <div className="mt-3 flex items-center justify-end gap-2">
+        <SkipButton
+          submitting={submitting}
+          onClick={() => onSubmit({ step: 4, userAnswer: en ? '(skipped)' : '（跳过）', skipped: true })}
+          t={t}
+        />
         <SubmitButton
           disabled={!value.trim() || submitting}
           loading={submitting}
@@ -1044,6 +1073,27 @@ function SubmitButton({
     >
       {loading && <Loader2 className="mr-1.5 size-3.5 animate-spin" />}
       {label ?? t('提交并继续')}
+    </button>
+  )
+}
+
+function SkipButton({
+  submitting,
+  onClick,
+  t,
+}: {
+  submitting: boolean
+  onClick: () => void
+  t: (s: string) => string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={submitting}
+      className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
+    >
+      {submitting ? t('处理中...') : t('跳过，看答案')}
     </button>
   )
 }

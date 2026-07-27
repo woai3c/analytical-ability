@@ -8,6 +8,19 @@ import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
 
+interface StepRecord {
+  problemDefinition?: { userAnswer: string; aiResponse: string } | null
+  methodSelection?: { selectedMethods: string[]; reasoning: string; aiResponse: string } | null
+  methodApplication?: { userWork: string; aiResponse: string } | null
+  conclusion?: { userAnswer: string; aiResponse: string } | null
+  reflection?: {
+    aiFeedback: string
+    score: number
+    dimensions: Array<{ name: string; score: number; comment: string }>
+    tips: string[]
+  } | null
+}
+
 interface PracticeRecord {
   scenarioId: string
   scenarioTitle: string
@@ -22,6 +35,7 @@ interface PracticeRecord {
   improvementTip?: string
   methodExplanations?: Array<{ methodId: string; explanation: string; isBestFit: boolean }>
   completedAt: string
+  steps?: StepRecord
 }
 
 function loadRecords(): PracticeRecord[] {
@@ -345,9 +359,18 @@ function formatDate(iso: string): string {
   }
 }
 
+const stepLabelsProgress = {
+  1: { zh: '定义问题', en: 'Define Problem' },
+  2: { zh: '选择方法', en: 'Select Method' },
+  3: { zh: '运用方法', en: 'Apply Method' },
+  4: { zh: '得出结论', en: 'Draw Conclusion' },
+  5: { zh: '综合评审', en: 'Final Review' },
+} as const
+
 function RecordDetail({ record, t, en }: { record: PracticeRecord; t: (s: string) => string; en: boolean }) {
-  const hasDetail = record.scenarioDescription || record.feedback
-  if (!hasDetail) {
+  const steps = record.steps
+
+  if (!steps && !record.scenarioDescription) {
     return (
       <div className="border-t border-border px-3.5 py-3 text-xs text-muted-foreground">
         {t('该记录保存时未包含详情数据。')}
@@ -355,55 +378,82 @@ function RecordDetail({ record, t, en }: { record: PracticeRecord; t: (s: string
     )
   }
 
+  const stepEntries: Array<{ num: number; user: string; ai: string }> = []
+  if (steps) {
+    if (steps.problemDefinition)
+      stepEntries.push({ num: 1, user: steps.problemDefinition.userAnswer, ai: steps.problemDefinition.aiResponse })
+    if (steps.methodSelection)
+      stepEntries.push({
+        num: 2,
+        user: `${steps.methodSelection.selectedMethods
+          .map((id) => {
+            const spec = methodRegistry.find((m) => m.id === id)
+            return spec ? (en ? spec.name.en : spec.name.zh) : id
+          })
+          .join('、')}\n${steps.methodSelection.reasoning}`,
+        ai: steps.methodSelection.aiResponse,
+      })
+    if (steps.methodApplication)
+      stepEntries.push({ num: 3, user: steps.methodApplication.userWork, ai: steps.methodApplication.aiResponse })
+    if (steps.conclusion)
+      stepEntries.push({ num: 4, user: steps.conclusion.userAnswer, ai: steps.conclusion.aiResponse })
+    if (steps.reflection)
+      stepEntries.push({
+        num: 5,
+        user: '',
+        ai: steps.reflection.aiFeedback,
+      })
+  }
+
   return (
-    <div className="border-t border-border px-3.5 py-3 space-y-3 text-sm">
+    <div className="border-t border-border px-3.5 py-3 space-y-4 text-sm">
       {record.scenarioDescription && (
         <div>
           <h4 className="text-xs font-medium text-muted-foreground">{t('场景描述')}</h4>
           <p className="mt-1 leading-relaxed">{record.scenarioDescription}</p>
         </div>
       )}
-      {record.scenarioContext && (
-        <div>
-          <h4 className="text-xs font-medium text-muted-foreground">{t('背景信息')}</h4>
-          <p className="mt-1 leading-relaxed">{record.scenarioContext}</p>
-        </div>
-      )}
-      {record.applicableMethods && (
-        <div>
-          <h4 className="text-xs font-medium text-muted-foreground">{t('最佳方法')}</h4>
-          <p className="mt-1">
-            {record.applicableMethods
-              .map((id) => {
-                const spec = methodRegistry.find((m) => m.id === id)
-                return spec ? (en ? spec.name.en : spec.name.zh) : id
-              })
-              .join('、')}
-          </p>
-        </div>
-      )}
-      <div>
-        <h4 className="text-xs font-medium text-muted-foreground">{t('你的选择')}</h4>
-        <p className="mt-1">
-          {record.selectedMethods
-            .map((id) => {
-              const spec = methodRegistry.find((m) => m.id === id)
-              return spec ? (en ? spec.name.en : spec.name.zh) : id
-            })
-            .join('、')}
-        </p>
-      </div>
-      {record.feedback && (
-        <div>
-          <h4 className="text-xs font-medium text-muted-foreground">{t('AI 反馈')}</h4>
-          <p className="mt-1 leading-relaxed">{record.feedback}</p>
-        </div>
-      )}
-      {record.improvementTip && (
-        <div>
-          <h4 className="text-xs font-medium text-muted-foreground">{t('改进建议')}</h4>
-          <p className="mt-1 leading-relaxed">{record.improvementTip}</p>
-        </div>
+
+      {stepEntries.length > 0 ? (
+        stepEntries.map((entry) => {
+          const label = en
+            ? stepLabelsProgress[entry.num as keyof typeof stepLabelsProgress].en
+            : stepLabelsProgress[entry.num as keyof typeof stepLabelsProgress].zh
+          return (
+            <div key={entry.num} className="rounded-lg border border-border-subtle bg-secondary/50 p-3">
+              <h4 className="text-xs font-semibold">
+                {t('步骤')} {entry.num}：{label}
+              </h4>
+              {entry.user && (
+                <div className="mt-2">
+                  <span className="text-[10px] font-medium text-muted-foreground">{t('你的回答')}</span>
+                  <p className="mt-0.5 whitespace-pre-wrap leading-relaxed">{entry.user}</p>
+                </div>
+              )}
+              {entry.ai && (
+                <div className="mt-2">
+                  <span className="text-[10px] font-medium text-muted-foreground">{t('教练反馈')}</span>
+                  <p className="mt-0.5 whitespace-pre-wrap leading-relaxed text-muted-foreground">{entry.ai}</p>
+                </div>
+              )}
+            </div>
+          )
+        })
+      ) : (
+        <>
+          {record.feedback && (
+            <div>
+              <h4 className="text-xs font-medium text-muted-foreground">{t('AI 反馈')}</h4>
+              <p className="mt-1 leading-relaxed">{record.feedback}</p>
+            </div>
+          )}
+          {record.improvementTip && (
+            <div>
+              <h4 className="text-xs font-medium text-muted-foreground">{t('改进建议')}</h4>
+              <p className="mt-1 leading-relaxed">{record.improvementTip}</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

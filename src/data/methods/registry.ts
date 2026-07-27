@@ -39,8 +39,8 @@ export const methodRegistry: readonly MethodSpec[] = [
     purpose: { zh: '把问题按类别展开成候选原因树', en: 'Expand a problem into a tree of candidate causes by category' },
     taskTypes: ['diagnosis'],
     introduction: {
-      zh: '鱼骨图（又称石川图、因果图）由日本质量管理专家石川馨于 1960 年代提出。核心思想是：面对一个问题时，不要急着猜答案，而是先按「人、机、料、法、环、测」等类别系统地展开所有可能的原因。它的价值在于防止遗漏——团队往往只关注最显眼的原因，鱼骨图强制你扫描每个类别。适合问题刚出现、原因不明确、需要头脑风暴列出候选原因的阶段。',
-      en: "The fishbone diagram (also called Ishikawa or cause-and-effect diagram) was developed by Kaoru Ishikawa in the 1960s. The core idea: when facing a problem, don't jump to conclusions—systematically list all possible causes organized by categories such as People, Machine, Material, Method, Environment, and Measurement. Its value lies in preventing blind spots: teams tend to fixate on the most obvious cause, and the fishbone forces you to scan every category. Best used when a problem has just surfaced, root causes are unclear, and you need structured brainstorming.",
+      zh: '鱼骨图（又称石川图、因果图）由日本质量管理专家石川馨于 1960 年代提出。核心思想是：面对一个问题时，不要急着猜答案，而是先按 6 大类别系统地展开所有可能的原因，这 6 类被称为"6M"：\n\n· 人（Man）——执行操作的人员，包括技能水平、培训、经验、态度等\n· 机（Machine）——使用的设备、工具、系统、软件，包括老化、故障、配置等\n· 料（Material）——原材料、输入数据、供应商质量等\n· 法（Method）——操作流程、规范、标准、制度等\n· 环（Environment）——外部环境因素，如温度、市场变化、竞争对手、政策等\n· 测（Measurement）——度量和检测手段，数据是否准确、监控是否到位等\n\n鱼骨图的价值在于防止遗漏——团队往往只关注最显眼的原因，鱼骨图强制你扫描每个类别。适合问题刚出现、原因不明确、需要头脑风暴列出候选原因的阶段。',
+      en: 'The fishbone diagram (also called Ishikawa or cause-and-effect diagram) was developed by Kaoru Ishikawa in the 1960s. The core idea: when facing a problem, don\'t jump to conclusions—systematically list all possible causes organized by 6 categories, known as the "6Ms":\n\n· Man (People) — the people performing the work: skill level, training, experience, attitudes\n· Machine — equipment, tools, systems, software: aging, breakdowns, configurations\n· Material — raw materials, input data, supplier quality\n· Method — processes, procedures, standards, policies\n· Environment — external factors: temperature, market changes, competitors, regulations\n· Measurement — metrics and detection: is the data accurate? Is monitoring in place?\n\nIts value lies in preventing blind spots: teams tend to fixate on the most obvious cause, and the fishbone forces you to scan every category. Best used when a problem has just surfaced, root causes are unclear, and you need structured brainstorming.',
     },
     whenToUse: {
       zh: '问题刚出现，你还不确定原因在哪个方向；需要带团队一起发散思考；担心遗漏了某类原因。触发信号："我们只是在猜"、"每个人说的原因都不一样"、"上次修了没用，可能不是那个原因"。',
@@ -280,8 +280,8 @@ export const methodRegistry: readonly MethodSpec[] = [
     },
     taskTypes: ['diagnosis', 'prediction'],
     introduction: {
-      zh: '因果图（DAG，有向无环图）是把"我认为 A 会影响 B"这种假设显式画出来的工具。当你观察到两个变量相关时，可能是 A→B、B→A、或者有个共同原因 C 同时影响了它们。因果图强迫你把每条假设的方向画清楚，从而暴露混杂变量和虚假相关。适合你需要区分"相关"和"因果"的场景。',
-      en: 'A causal graph (DAG, Directed Acyclic Graph) makes your assumptions about cause-and-effect explicit. When two variables are correlated, it could be A→B, B→A, or a common cause C affecting both. Causal graphs force you to draw each assumed direction clearly, exposing confounders and spurious correlations. Use it when you need to distinguish "correlation" from "causation".',
+      zh: '因果图是一种把"我认为 A 会影响 B"这种假设显式画出来的工具，学术名称叫 DAG（有向无环图，即箭头只朝一个方向、不形成闭环的图）。当你观察到两个变量相关时，可能有三种情况：A 导致了 B、B 导致了 A、或者有个你没注意到的第三个因素 C 同时影响了它们（这个 C 就叫"混杂变量"，是造成虚假因果判断的常见原因）。因果图强迫你把每条假设的方向用箭头画清楚，从而暴露那些隐藏的混杂变量。适合你需要区分"两件事总是一起出现"（相关）和"A 真的导致了 B"（因果）的场景。',
+      en: 'A causal graph is a tool to make your "I think A influences B" assumptions explicit. Its academic name is DAG (Directed Acyclic Graph — a diagram where arrows only go in one direction and never form loops). When two variables are correlated, there are three possibilities: A causes B, B causes A, or there\'s a hidden third factor C affecting both (this C is called a "confounder" — a common source of false causal conclusions). Causal graphs force you to draw each assumed direction with arrows, exposing these hidden confounders. Use it when you need to distinguish "these two things always appear together" (correlation) from "A actually causes B" (causation).',
     },
     whenToUse: {
       zh: '你观察到两件事总是一起出现，想搞清楚"是 A 导致 B，还是巧合"。或者有人拿相关性当因果在做决策（"培训多的员工绩效好，所以加培训预算"）。触发信号："相关不等于因果"、"可能有第三个变量在背后"、"这个结论怎么这么方便"。',
@@ -347,8 +347,8 @@ export const methodRegistry: readonly MethodSpec[] = [
     },
     taskTypes: ['selection'],
     introduction: {
-      zh: 'MCDA 解决的是"鱼和熊掌不可兼得"的问题：当你有多个评价标准且它们互相冲突时（便宜 vs 质量高 vs 交付快），如何系统地比较方案？做法是给每个标准赋权重、给每个方案在每个标准上打分、计算加权总分。关键不是追求"唯一正确答案"，而是让决策过程透明可审视：别人能看到你为什么选了这个，权重调一调结论会不会翻转。',
-      en: 'MCDA addresses "you can\'t have it all": when you have multiple conflicting criteria (cheap vs high quality vs fast delivery), how do you systematically compare options? Assign weights to each criterion, score each option on each criterion, compute weighted totals. The goal isn\'t finding "the one right answer" but making the decision process transparent and auditable: others can see why you chose this, and whether tweaking weights flips the conclusion.',
+      zh: 'MCDA 解决的是"鱼和熊掌不可兼得"的问题：当你有多个评价标准且它们互相冲突时（便宜 vs 质量高 vs 交付快），如何系统地比较方案？做法分三步：\n\n1. 给每个标准赋"权重"——权重就是"这个标准有多重要"，用百分比表示，所有标准的权重加起来等于 100%。比如你觉得价格最重要占 50%，质量占 30%，速度占 20%\n2. 给每个方案在每个标准上打分（比如 0-10 分）\n3. 计算加权总分——每项得分乘以它的权重再加总。比如方案 A 价格得 8 分 × 50% + 质量 6 分 × 30% + 速度 7 分 × 20% = 7.2 分\n\n关键不是追求"唯一正确答案"，而是让决策过程透明可审视：别人能看到你为什么选了这个，权重调一调结论会不会翻转（这叫"敏感性分析"）。',
+      en: 'MCDA addresses "you can\'t have it all": when you have multiple conflicting criteria (cheap vs high quality vs fast delivery), how do you systematically compare options? Three steps:\n\n1. Assign "weights" to each criterion — a weight represents "how important is this criterion," expressed as a percentage, all weights summing to 100%. For example: price matters most at 50%, quality at 30%, speed at 20%\n2. Score each option on each criterion (e.g., 0-10)\n3. Compute weighted totals — multiply each score by its weight and add up. For example: Option A gets price 8 × 50% + quality 6 × 30% + speed 7 × 20% = 7.2\n\nThe goal isn\'t finding "the one right answer" but making the decision process transparent and auditable: others can see why you chose this, and whether tweaking weights flips the conclusion (this is called "sensitivity analysis").',
     },
     whenToUse: {
       zh: '你有 2-5 个现实方案且各有优劣（没有一个全面碾压其他的），需要说服别人（或说服自己）选哪个。触发信号："A 便宜但功能少，B 贵但好，怎么选"、"每个人偏好不同，需要一个透明的比较框架"。',
@@ -462,8 +462,8 @@ export const methodRegistry: readonly MethodSpec[] = [
     },
     taskTypes: ['planning', 'selection', 'improvement'],
     introduction: {
-      zh: 'FMEA（失效模式与效果分析）是一种"事前验尸"工具：在方案执行前，系统性地想象"哪里可能出错"，然后对每种失效按严重度（S）、发生概率（O）、可探测度（D）三个维度打分，乘积为 RPN（风险优先数）。RPN 最高的先处理。它的价值在于把"可能出问题"从模糊焦虑变成可排序的待办。',
-      en: 'FMEA (Failure Mode and Effects Analysis) is a "pre-mortem" tool: before execution, systematically imagine "what could go wrong," then score each failure mode on Severity (S), Occurrence (O), and Detection (D). The product is RPN (Risk Priority Number). Handle highest RPN first. Its value: turning vague worry about "things might go wrong" into a sorted, actionable list.',
+      zh: 'FMEA（失效模式与效果分析）是一种"事前验尸"工具：在方案执行前，系统性地想象"哪里可能出错"，然后对每种失效方式从三个维度打分：\n\n· 严重度 S（Severity）——如果这个问题真的发生了，后果有多严重？（1 = 几乎没影响，10 = 灾难性后果）\n· 发生度 O（Occurrence）——这个问题发生的可能性有多大？（1 = 几乎不可能，10 = 几乎肯定会发生）\n· 可探测度 D（Detection）——如果问题发生了，你能多快发现它？（1 = 立即能发现，10 = 完全发现不了）\n\n三个分数相乘得到 RPN（Risk Priority Number，风险优先数）= S × O × D。RPN 越高，表示这个风险越需要优先处理。它的价值在于把"可能出问题"从模糊焦虑变成可排序的待办清单。',
+      en: 'FMEA (Failure Mode and Effects Analysis) is a "pre-mortem" tool: before execution, systematically imagine "what could go wrong," then score each failure mode on three dimensions:\n\n· Severity (S) — if this failure happens, how bad is the impact? (1 = negligible, 10 = catastrophic)\n· Occurrence (O) — how likely is this failure to happen? (1 = extremely unlikely, 10 = almost certain)\n· Detection (D) — if the failure occurs, how quickly can you detect it? (1 = instantly detectable, 10 = completely undetectable)\n\nMultiply all three to get the RPN (Risk Priority Number) = S × O × D. Higher RPN means higher priority for attention. Its value: turning vague worry about "things might go wrong" into a sorted, actionable list.',
     },
     whenToUse: {
       zh: '你已经选定了一个方案，准备执行——但想提前知道哪里最可能翻车。触发信号："这个方案风险大不大"、"万一出问题怎么办"、"上线前我们该检查什么"。不是在"选方案"而是在"给已选方案做体检"。',
@@ -515,8 +515,8 @@ export const methodRegistry: readonly MethodSpec[] = [
     },
     taskTypes: ['improvement'],
     introduction: {
-      zh: 'DMAIC 是六西格玛的核心方法论，专门用于改进已存在但表现不佳的流程。五个阶段：Define（定义问题）→ Measure（测量现状）→ Analyze（分析根因）→ Improve（实施改进）→ Control（固化成果）。适合你有一个"一直在跑但跑得不好"的流程，需要系统性提升而非推倒重来。',
-      en: 'DMAIC is the core Six Sigma methodology for improving existing but underperforming processes. Five phases: Define → Measure → Analyze → Improve → Control. Use it when you have a process that "keeps running but runs poorly" and needs systematic improvement rather than a complete redesign.',
+      zh: 'DMAIC 是六西格玛（一种以数据驱动的质量管理方法）的核心方法论，专门用于改进已存在但表现不佳的流程。五个阶段各有明确目标：\n\n· Define（定义）——明确要改进什么问题、影响了谁、目标是多少\n· Measure（测量）——收集当前表现数据，用数字建立基线（"现在到底有多差"）\n· Analyze（分析）——用诊断工具（如鱼骨图、5 Why）找到导致差距的根本原因\n· Improve（改进）——针对根因设计解决方案并实施，验证效果\n· Control（控制）——建立监控和标准化机制，确保改进成果不会随时间退化\n\n适合你有一个"一直在跑但跑得不好"的流程，需要系统性提升而非推倒重来。',
+      en: 'DMAIC is the core methodology of Six Sigma (a data-driven quality management approach) for improving existing but underperforming processes. Each of the five phases has a clear goal:\n\n· Define — clarify what problem to fix, who is affected, and the target\n· Measure — collect current performance data to establish a numerical baseline ("how bad is it right now?")\n· Analyze — use diagnostic tools (fishbone, 5 Whys) to find root causes of the gap\n· Improve — design and implement solutions targeting root causes, verify results\n· Control — establish monitoring and standardization to prevent improvements from decaying over time\n\nUse it when you have a process that "keeps running but runs poorly" and needs systematic improvement rather than a complete redesign.',
     },
     whenToUse: {
       zh: '有一个已在运行的流程/系统/服务，性能指标不达标，需要从"现状"提升到"目标"。触发信号："这个流程太慢了"、"错误率太高"、"客户一直在投诉同一个问题"、"我们知道有问题但不知道根因是什么"。',
@@ -634,8 +634,8 @@ export const methodRegistry: readonly MethodSpec[] = [
     },
     taskTypes: ['prediction'],
     introduction: {
-      zh: '概率预测是"用数字表达不确定性"的方法。不说"可能涨价"，而说"我认为 70% 概率三个月内涨价"。然后事后回顾：你说 70% 的事情里，真的有 70% 发生了吗？如果你说 70% 的事情 90% 都发生了，说明你太保守。这个校准过程会逐渐提升你对不确定性的判断能力。起点是基准率：类似的事以前多大比例发生过？',
-      en: 'Probabilistic forecasting means "expressing uncertainty with numbers." Don\'t say "might increase" — say "I believe there\'s a 70% chance of a price increase within 3 months." Then review: of things you said were 70%, did 70% actually happen? If 90% happened, you were underconfident. This calibration process gradually improves your judgment under uncertainty. Start with base rates: how often did similar things happen before?',
+      zh: '概率预测是"用数字表达不确定性"的方法。不说"可能涨价"，而说"我认为 70% 概率三个月内涨价"。关键起点是基准率（base rate）——也就是"类似的事情在历史上发生了多少比例"。比如你想预测"这个创业项目能成功吗"，先查基准率：类似行业的创业公司 5 年存活率大约是 20%。然后根据这个项目的特殊优势或劣势做调整。\n\n事后回顾同样重要：你说 70% 概率的事情里，真的有 70% 发生了吗？如果你说 70% 的事情 90% 都发生了，说明你太保守（低估了概率）。这个校准过程会逐渐提升你对不确定性的判断能力。',
+      en: 'Probabilistic forecasting means "expressing uncertainty with numbers." Don\'t say "might increase" — say "I believe there\'s a 70% chance of a price increase within 3 months." The key starting point is the base rate — "how often did similar things happen historically?" For example, if predicting "will this startup succeed," first find the base rate: similar startups have about a 20% five-year survival rate. Then adjust based on this specific company\'s advantages or disadvantages.\n\nPost-review is equally important: of things you said were 70% likely, did 70% actually happen? If 90% happened, you were underconfident (underestimated the probability). This calibration process gradually improves your judgment under uncertainty.',
     },
     whenToUse: {
       zh: '你需要对未来做判断，而且这个判断会影响决策（是否囤货、是否提前招人、是否投入研发）。触发信号："竞品会不会降价"、"这个项目能按时交付吗"、"市场会不会变差"——所有关于未来的"会不会"问题。',

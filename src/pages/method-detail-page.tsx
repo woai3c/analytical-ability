@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router'
 
 import { MethodAnimation } from '@/components/method-animations/method-animation'
@@ -5,6 +6,55 @@ import { methodIds } from '@/data/domain'
 import type { MethodId } from '@/data/domain'
 import { getMethodSpec, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
 import { useI18n } from '@/providers/i18n-provider'
+
+function RichText({ text }: { text: string }) {
+  const blocks = text.split('\n\n')
+  const elements: ReactNode[] = []
+
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i]!.trim()
+    if (!block) continue
+
+    const lines = block.split('\n')
+    const isBulletList = lines.every((l) => /^[·\-]\s/.test(l))
+    const isNumberedList = lines.every((l) => /^\d+\.\s/.test(l))
+
+    if (isBulletList) {
+      elements.push(
+        <ul key={i} className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+          {lines.map((line, j) => (
+            <li key={j} className="flex gap-2 leading-relaxed">
+              <span className="shrink-0 text-muted-foreground/60">·</span>
+              <span>{line.replace(/^[·\-]\s*/, '')}</span>
+            </li>
+          ))}
+        </ul>,
+      )
+    } else if (isNumberedList) {
+      elements.push(
+        <ol key={i} className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+          {lines.map((line, j) => {
+            const match = line.match(/^(\d+)\.\s(.*)/)
+            return (
+              <li key={j} className="flex gap-2 leading-relaxed">
+                <span className="shrink-0 text-muted-foreground/60">{match?.[1]}.</span>
+                <span>{match?.[2]}</span>
+              </li>
+            )
+          })}
+        </ol>,
+      )
+    } else {
+      elements.push(
+        <p key={i} className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+          {block}
+        </p>,
+      )
+    }
+  }
+
+  return <>{elements}</>
+}
 
 export function MethodDetailPage() {
   const { methodId } = useParams<{ methodId: string }>()
@@ -43,31 +93,23 @@ export function MethodDetailPage() {
       {/* 介绍 */}
       <section className="mt-8 border-t border-border pt-6">
         <h2 className="text-sm font-medium">{t('方法介绍')}</h2>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          {en ? spec.introduction.en : spec.introduction.zh}
-        </p>
+        <RichText text={en ? spec.introduction.en : spec.introduction.zh} />
       </section>
 
       {/* 什么时候用 / 不用 */}
       <section className="mt-8 border-t border-border pt-6">
         <h2 className="text-sm font-medium">{t('什么时候用')}</h2>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          {en ? spec.whenToUse.en : spec.whenToUse.zh}
-        </p>
+        <RichText text={en ? spec.whenToUse.en : spec.whenToUse.zh} />
       </section>
 
       <section className="mt-8 border-t border-border pt-6">
         <h2 className="text-sm font-medium">{t('什么时候不用')}</h2>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          {en ? spec.whenNotToUse.en : spec.whenNotToUse.zh}
-        </p>
+        <RichText text={en ? spec.whenNotToUse.en : spec.whenNotToUse.zh} />
       </section>
 
       <section className="mt-8 border-t border-border pt-6">
         <h2 className="text-sm font-medium">{t('和其他方法的区别')}</h2>
-        <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-          {en ? spec.vsOtherMethods.en : spec.vsOtherMethods.zh}
-        </p>
+        <RichText text={en ? spec.vsOtherMethods.en : spec.vsOtherMethods.zh} />
       </section>
 
       {/* 步骤 */}

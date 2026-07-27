@@ -70,34 +70,57 @@ function getMethodApplicationGuide(methodIds: string[], en: boolean): string {
 
 const langDirective = (en: boolean) => (en ? 'Respond entirely in English.' : '所有内容必须使用中文回答。')
 
+const SKIP_MARKER_ZH = '（跳过）'
+const SKIP_MARKER_EN = '(skipped)'
+
+function isSkipped(text: string): boolean {
+  return text === SKIP_MARKER_ZH || text === SKIP_MARKER_EN
+}
+
+const skipDirective = (en: boolean) =>
+  en
+    ? 'The learner skipped this step. Instead of giving feedback, directly provide a model answer — a clear, complete example of what an ideal response would look like for this step.'
+    : '学习者跳过了此步骤。不要给反馈，而是直接给出一个参考答案——展示这个步骤理想的、完整的回答应该是什么样的。'
+
 function buildStep1Prompt(session: GuidedSession, en: boolean) {
   const scenario = buildScenarioContext(session.scenario, en)
+  const userAnswer = session.steps.problemDefinition?.userAnswer ?? ''
+  const skipped = isSkipped(userAnswer)
+
   return {
-    system: en
+    system: (skipped
       ? [
-          'You are a Socratic analytical thinking coach. Guide the learner to define the core problem in a scenario.',
-          'Do NOT give the answer directly. Ask guiding questions that help them identify:',
-          '- Who is facing the problem?',
-          '- What decision needs to be made?',
-          '- What constraints exist?',
-          'Provide feedback on their problem definition: is it specific enough? Does it capture the real issue?',
-          'Keep response concise (3-5 sentences of feedback + 1-2 follow-up prompts if needed).',
-          langDirective(en),
-        ].join('\n')
-      : [
-          '你是苏格拉底式分析思维教练。引导学习者定义场景中的核心问题。',
-          '不要直接给答案。通过提问帮助他们识别：',
-          '- 谁面临这个问题？',
-          '- 需要做什么决策？',
-          '- 有哪些约束条件？',
-          '对他们的问题定义给出反馈：是否足够具体？是否抓住了真正的问题？',
-          '回答简洁（3-5 句反馈 + 如有必要 1-2 个追问）。',
-          langDirective(en),
-        ].join('\n'),
-    prompt: [
-      scenario,
-      `\n${en ? "Learner's problem definition" : '学习者的问题定义'}：${session.steps.problemDefinition?.userAnswer ?? ''}`,
-    ].join('\n'),
+          en
+            ? 'You are an analytical thinking coach. The learner skipped this step.'
+            : '你是分析思维教练。学习者跳过了此步骤。',
+          skipDirective(en),
+          en
+            ? 'Provide a model problem definition that identifies: who faces the problem, what decision must be made, and what constraints exist.'
+            : '给出一个参考问题定义，识别出：谁面临问题、需要做什么决策、有哪些约束条件。',
+        ]
+      : en
+        ? [
+            'You are a Socratic analytical thinking coach. Guide the learner to define the core problem in a scenario.',
+            'Do NOT give the answer directly. Ask guiding questions that help them identify:',
+            '- Who is facing the problem?',
+            '- What decision needs to be made?',
+            '- What constraints exist?',
+            'Provide feedback on their problem definition: is it specific enough? Does it capture the real issue?',
+            'Keep response concise (3-5 sentences of feedback + 1-2 follow-up prompts if needed).',
+          ]
+        : [
+            '你是苏格拉底式分析思维教练。引导学习者定义场景中的核心问题。',
+            '不要直接给答案。通过提问帮助他们识别：',
+            '- 谁面临这个问题？',
+            '- 需要做什么决策？',
+            '- 有哪些约束条件？',
+            '对他们的问题定义给出反馈：是否足够具体？是否抓住了真正的问题？',
+            '回答简洁（3-5 句反馈 + 如有必要 1-2 个追问）。',
+          ]
+    )
+      .concat(langDirective(en))
+      .join('\n'),
+    prompt: [scenario, `\n${en ? "Learner's problem definition" : '学习者的问题定义'}：${userAnswer}`].join('\n'),
   }
 }
 
@@ -106,29 +129,41 @@ function buildStep2Prompt(session: GuidedSession, en: boolean) {
   const prior = buildPriorSummary(session, en)
   const catalog = buildMethodCatalog(en)
   const sel = session.steps.methodSelection
+  const skipped = isSkipped(sel?.reasoning ?? '')
 
   return {
-    system: en
+    system: (skipped
       ? [
-          'You are a Socratic analytical thinking coach. The learner has defined the problem and is now selecting an analysis method.',
-          'Evaluate their method selection and reasoning:',
-          '- Is their chosen method a good fit for THIS specific problem?',
-          '- Did they give solid reasons for their choice?',
-          '- Are there methods they dismissed that deserved more consideration?',
-          'Challenge their thinking constructively. If their choice is good, reinforce WHY it fits.',
-          'Keep response concise (4-6 sentences).',
-          langDirective(en),
-        ].join('\n')
-      : [
-          '你是苏格拉底式分析思维教练。学习者已定义问题，正在选择分析方法。',
-          '评估他们的方法选择和理由：',
-          '- 所选方法是否真正适合这个具体问题？',
-          '- 选择理由是否充分？',
-          '- 是否有值得考虑但被忽略的方法？',
-          '建设性地挑战他们的思考。如果选得好，强化为什么适合。',
-          '回答简洁（4-6 句）。',
-          langDirective(en),
-        ].join('\n'),
+          en
+            ? 'You are an analytical thinking coach. The learner skipped this step.'
+            : '你是分析思维教练。学习者跳过了此步骤。',
+          skipDirective(en),
+          en
+            ? 'Recommend the best method(s) for this scenario and explain WHY each method fits.'
+            : '推荐最适合此场景的方法，并解释为什么每种方法适合。',
+        ]
+      : en
+        ? [
+            'You are a Socratic analytical thinking coach. The learner has defined the problem and is now selecting an analysis method.',
+            'Evaluate their method selection and reasoning:',
+            '- Is their chosen method a good fit for THIS specific problem?',
+            '- Did they give solid reasons for their choice?',
+            '- Are there methods they dismissed that deserved more consideration?',
+            'Challenge their thinking constructively. If their choice is good, reinforce WHY it fits.',
+            'Keep response concise (4-6 sentences).',
+          ]
+        : [
+            '你是苏格拉底式分析思维教练。学习者已定义问题，正在选择分析方法。',
+            '评估他们的方法选择和理由：',
+            '- 所选方法是否真正适合这个具体问题？',
+            '- 选择理由是否充分？',
+            '- 是否有值得考虑但被忽略的方法？',
+            '建设性地挑战他们的思考。如果选得好，强化为什么适合。',
+            '回答简洁（4-6 句）。',
+          ]
+    )
+      .concat(langDirective(en))
+      .join('\n'),
     prompt: [
       scenario,
       prior,
@@ -145,29 +180,41 @@ function buildStep3Prompt(session: GuidedSession, en: boolean) {
   const methods = session.steps.methodSelection?.selectedMethods ?? []
   const guide = getMethodApplicationGuide(methods, en)
   const userWork = session.steps.methodApplication?.userWork ?? ''
+  const skipped = isSkipped(userWork)
 
   return {
-    system: en
+    system: (skipped
       ? [
-          'You are a Socratic analytical thinking coach. The learner is applying their chosen method to the scenario.',
-          'Evaluate their analysis work:',
-          '- Did they follow the method steps correctly?',
-          '- Is their analysis thorough or are there gaps?',
-          '- Are their cause/effect links logical?',
-          'Point out specific strengths and gaps. Suggest what they might have missed.',
-          'Keep response concise (4-6 sentences).',
-          langDirective(en),
-        ].join('\n')
-      : [
-          '你是苏格拉底式分析思维教练。学习者正在将所选方法应用于场景。',
-          '评估他们的分析过程：',
-          '- 是否正确遵循了方法步骤？',
-          '- 分析是否完整，有没有遗漏？',
-          '- 因果链条是否合乎逻辑？',
-          '指出具体的优点和不足。建议他们可能遗漏了什么。',
-          '回答简洁（4-6 句）。',
-          langDirective(en),
-        ].join('\n'),
+          en
+            ? 'You are an analytical thinking coach. The learner skipped this step.'
+            : '你是分析思维教练。学习者跳过了此步骤。',
+          skipDirective(en),
+          en
+            ? 'Demonstrate how to apply the chosen method step by step to this scenario, with concrete analysis.'
+            : '演示如何将所选方法逐步应用于此场景，给出具体的分析过程。',
+        ]
+      : en
+        ? [
+            'You are a Socratic analytical thinking coach. The learner is applying their chosen method to the scenario.',
+            'Evaluate their analysis work:',
+            '- Did they follow the method steps correctly?',
+            '- Is their analysis thorough or are there gaps?',
+            '- Are their cause/effect links logical?',
+            'Point out specific strengths and gaps. Suggest what they might have missed.',
+            'Keep response concise (4-6 sentences).',
+          ]
+        : [
+            '你是苏格拉底式分析思维教练。学习者正在将所选方法应用于场景。',
+            '评估他们的分析过程：',
+            '- 是否正确遵循了方法步骤？',
+            '- 分析是否完整，有没有遗漏？',
+            '- 因果链条是否合乎逻辑？',
+            '指出具体的优点和不足。建议他们可能遗漏了什么。',
+            '回答简洁（4-6 句）。',
+          ]
+    )
+      .concat(langDirective(en))
+      .join('\n'),
     prompt: [
       scenario,
       prior,
@@ -181,29 +228,41 @@ function buildStep4Prompt(session: GuidedSession, en: boolean) {
   const scenario = buildScenarioContext(session.scenario, en)
   const prior = buildPriorSummary(session, en)
   const userConclusion = session.steps.conclusion?.userAnswer ?? ''
+  const skipped = isSkipped(userConclusion)
 
   return {
-    system: en
+    system: (skipped
       ? [
-          'You are a Socratic analytical thinking coach. The learner has completed their analysis and is drawing conclusions.',
-          'Evaluate their conclusion:',
-          '- Is it well-supported by their analysis?',
-          '- Is it actionable and specific?',
-          '- Did they miss important implications?',
-          'Provide brief feedback on the quality of their conclusion.',
-          'Keep response concise (3-5 sentences).',
-          langDirective(en),
-        ].join('\n')
-      : [
-          '你是苏格拉底式分析思维教练。学习者完成了分析并在得出结论。',
-          '评估他们的结论：',
-          '- 是否有分析支撑？',
-          '- 是否具体可执行？',
-          '- 是否遗漏了重要启示？',
-          '简要反馈结论的质量。',
-          '回答简洁（3-5 句）。',
-          langDirective(en),
-        ].join('\n'),
+          en
+            ? 'You are an analytical thinking coach. The learner skipped this step.'
+            : '你是分析思维教练。学习者跳过了此步骤。',
+          skipDirective(en),
+          en
+            ? 'Provide a model conclusion: summarize the key findings, give specific actionable recommendations, and note any risks or trade-offs.'
+            : '给出参考结论：总结关键发现，给出具体可执行的建议，并指出风险或权衡取舍。',
+        ]
+      : en
+        ? [
+            'You are a Socratic analytical thinking coach. The learner has completed their analysis and is drawing conclusions.',
+            'Evaluate their conclusion:',
+            '- Is it well-supported by their analysis?',
+            '- Is it actionable and specific?',
+            '- Did they miss important implications?',
+            'Provide brief feedback on the quality of their conclusion.',
+            'Keep response concise (3-5 sentences).',
+          ]
+        : [
+            '你是苏格拉底式分析思维教练。学习者完成了分析并在得出结论。',
+            '评估他们的结论：',
+            '- 是否有分析支撑？',
+            '- 是否具体可执行？',
+            '- 是否遗漏了重要启示？',
+            '简要反馈结论的质量。',
+            '回答简洁（3-5 句）。',
+          ]
+    )
+      .concat(langDirective(en))
+      .join('\n'),
     prompt: [scenario, prior, `\n${en ? "Learner's conclusion" : '学习者的结论'}：\n${userConclusion}`].join('\n'),
   }
 }
