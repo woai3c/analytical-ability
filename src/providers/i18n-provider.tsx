@@ -391,6 +391,9 @@ const english: Record<string, string> = {
   '去场景训练中遇到需要用到这个方法的问题，在实践中加深理解。':
     'Try the scenario training to encounter problems that require this method and deepen your understanding through practice.',
   开始练习: 'Start practicing',
+  '点击播放，看这个方法从零到完成的全过程。': 'Press play to watch this method being built from scratch.',
+  查看文字版示例: 'View text walkthrough',
+  重置: 'Reset',
 
   // new: practice page
   '阅读场景，判断该用什么分析方法，写出你的思路。提交后获得反馈。':

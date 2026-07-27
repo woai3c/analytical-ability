@@ -16,6 +16,9 @@ const allTaskTypes: TaskType[] = [
   'learning',
 ]
 
+const DEPTH_LABEL = { interactive: '交互式', guided: '引导式' } as const
+const DEPTH_LABEL_EN = { interactive: 'Interactive', guided: 'Guided' } as const
+
 export function MethodsPage() {
   const { language, t } = useI18n()
   const [activeFilter, setActiveFilter] = useState<TaskType | null>(null)
@@ -45,24 +48,33 @@ export function MethodsPage() {
         ))}
       </div>
 
-      <div className="mt-6 divide-y divide-border overflow-hidden rounded-lg border border-border">
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((method) => {
           const name = en ? method.name.en : method.name.zh
           const purpose = en ? method.purpose.en : method.purpose.zh
+          const depthLabel = en ? DEPTH_LABEL_EN[method.depth] : DEPTH_LABEL[method.depth]
 
           return (
             <Link
               key={method.id}
               to={`/methods/${method.id}`}
-              className="block px-4 py-3.5 transition-colors hover:bg-secondary"
+              className="group flex flex-col rounded-lg border border-border bg-background p-4 transition-colors hover:border-foreground/20 hover:bg-secondary"
             >
-              <div className="flex items-baseline justify-between gap-4">
-                <span className="font-medium text-foreground">{name}</span>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {method.taskTypes.map((type) => labels[type]).join(' · ')}
+              <h2 className="text-sm font-semibold text-foreground group-hover:text-foreground">{name}</h2>
+              <p className="mt-1.5 flex-1 text-xs leading-relaxed text-muted-foreground">{purpose}</p>
+              <div className="mt-3 flex flex-wrap gap-1">
+                {method.taskTypes.map((type) => (
+                  <span
+                    key={type}
+                    className="rounded-full bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground group-hover:bg-accent"
+                  >
+                    {labels[type]}
+                  </span>
+                ))}
+                <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground group-hover:bg-accent">
+                  {depthLabel}
                 </span>
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">{purpose}</p>
             </Link>
           )
         })}
