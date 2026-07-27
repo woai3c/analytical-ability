@@ -1,12 +1,12 @@
 {
   "name": "Clarity",
   "short_name": "Clarity",
-  "description": "Learn analytical methods through scenario-based practice.",
+  "description": "An AI-powered analytical thinking trainer with realistic scenarios and immediate feedback.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fcfbf7",
   "theme_color": "#fcfbf7",
-  "lang": "zh-CN",
+  "lang": "en",
   "icons": [
     {
       "src": "/logo-192.png",
