@@ -3,22 +3,29 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   frame: FmeaFrame
+  en: boolean
 }
 
-export function FmeaViz({ frame }: Props) {
+export function FmeaViz({ frame, en }: Props) {
+  const hasMitigation = frame.items.some((it) => it.mitigation)
+
   return (
     <div className="space-y-3">
       <div className="overflow-x-auto">
         <table className="w-full text-[12px]">
           <thead>
             <tr className="border-b border-border">
-              <th className="pb-1.5 pr-2 text-left font-medium text-muted-foreground">失效模式</th>
-              <th className="pb-1.5 px-1 text-center font-medium text-muted-foreground">S</th>
-              <th className="pb-1.5 px-1 text-center font-medium text-muted-foreground">O</th>
-              <th className="pb-1.5 px-1 text-center font-medium text-muted-foreground">D</th>
-              <th className="pb-1.5 px-1 text-center font-semibold text-foreground">RPN</th>
-              {frame.items.some((it) => it.mitigation) && (
-                <th className="pb-1.5 pl-2 text-left font-medium text-muted-foreground">措施</th>
+              <th className="pb-1.5 pr-2 text-left font-medium text-muted-foreground">
+                {en ? 'Failure Mode' : '失效模式'}
+              </th>
+              <th className="px-1 pb-1.5 text-center font-medium text-muted-foreground">S</th>
+              <th className="px-1 pb-1.5 text-center font-medium text-muted-foreground">O</th>
+              <th className="px-1 pb-1.5 text-center font-medium text-muted-foreground">D</th>
+              <th className="px-1 pb-1.5 text-center font-semibold text-foreground">RPN</th>
+              {hasMitigation && (
+                <th className="pb-1.5 pl-2 text-left font-medium text-muted-foreground">
+                  {en ? 'Mitigation' : '措施'}
+                </th>
               )}
             </tr>
           </thead>
@@ -27,12 +34,12 @@ export function FmeaViz({ frame }: Props) {
               const isHighRpn = item.rpn >= 100
               return (
                 <tr
-                  key={item.mode}
+                  key={en ? item.mode.en : item.mode.zh}
                   className={cn('border-b border-border/50', frame.sorted && i === 0 && 'bg-destructive/5')}
                 >
                   <td className="py-1.5 pr-2">
-                    <p className="font-medium text-foreground">{item.mode}</p>
-                    <p className="text-[10px] text-muted-foreground">{item.effect}</p>
+                    <p className="font-medium text-foreground">{en ? item.mode.en : item.mode.zh}</p>
+                    <p className="text-[10px] text-muted-foreground">{en ? item.effect.en : item.effect.zh}</p>
                   </td>
                   <td className="px-1 py-1.5 text-center text-muted-foreground">{item.s}</td>
                   <td className="px-1 py-1.5 text-center text-muted-foreground">{item.o}</td>
@@ -45,8 +52,10 @@ export function FmeaViz({ frame }: Props) {
                   >
                     {item.rpn || '—'}
                   </td>
-                  {frame.items.some((it) => it.mitigation) && (
-                    <td className="py-1.5 pl-2 text-muted-foreground">{item.mitigation ?? ''}</td>
+                  {hasMitigation && (
+                    <td className="py-1.5 pl-2 text-muted-foreground">
+                      {item.mitigation ? (en ? item.mitigation.en : item.mitigation.zh) : ''}
+                    </td>
                   )}
                 </tr>
               )

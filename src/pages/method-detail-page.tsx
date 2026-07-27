@@ -105,27 +105,20 @@ export function MethodDetailPage() {
         </div>
       </section>
 
-      {/* 示例动画 */}
+      {/* 完整示例 = 文字 + 动画 */}
       <section className="mt-8 border-t border-border pt-6">
         <h2 className="text-sm font-medium">{t('完整示例')}</h2>
-        <p className="mt-1 text-xs text-muted-foreground">{t('点击播放，看这个方法从零到完成的全过程。')}</p>
-        <div className="mt-3">
+
+        <div className="mt-3 rounded-lg border border-border bg-secondary px-4 py-3">
+          <pre className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+            {en ? spec.exampleWalkthrough.en : spec.exampleWalkthrough.zh}
+          </pre>
+        </div>
+
+        <p className="mt-5 text-xs text-muted-foreground">{t('点击播放，看这个方法从零到完成的全过程。')}</p>
+        <div className="mt-2">
           <MethodAnimation methodId={methodId as MethodId} />
         </div>
-      </section>
-
-      {/* 示例文字 */}
-      <section className="mt-6">
-        <details className="group">
-          <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
-            {t('查看文字版示例')}
-          </summary>
-          <div className="mt-2 rounded-lg border border-border bg-secondary px-4 py-3">
-            <pre className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-              {en ? spec.exampleWalkthrough.en : spec.exampleWalkthrough.zh}
-            </pre>
-          </div>
-        </details>
       </section>
 
       {/* 注意事项 */}

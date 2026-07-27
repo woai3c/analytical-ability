@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   frame: PdsaFrame
+  en: boolean
 }
 
 const PHASES = [
@@ -14,13 +15,14 @@ const PHASES = [
 
 const ACTIVE_KEY_MAP = { plan: 'plan', do: 'do_', study: 'study', act: 'act' } as const
 
-export function PdsaViz({ frame }: Props) {
+export function PdsaViz({ frame, en }: Props) {
   const activeContentKey = ACTIVE_KEY_MAP[frame.activePhase]
 
   return (
     <div className="grid grid-cols-2 gap-2">
       {PHASES.map((phase) => {
-        const content = frame.content[phase.key]
+        const i18n = frame.content[phase.key]
+        const content = en ? i18n.en : i18n.zh
         const isActive = phase.key === activeContentKey
         return (
           <div

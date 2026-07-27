@@ -3,9 +3,10 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   frame: FishboneFrame
+  en: boolean
 }
 
-export function FishboneViz({ frame }: Props) {
+export function FishboneViz({ frame, en }: Props) {
   const top = frame.categories.filter((_, i) => i % 2 === 0)
   const bottom = frame.categories.filter((_, i) => i % 2 === 1)
 
@@ -16,7 +17,7 @@ export function FishboneViz({ frame }: Props) {
         {/* Top branches */}
         <div className="flex justify-around">
           {top.map((cat) => (
-            <Branch key={cat.name} cat={cat} position="top" />
+            <Branch key={en ? cat.name.en : cat.name.zh} cat={cat} position="top" en={en} />
           ))}
         </div>
 
@@ -27,14 +28,14 @@ export function FishboneViz({ frame }: Props) {
             <>
               {top.map((cat, i) => (
                 <div
-                  key={cat.name}
+                  key={en ? cat.name.en : cat.name.zh}
                   className="absolute top-0 h-6 w-0.5 -translate-y-full bg-foreground"
                   style={{ left: `${((i + 0.5) / Math.max(top.length, 1)) * 100}%` }}
                 />
               ))}
               {bottom.map((cat, i) => (
                 <div
-                  key={cat.name}
+                  key={en ? cat.name.en : cat.name.zh}
                   className="absolute top-0 h-6 w-0.5 bg-foreground"
                   style={{ left: `${((i + 0.5) / Math.max(bottom.length, 1)) * 100}%` }}
                 />
@@ -46,7 +47,7 @@ export function FishboneViz({ frame }: Props) {
         {/* Bottom branches */}
         <div className="flex justify-around">
           {bottom.map((cat) => (
-            <Branch key={cat.name} cat={cat} position="bottom" />
+            <Branch key={en ? cat.name.en : cat.name.zh} cat={cat} position="bottom" en={en} />
           ))}
         </div>
       </div>
@@ -54,14 +55,22 @@ export function FishboneViz({ frame }: Props) {
       {/* Fish head */}
       <div className="ml-1 shrink-0">
         <div className="rounded-lg border-2 border-foreground bg-secondary px-3 py-2 text-xs font-semibold text-foreground">
-          {frame.head}
+          {en ? frame.head.en : frame.head.zh}
         </div>
       </div>
     </div>
   )
 }
 
-function Branch({ cat, position }: { cat: FishboneFrame['categories'][number]; position: 'top' | 'bottom' }) {
+function Branch({
+  cat,
+  position,
+  en,
+}: {
+  cat: FishboneFrame['categories'][number]
+  position: 'top' | 'bottom'
+  en: boolean
+}) {
   return (
     <div
       className={cn(
@@ -70,20 +79,22 @@ function Branch({ cat, position }: { cat: FishboneFrame['categories'][number]; p
       )}
     >
       <span className={cn('text-[12px] font-semibold', cat.highlighted ? 'text-warning' : 'text-foreground')}>
-        {cat.name}
+        {en ? cat.name.en : cat.name.zh}
       </span>
       {cat.causes.map((cause) => (
-        <div key={cause.text} className="flex flex-col items-center gap-0.5">
+        <div key={en ? cause.text.en : cause.text.zh} className="flex flex-col items-center gap-0.5">
           <span
             className={cn(
               'text-center text-[10px] leading-tight',
               cat.highlighted ? 'font-medium text-warning' : 'text-muted-foreground',
             )}
           >
-            {cause.text}
+            {en ? cause.text.en : cause.text.zh}
           </span>
           {cause.sub && (
-            <span className="text-center text-[10px] leading-tight text-muted-foreground/70">← {cause.sub}</span>
+            <span className="text-center text-[10px] leading-tight text-muted-foreground/70">
+              ← {en ? cause.sub.en : cause.sub.zh}
+            </span>
           )}
         </div>
       ))}

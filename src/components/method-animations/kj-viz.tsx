@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   frame: KjFrame
+  en: boolean
 }
 
 const GROUP_COLORS = [
@@ -13,19 +14,19 @@ const GROUP_COLORS = [
   'border-rose-400/40 bg-rose-500/10',
 ]
 
-export function KjViz({ frame }: Props) {
+export function KjViz({ frame, en }: Props) {
   const hasGroups = frame.groups.length > 0
-  const groupNames = frame.groups.map((g) => g.name)
+  const groupNames = frame.groups.map((g) => (en ? g.name.en : g.name.zh))
 
   if (!hasGroups) {
     return (
       <div className="flex flex-wrap gap-1.5">
         {frame.cards.map((card) => (
           <span
-            key={card.text}
+            key={en ? card.text.en : card.text.zh}
             className="rounded border border-border bg-background px-2 py-1 text-[12px] text-foreground"
           >
-            {card.text}
+            {en ? card.text.en : card.text.zh}
           </span>
         ))}
       </div>
@@ -34,7 +35,7 @@ export function KjViz({ frame }: Props) {
 
   const grouped = groupNames.map((name) => ({
     name,
-    cards: frame.cards.filter((c) => c.group === name),
+    cards: frame.cards.filter((c) => c.group && (en ? c.group.en : c.group.zh) === name),
   }))
   const ungrouped = frame.cards.filter((c) => !c.group)
 
@@ -49,8 +50,11 @@ export function KjViz({ frame }: Props) {
             </p>
             <div className="flex flex-wrap gap-1">
               {group.cards.map((card) => (
-                <span key={card.text} className="rounded bg-background/80 px-1.5 py-0.5 text-[10px] text-foreground">
-                  {card.text}
+                <span
+                  key={en ? card.text.en : card.text.zh}
+                  className="rounded bg-background/80 px-1.5 py-0.5 text-[10px] text-foreground"
+                >
+                  {en ? card.text.en : card.text.zh}
                 </span>
               ))}
             </div>
@@ -62,10 +66,10 @@ export function KjViz({ frame }: Props) {
         <div className="flex flex-wrap gap-1.5">
           {ungrouped.map((card) => (
             <span
-              key={card.text}
+              key={en ? card.text.en : card.text.zh}
               className="rounded border border-dashed border-border bg-background px-2 py-1 text-[12px] text-muted-foreground"
             >
-              {card.text}
+              {en ? card.text.en : card.text.zh}
             </span>
           ))}
         </div>

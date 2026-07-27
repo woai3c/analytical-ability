@@ -394,6 +394,9 @@ const english: Record<string, string> = {
   '点击播放，看这个方法从零到完成的全过程。': 'Press play to watch this method being built from scratch.',
   查看文字版示例: 'View text walkthrough',
   重置: 'Reset',
+  '选择专项训练方法（可选）': 'Choose a method to focus on (optional)',
+  随机: 'Random',
+  '该方法暂无练习记录。': 'No practice records for this method yet.',
 
   // new: practice page
   '阅读场景，判断该用什么分析方法，写出你的思路。提交后获得反馈。':

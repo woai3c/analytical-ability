@@ -3,21 +3,22 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   frame: ForecastFrame
+  en: boolean
 }
 
-export function ForecastViz({ frame }: Props) {
+export function ForecastViz({ frame, en }: Props) {
   return (
     <div className="space-y-3">
       {/* Prediction */}
       <div className="rounded-md border border-border bg-secondary px-3 py-2 text-xs text-foreground">
-        <span className="font-medium">预测：</span>
-        {frame.prediction}
+        <span className="font-medium">{en ? 'Prediction: ' : '预测：'}</span>
+        {en ? frame.prediction.en : frame.prediction.zh}
       </div>
 
       {/* Base rate */}
       {frame.baseRate != null && (
         <div className="space-y-1.5">
-          <p className="text-[12px] text-muted-foreground">基准率</p>
+          <p className="text-[12px] text-muted-foreground">{en ? 'Base Rate' : '基准率'}</p>
           <div className="relative h-5 overflow-hidden rounded-full bg-border/50">
             <div
               className="absolute inset-y-0 left-0 rounded-full bg-blue-500/30 transition-all duration-700"
@@ -33,9 +34,9 @@ export function ForecastViz({ frame }: Props) {
       {/* Adjustments */}
       {frame.adjustments.length > 0 && (
         <div className="space-y-1">
-          <p className="text-[12px] text-muted-foreground">调整因素</p>
+          <p className="text-[12px] text-muted-foreground">{en ? 'Adjustments' : '调整因素'}</p>
           {frame.adjustments.map((adj) => (
-            <div key={adj.factor} className="flex items-center gap-2 text-[12px]">
+            <div key={en ? adj.factor.en : adj.factor.zh} className="flex items-center gap-2 text-[12px]">
               <span
                 className={cn(
                   'shrink-0 rounded px-1 py-0.5 text-[10px] font-semibold',
@@ -44,7 +45,7 @@ export function ForecastViz({ frame }: Props) {
               >
                 {adj.direction === 'up' ? '↑' : '↓'}
               </span>
-              <span className="text-muted-foreground">{adj.factor}</span>
+              <span className="text-muted-foreground">{en ? adj.factor.en : adj.factor.zh}</span>
             </div>
           ))}
         </div>
@@ -53,7 +54,7 @@ export function ForecastViz({ frame }: Props) {
       {/* Final probability */}
       {frame.finalProbability != null && (
         <div className="space-y-1.5">
-          <p className="text-[12px] font-medium text-foreground">最终判断</p>
+          <p className="text-[12px] font-medium text-foreground">{en ? 'Final Judgment' : '最终判断'}</p>
           <div className="relative h-6 overflow-hidden rounded-full bg-border/50">
             <div
               className="absolute inset-y-0 left-0 rounded-full bg-warning/40 transition-all duration-700"

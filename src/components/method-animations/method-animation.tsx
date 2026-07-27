@@ -53,40 +53,40 @@ export function MethodAnimation({ methodId }: Props) {
 
   return (
     <StepAnimator totalSteps={frames.length} currentStep={step} onStepChange={handleStepChange} stepLabel={label}>
-      <VizSwitch methodId={methodId} step={step} />
+      <VizSwitch methodId={methodId} step={step} en={en} />
     </StepAnimator>
   )
 }
 
-function VizSwitch({ methodId, step }: { methodId: MethodId; step: number }) {
+function VizSwitch({ methodId, step, en }: { methodId: MethodId; step: number; en: boolean }) {
   const frames = animationRegistry[methodId]
   const frame = frames[step]
 
   switch (methodId) {
     case 'fishbone':
-      return <FishboneViz frame={frame as FishboneFrame} />
+      return <FishboneViz frame={frame as FishboneFrame} en={en} />
     case 'five-why':
-      return <FiveWhyViz frame={frame as FiveWhyFrame} />
+      return <FiveWhyViz frame={frame as FiveWhyFrame} en={en} />
     case 'abc':
-      return <AbcViz frame={frame as AbcFrame} />
+      return <AbcViz frame={frame as AbcFrame} en={en} />
     case 'kj':
-      return <KjViz frame={frame as KjFrame} />
+      return <KjViz frame={frame as KjFrame} en={en} />
     case 'causal-graph':
-      return <CausalGraphViz frame={frame as CausalGraphFrame} />
+      return <CausalGraphViz frame={frame as CausalGraphFrame} en={en} />
     case 'mcda':
-      return <McdaViz frame={frame as McdaFrame} />
+      return <McdaViz frame={frame as McdaFrame} en={en} />
     case 'value-analysis':
-      return <ValueAnalysisViz frame={frame as ValueAnalysisFrame} />
+      return <ValueAnalysisViz frame={frame as ValueAnalysisFrame} en={en} />
     case 'fmea':
-      return <FmeaViz frame={frame as FmeaFrame} />
+      return <FmeaViz frame={frame as FmeaFrame} en={en} />
     case 'dmaic':
-      return <DmaicViz frame={frame as DmaicFrame} />
+      return <DmaicViz frame={frame as DmaicFrame} en={en} />
     case 'pdsa':
-      return <PdsaViz frame={frame as PdsaFrame} />
+      return <PdsaViz frame={frame as PdsaFrame} en={en} />
     case 'forecast':
-      return <ForecastViz frame={frame as ForecastFrame} />
+      return <ForecastViz frame={frame as ForecastFrame} en={en} />
     case 'pert':
-      return <PertViz frame={frame as PertFrame} />
+      return <PertViz frame={frame as PertFrame} en={en} />
     default:
       return null
   }

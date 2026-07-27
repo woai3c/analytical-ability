@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   frame: CausalGraphFrame
+  en: boolean
 }
 
 const NODE_STYLES = {
@@ -12,20 +13,20 @@ const NODE_STYLES = {
 } as const
 
 const NODE_LABELS = {
-  factor: '因素',
-  outcome: '结果',
-  confounder: '混杂',
+  factor: { zh: '因素', en: 'Factor' },
+  outcome: { zh: '结果', en: 'Outcome' },
+  confounder: { zh: '混杂', en: 'Confound.' },
 } as const
 
-export function CausalGraphViz({ frame }: Props) {
+export function CausalGraphViz({ frame, en }: Props) {
   return (
     <div className="space-y-4">
       {/* Nodes */}
       <div className="flex flex-wrap items-start justify-center gap-3">
         {frame.nodes.map((node) => (
           <div key={node.id} className={cn('rounded-lg border-2 px-3 py-2 text-center', NODE_STYLES[node.type])}>
-            <p className="text-xs font-semibold">{node.label}</p>
-            <p className="text-[10px] opacity-70">{NODE_LABELS[node.type]}</p>
+            <p className="text-xs font-semibold">{en ? node.label.en : node.label.zh}</p>
+            <p className="text-[10px] opacity-70">{en ? NODE_LABELS[node.type].en : NODE_LABELS[node.type].zh}</p>
           </div>
         ))}
       </div>
@@ -38,16 +39,16 @@ export function CausalGraphViz({ frame }: Props) {
             const to = frame.nodes.find((n) => n.id === edge.to)
             return (
               <div key={i} className="flex items-center gap-2 text-[12px]">
-                <span className="font-medium text-foreground">{from?.label}</span>
+                <span className="font-medium text-foreground">{from ? (en ? from.label.en : from.label.zh) : ''}</span>
                 <span className="text-muted-foreground">→</span>
-                <span className="font-medium text-foreground">{to?.label}</span>
+                <span className="font-medium text-foreground">{to ? (en ? to.label.en : to.label.zh) : ''}</span>
                 <span
                   className={cn(
                     'ml-auto rounded px-1.5 py-0.5 text-[10px]',
                     edge.verified ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning',
                   )}
                 >
-                  {edge.verified ? '有证据' : '待验证'}
+                  {edge.verified ? (en ? 'Evidence' : '有证据') : en ? 'Unverified' : '待验证'}
                 </span>
               </div>
             )

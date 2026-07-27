@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   frame: AbcFrame
+  en: boolean
 }
 
 const GRADE_COLORS = {
@@ -11,17 +12,16 @@ const GRADE_COLORS = {
   C: 'bg-muted text-muted-foreground border-border',
 } as const
 
-export function AbcViz({ frame }: Props) {
+export function AbcViz({ frame, en }: Props) {
   const maxValue = Math.max(...frame.items.map((it) => it.value))
 
   return (
     <div className="space-y-3">
-      <p className="text-[12px] text-muted-foreground">{frame.metric}</p>
+      <p className="text-[12px] text-muted-foreground">{en ? frame.metric.en : frame.metric.zh}</p>
 
       <div className="space-y-1.5">
         {frame.items.map((item) => (
-          <div key={item.name} className="flex items-center gap-2">
-            {/* Grade badge */}
+          <div key={en ? item.name.en : item.name.zh} className="flex items-center gap-2">
             <span
               className={cn(
                 'w-5 shrink-0 rounded border text-center text-[10px] font-semibold',
@@ -31,10 +31,10 @@ export function AbcViz({ frame }: Props) {
               {item.cumPct > 0 ? item.grade : ''}
             </span>
 
-            {/* Name */}
-            <span className="w-20 shrink-0 truncate text-[12px] text-foreground">{item.name}</span>
+            <span className="w-24 shrink-0 truncate text-[12px] text-foreground">
+              {en ? item.name.en : item.name.zh}
+            </span>
 
-            {/* Bar */}
             <div className="relative h-4 flex-1 overflow-hidden rounded bg-border/50">
               <div
                 className={cn(
@@ -52,7 +52,6 @@ export function AbcViz({ frame }: Props) {
               </span>
             </div>
 
-            {/* Cumulative */}
             {item.cumPct > 0 && (
               <span className="w-10 shrink-0 text-right text-[10px] text-muted-foreground">{item.cumPct}%</span>
             )}
@@ -62,7 +61,7 @@ export function AbcViz({ frame }: Props) {
 
       {frame.conclusion && (
         <div className="rounded-md border border-success/30 bg-success/10 px-3 py-2 text-xs text-foreground">
-          {frame.conclusion}
+          {en ? frame.conclusion.en : frame.conclusion.zh}
         </div>
       )}
     </div>

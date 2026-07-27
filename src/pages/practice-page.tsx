@@ -95,6 +95,7 @@ export function PracticePage() {
   const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner')
 
   const methodParam = searchParams.get('method') ?? undefined
+  const [selectedMethod, setSelectedMethod] = useState<string | undefined>(methodParam)
   const loadingRef = useRef(false)
 
   const startNewSession = useCallback(async () => {
@@ -105,7 +106,7 @@ export function PracticePage() {
     try {
       const { scenario, usage } = await generateGuidedScenario({
         difficulty,
-        ...(methodParam ? { methodId: methodParam } : {}),
+        ...(selectedMethod ? { methodId: selectedMethod } : {}),
       })
       const newSession: GuidedSession = {
         id: `gs-${Date.now()}`,
@@ -132,7 +133,7 @@ export function PracticePage() {
       setLoading(false)
       loadingRef.current = false
     }
-  }, [difficulty, methodParam, t])
+  }, [difficulty, selectedMethod, t])
 
   function handleAbandon() {
     clearSession()
@@ -153,6 +154,44 @@ export function PracticePage() {
           <DifficultySelector value={difficulty} onChange={setDifficulty} t={t} />
         </div>
 
+        {/* Method filter */}
+        <div className="mt-5">
+          <p className="text-xs text-muted-foreground">{t('选择专项训练方法（可选）')}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => setSelectedMethod(undefined)}
+              className={cn(
+                'rounded-full border px-3 py-1 text-xs transition-colors',
+                !selectedMethod
+                  ? 'border-foreground bg-foreground text-background'
+                  : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
+              )}
+            >
+              {t('随机')}
+            </button>
+            {methodRegistry.map((method) => {
+              const name = en ? method.name.en : method.name.zh
+              const isActive = selectedMethod === method.id
+              return (
+                <button
+                  key={method.id}
+                  type="button"
+                  onClick={() => setSelectedMethod(method.id)}
+                  className={cn(
+                    'rounded-full border px-3 py-1 text-xs transition-colors',
+                    isActive
+                      ? 'border-foreground bg-foreground text-background'
+                      : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
+                  )}
+                >
+                  {name}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         {error && (
           <div className="mt-5 rounded-lg border border-(--destructive)/30 px-4 py-3 text-sm text-destructive">
             {error}
@@ -160,12 +199,12 @@ export function PracticePage() {
         )}
 
         {loading ? (
-          <div className="mt-12 flex flex-col items-center gap-3 text-muted-foreground">
+          <div className="mt-8 flex flex-col items-center gap-3 text-muted-foreground">
             <Loader2 className="size-5 animate-spin" />
             <span className="text-sm">{t('正在生成训练场景...')}</span>
           </div>
         ) : (
-          <div className="mt-12 flex flex-col items-center gap-3">
+          <div className="mt-8 flex flex-col items-center gap-3">
             <p className="text-sm text-muted-foreground">{t('点击下方按钮生成一个训练场景。')}</p>
             <button
               type="button"

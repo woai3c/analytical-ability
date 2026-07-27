@@ -37,24 +37,31 @@ export function ProgressPage() {
   const records = useMemo(() => loadRecords(), [])
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
 
-  const totalPractices = records.length
-  const correctCount = records.filter((r) => r.correct).length
+  const [methodFilter, setMethodFilter] = useState<string | null>(null)
+
+  const filteredRecords = useMemo(() => {
+    if (!methodFilter) return records
+    return records.filter((r) => r.selectedMethods.includes(methodFilter))
+  }, [records, methodFilter])
+
+  const totalPractices = filteredRecords.length
+  const correctCount = filteredRecords.filter((r) => r.correct).length
   const accuracy = totalPractices > 0 ? Math.round((correctCount / totalPractices) * 100) : 0
 
   const byTaskType = useMemo(() => {
     const map: Record<string, { total: number; correct: number }> = {}
-    for (const r of records) {
+    for (const r of filteredRecords) {
       const entry = map[r.taskType] ?? { total: 0, correct: 0 }
       entry.total++
       if (r.correct) entry.correct++
       map[r.taskType] = entry
     }
     return map
-  }, [records])
+  }, [filteredRecords])
 
   const byMethod = useMemo(() => {
     const map: Record<string, { total: number; correct: number }> = {}
-    for (const r of records) {
+    for (const r of filteredRecords) {
       for (const m of r.selectedMethods) {
         const entry = map[m] ?? { total: 0, correct: 0 }
         entry.total++
@@ -63,9 +70,9 @@ export function ProgressPage() {
       }
     }
     return map
-  }, [records])
+  }, [filteredRecords])
 
-  const recentRecords = records.slice(-10).reverse()
+  const recentRecords = filteredRecords.slice(-10).reverse()
 
   return (
     <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-6">
@@ -80,17 +87,60 @@ export function ProgressPage() {
         <StatCell label={t('正确数')} value={String(correctCount)} />
         <StatCell
           label={t('最近练习')}
-          value={records.length > 0 ? formatDate(records.at(-1)!.completedAt) : t('暂无')}
+          value={filteredRecords.length > 0 ? formatDate(filteredRecords.at(-1)!.completedAt) : t('暂无')}
         />
       </div>
+
+      {/* Method filter */}
+      {records.length > 0 && (
+        <div className="mt-5 flex flex-wrap gap-1.5">
+          <button
+            type="button"
+            onClick={() => setMethodFilter(null)}
+            className={cn(
+              'rounded-full border px-3 py-1 text-xs transition-colors',
+              methodFilter === null
+                ? 'border-foreground bg-foreground text-background'
+                : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
+            )}
+          >
+            {t('全部')}
+          </button>
+          {methodRegistry.map((method) => {
+            const name = en ? method.name.en : method.name.zh
+            const isActive = methodFilter === method.id
+            return (
+              <button
+                key={method.id}
+                type="button"
+                onClick={() => setMethodFilter(method.id)}
+                className={cn(
+                  'rounded-full border px-3 py-1 text-xs transition-colors',
+                  isActive
+                    ? 'border-foreground bg-foreground text-background'
+                    : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
+                )}
+              >
+                {name}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {totalPractices === 0 ? (
         <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground">
-            {t('还没有练习记录。')}
-            <Link to="/practice" className="ml-1 text-foreground underline">
-              {t('开始练习')}
-            </Link>
+            {methodFilter ? (
+              t('该方法暂无练习记录。')
+            ) : (
+              <>
+                {t('还没有练习记录。')}
+                <Link to="/practice" className="ml-1 text-foreground underline">
+                  {t('开始练习')}
+                </Link>
+              </>
+            )}
           </p>
         </div>
       ) : (
