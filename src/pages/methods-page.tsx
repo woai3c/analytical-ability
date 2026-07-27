@@ -3,8 +3,26 @@ import { Link } from 'react-router'
 
 import type { TaskType } from '@/data/domain'
 import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
+import { RECORDS_KEY } from '@/lib/settings'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
+
+function loadPracticeCounts(): Record<string, number> {
+  try {
+    const raw = localStorage.getItem(RECORDS_KEY)
+    if (!raw) return {}
+    const records = JSON.parse(raw) as Array<{ selectedMethods?: string[] }>
+    const counts: Record<string, number> = {}
+    for (const r of records) {
+      for (const m of r.selectedMethods ?? []) {
+        counts[m] = (counts[m] ?? 0) + 1
+      }
+    }
+    return counts
+  } catch {
+    return {}
+  }
+}
 
 const allTaskTypes: TaskType[] = [
   'diagnosis',
@@ -24,6 +42,7 @@ export function MethodsPage() {
   const [activeFilter, setActiveFilter] = useState<TaskType | null>(null)
   const en = language === 'en'
   const labels = en ? taskTypeLabelsEn : taskTypeLabels
+  const practiceCounts = useMemo(() => loadPracticeCounts(), [])
 
   const filtered = useMemo(() => {
     if (!activeFilter) return methodRegistry
@@ -53,6 +72,7 @@ export function MethodsPage() {
           const name = en ? method.name.en : method.name.zh
           const purpose = en ? method.purpose.en : method.purpose.zh
           const depthLabel = en ? DEPTH_LABEL_EN[method.depth] : DEPTH_LABEL[method.depth]
+          const count = practiceCounts[method.id] ?? 0
 
           return (
             <Link
@@ -60,7 +80,14 @@ export function MethodsPage() {
               to={`/methods/${method.id}`}
               className="group flex flex-col rounded-lg border border-border bg-background p-4 transition-colors hover:border-foreground/20 hover:bg-secondary"
             >
-              <h2 className="text-sm font-semibold text-foreground group-hover:text-foreground">{name}</h2>
+              <div className="flex items-start justify-between gap-2">
+                <h2 className="text-sm font-semibold text-foreground group-hover:text-foreground">{name}</h2>
+                {count > 0 && (
+                  <span className="shrink-0 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
+                    {en ? `${count}×` : `${count}次`}
+                  </span>
+                )}
+              </div>
               <p className="mt-1.5 flex-1 text-xs leading-relaxed text-muted-foreground">{purpose}</p>
               <div className="mt-3 flex flex-wrap gap-1">
                 {method.taskTypes.map((type) => (

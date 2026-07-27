@@ -1,11 +1,10 @@
 import { useCallback, useRef, useState } from 'react'
 
-import { loadSettings, saveSettings } from '@/lib/settings'
+import { LlmError, testConnection } from '@/lib/llm'
+import { RECORDS_KEY, loadSettings, saveSettings } from '@/lib/settings'
 import type { ClaritySettings } from '@/lib/settings'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
-
-const RECORDS_KEY = 'clarity-practice-records'
 
 interface ProviderConfig {
   id: string
@@ -77,8 +76,23 @@ export function SettingsPage() {
     () => loadSettings() ?? { provider: 'deepseek', apiKey: '' },
   )
   const [saved, setSaved] = useState(false)
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState<{ ok: boolean; msg: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importStatus, setImportStatus] = useState('')
+
+  async function handleTestConnection() {
+    setTesting(true)
+    setTestResult(null)
+    try {
+      await testConnection(settings)
+      setTestResult({ ok: true, msg: t('连接成功') })
+    } catch (e) {
+      setTestResult({ ok: false, msg: e instanceof LlmError ? e.message : t('连接失败') })
+    } finally {
+      setTesting(false)
+    }
+  }
 
   function handleSave() {
     saveSettings(settings)
@@ -218,7 +232,7 @@ export function SettingsPage() {
             </>
           )}
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={handleSave}
@@ -226,7 +240,20 @@ export function SettingsPage() {
             >
               {t('保存')}
             </button>
+            <button
+              type="button"
+              onClick={() => void handleTestConnection()}
+              disabled={testing || !settings.apiKey}
+              className="rounded-lg border border-border px-4 py-2 text-sm transition-colors hover:bg-secondary disabled:opacity-50"
+            >
+              {testing ? t('测试中...') : t('测试连接')}
+            </button>
             {saved && <span className="text-sm text-(--success)">{t('已保存')}</span>}
+            {testResult && (
+              <span className={cn('text-sm', testResult.ok ? 'text-(--success)' : 'text-destructive')}>
+                {testResult.msg}
+              </span>
+            )}
           </div>
         </div>
       </section>

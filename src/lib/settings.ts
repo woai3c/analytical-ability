@@ -1,4 +1,5 @@
 const SETTINGS_KEY = 'clarity-settings'
+export const RECORDS_KEY = 'clarity-practice-records'
 
 export interface ClaritySettings {
   provider: string

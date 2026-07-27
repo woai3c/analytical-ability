@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
+import { ArrowDown, ArrowUp, Minus } from 'lucide-react'
+
 import type { TaskType } from '@/data/domain'
 import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
 import { cn } from '@/lib/utils'
@@ -90,6 +92,9 @@ export function ProgressPage() {
           value={filteredRecords.length > 0 ? formatDate(filteredRecords.at(-1)!.completedAt) : t('暂无')}
         />
       </div>
+
+      {/* Trend comparison */}
+      {filteredRecords.length >= 2 && <TrendComparison records={filteredRecords} t={t} />}
 
       {/* Method filter */}
       {records.length > 0 && (
@@ -249,6 +254,85 @@ function ProgressBar({ value }: { value: number }) {
   return (
     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary">
       <div className="h-full rounded-full bg-foreground/20" style={{ width: `${value}%` }} />
+    </div>
+  )
+}
+
+function TrendComparison({ records, t }: { records: PracticeRecord[]; t: (s: string) => string }) {
+  const n = Math.min(5, Math.floor(records.length / 2))
+  if (n === 0) return null
+
+  const recent = records.slice(-n)
+  const previous = records.slice(-n * 2, -n)
+
+  const recentAvg = Math.round(recent.reduce((s, r) => s + r.score, 0) / recent.length)
+  const previousAvg = previous.length > 0 ? Math.round(previous.reduce((s, r) => s + r.score, 0) / previous.length) : 0
+  const delta = recentAvg - previousAvg
+
+  const recentAccuracy = Math.round((recent.filter((r) => r.correct).length / recent.length) * 100)
+  const previousAccuracy =
+    previous.length > 0 ? Math.round((previous.filter((r) => r.correct).length / previous.length) * 100) : 0
+  const accDelta = recentAccuracy - previousAccuracy
+
+  return (
+    <div className="mt-4 grid grid-cols-2 gap-3">
+      <TrendCard
+        label={t('平均得分趋势')}
+        recent={`${recentAvg}`}
+        previous={`${previousAvg}`}
+        delta={delta}
+        suffix=""
+        t={t}
+        n={n}
+      />
+      <TrendCard
+        label={t('正确率趋势')}
+        recent={`${recentAccuracy}%`}
+        previous={`${previousAccuracy}%`}
+        delta={accDelta}
+        suffix="%"
+        t={t}
+        n={n}
+      />
+    </div>
+  )
+}
+
+function TrendCard({
+  label,
+  recent,
+  previous,
+  delta,
+  suffix,
+  t,
+  n,
+}: {
+  label: string
+  recent: string
+  previous: string
+  delta: number
+  suffix: string
+  t: (s: string) => string
+  n: number
+}) {
+  const TrendIcon = delta > 0 ? ArrowUp : delta < 0 ? ArrowDown : Minus
+  const trendColor = delta > 0 ? 'text-success' : delta < 0 ? 'text-destructive' : 'text-muted-foreground'
+
+  return (
+    <div className="rounded-lg border border-border bg-secondary p-3">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="mt-1 flex items-baseline gap-2">
+        <span className="text-lg font-semibold tabular-nums">{recent}</span>
+        <span className={cn('flex items-center gap-0.5 text-xs font-medium', trendColor)}>
+          <TrendIcon className="size-3" />
+          {delta > 0 ? '+' : ''}
+          {delta}
+          {suffix}
+        </span>
+      </div>
+      <div className="mt-1 text-[10px] text-muted-foreground">
+        {t('前{{n}}次').replace('{{n}}', String(n))}: {previous}
+      </div>
     </div>
   )
 }

@@ -1,7 +1,17 @@
-import { useCallback, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { useCallback, useEffect, useState } from 'react'
+import { Link, useSearchParams } from 'react-router'
 
-import { ChevronDown, ChevronRight, Loader2 } from 'lucide-react'
+import {
+  ArrowRight,
+  BookOpen,
+  ChevronDown,
+  ChevronRight,
+  Lightbulb,
+  Loader2,
+  RotateCcw,
+  TrendingUp,
+  X,
+} from 'lucide-react'
 
 import type { GuidedSession, GuidedStepNumber, Scenario } from '@/data/domain'
 import type { TaskType } from '@/data/domain'
@@ -10,13 +20,14 @@ import { generateGuidedScenario, processStep } from '@/lib/guided-api'
 import type { ProcessStepResult } from '@/lib/guided-api'
 import { LlmError } from '@/lib/llm'
 import type { TokenUsage } from '@/lib/llm'
+import { RECORDS_KEY } from '@/lib/settings'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
 
 // ── Storage ──────────────────────────────────────────────────────
 
 const SESSION_KEY = 'clarity-guided-session'
-const RECORDS_KEY = 'clarity-practice-records'
+const LOADING_KEY = 'clarity-guided-loading'
 
 function loadSession(): GuidedSession | null {
   try {
@@ -37,6 +48,35 @@ function saveSession(session: GuidedSession) {
 
 function clearSession() {
   sessionStorage.removeItem(SESSION_KEY)
+  sessionStorage.removeItem(LOADING_KEY)
+}
+
+// Module-level state so navigating away and back can re-attach to
+// the same generation request instead of losing it.
+let inflightGeneration: Promise<{ scenario: Scenario; usage: TokenUsage }> | null = null
+let inflightDifficulty: 'beginner' | 'intermediate' | 'advanced' = 'beginner'
+
+function buildNewSession(
+  scenario: Scenario,
+  usage: TokenUsage,
+  difficulty: 'beginner' | 'intermediate' | 'advanced',
+): GuidedSession {
+  return {
+    id: `gs-${Date.now()}`,
+    scenario,
+    difficulty,
+    currentStep: 1,
+    steps: {
+      problemDefinition: null,
+      methodSelection: null,
+      methodApplication: null,
+      conclusion: null,
+      reflection: null,
+    },
+    tokenUsage: { promptTokens: usage.promptTokens, completionTokens: usage.completionTokens },
+    startedAt: new Date().toISOString(),
+    completedAt: null,
+  }
 }
 
 function saveRecord(session: GuidedSession) {
@@ -88,7 +128,13 @@ export function PracticePage() {
   const labels = en ? taskTypeLabelsEn : taskTypeLabels
 
   const [session, setSession] = useState<GuidedSession | null>(loadSession)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(() => {
+    // Only show loading spinner if a module-level promise is actually in-flight;
+    // a stale LOADING_KEY without an active promise means the page was refreshed.
+    if (inflightGeneration) return true
+    sessionStorage.removeItem(LOADING_KEY)
+    return false
+  })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null)
@@ -96,42 +142,62 @@ export function PracticePage() {
 
   const methodParam = searchParams.get('method') ?? undefined
   const [selectedMethod, setSelectedMethod] = useState<string | undefined>(methodParam)
-  const loadingRef = useRef(false)
+
+  // On mount: if there's an in-flight generation from before navigation, re-attach to it
+  useEffect(() => {
+    if (!inflightGeneration) return
+    let cancelled = false
+    inflightGeneration
+      .then(({ scenario, usage }) => {
+        if (cancelled) return
+        const s = buildNewSession(scenario, usage, inflightDifficulty)
+        setSession(s)
+        setTokenUsage(usage)
+        saveSession(s)
+        sessionStorage.removeItem(LOADING_KEY)
+        inflightGeneration = null
+      })
+      .catch((e) => {
+        if (cancelled) return
+        setError(e instanceof LlmError ? e.message : t('加载场景失败，请重试。'))
+        sessionStorage.removeItem(LOADING_KEY)
+        inflightGeneration = null
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const startNewSession = useCallback(async () => {
-    if (loadingRef.current) return
-    loadingRef.current = true
+    if (inflightGeneration) return
     setLoading(true)
     setError('')
+    sessionStorage.setItem(LOADING_KEY, '1')
+    inflightDifficulty = difficulty
+
+    const promise = generateGuidedScenario({
+      difficulty,
+      ...(selectedMethod ? { methodId: selectedMethod } : {}),
+    })
+    inflightGeneration = promise
+
     try {
-      const { scenario, usage } = await generateGuidedScenario({
-        difficulty,
-        ...(selectedMethod ? { methodId: selectedMethod } : {}),
-      })
-      const newSession: GuidedSession = {
-        id: `gs-${Date.now()}`,
-        scenario,
-        difficulty,
-        currentStep: 1,
-        steps: {
-          problemDefinition: null,
-          methodSelection: null,
-          methodApplication: null,
-          conclusion: null,
-          reflection: null,
-        },
-        tokenUsage: { promptTokens: usage.promptTokens, completionTokens: usage.completionTokens },
-        startedAt: new Date().toISOString(),
-        completedAt: null,
-      }
-      setSession(newSession)
+      const { scenario, usage } = await promise
+      inflightGeneration = null
+      sessionStorage.removeItem(LOADING_KEY)
+      const s = buildNewSession(scenario, usage, difficulty)
+      setSession(s)
       setTokenUsage(usage)
-      saveSession(newSession)
+      saveSession(s)
     } catch (e) {
+      inflightGeneration = null
+      sessionStorage.removeItem(LOADING_KEY)
       setError(e instanceof LlmError ? e.message : t('加载场景失败，请重试。'))
     } finally {
       setLoading(false)
-      loadingRef.current = false
     }
   }, [difficulty, selectedMethod, t])
 
@@ -367,6 +433,9 @@ function GuidedTraining({
         <ActiveStep session={session} submitting={submitting} onSubmit={submitCurrentStep} en={en} t={t} />
       )}
 
+      {/* Completion actions */}
+      {isCompleted && <CompletionActions session={session} onNewTraining={onAbandon} t={t} en={en} />}
+
       {/* Error */}
       {error && (
         <div className="mt-4 rounded-lg border border-(--destructive)/30 px-4 py-3 text-sm text-destructive">
@@ -546,12 +615,13 @@ function ActiveStep({
   t: (s: string) => string
 }) {
   const step = session.currentStep
+  const scenario = session.scenario
 
   switch (step) {
     case 1:
-      return <Step1Input submitting={submitting} onSubmit={onSubmit} t={t} en={en} />
+      return <Step1Input submitting={submitting} onSubmit={onSubmit} t={t} en={en} scenario={scenario} />
     case 2:
-      return <Step2Input submitting={submitting} onSubmit={onSubmit} t={t} en={en} />
+      return <Step2Input submitting={submitting} onSubmit={onSubmit} t={t} en={en} scenario={scenario} />
     case 3:
       return (
         <Step3Input
@@ -560,10 +630,11 @@ function ActiveStep({
           selectedMethods={session.steps.methodSelection?.selectedMethods ?? []}
           t={t}
           en={en}
+          scenario={scenario}
         />
       )
     case 4:
-      return <Step4Input submitting={submitting} onSubmit={onSubmit} t={t} en={en} />
+      return <Step4Input submitting={submitting} onSubmit={onSubmit} t={t} en={en} scenario={scenario} />
     case 5:
       return <Step5Input submitting={submitting} onSubmit={onSubmit} t={t} />
     default:
@@ -576,20 +647,39 @@ function Step1Input({
   onSubmit,
   t,
   en,
+  scenario,
 }: {
   submitting: boolean
   onSubmit: (input: StepUserInput) => void
   t: (s: string) => string
   en: boolean
+  scenario: Scenario
 }) {
   const [value, setValue] = useState('')
 
+  const hints = en
+    ? [
+        `Re-read the scenario title: "${scenario.title}". What core tension does it describe?`,
+        'Identify the main stakeholder — who needs to make a decision or take action?',
+        'Look for constraints in the background info — budget, time, resources, or trade-offs.',
+        'Try framing it as: "[Stakeholder] needs to [goal] but is constrained by [limitation]."',
+      ]
+    : [
+        `重新阅读场景标题："${scenario.title}"。它描述了什么核心矛盾？`,
+        '找出主要利益相关者——谁需要做决策或采取行动？',
+        '在背景信息中寻找约束条件——预算、时间、资源或权衡取舍。',
+        '尝试用这个句式概括："[谁] 需要 [做什么]，但受到 [什么限制]。"',
+      ]
+
   return (
     <div className="mt-5 rounded-lg border border-border p-4">
-      <div className="text-sm font-medium">
-        {en
-          ? 'Read the scenario above. In your own words, what is the core problem?'
-          : '阅读上方场景。用你自己的话，核心问题是什么？'}
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-medium">
+          {en
+            ? 'Read the scenario above. In your own words, what is the core problem?'
+            : '阅读上方场景。用你自己的话，核心问题是什么？'}
+        </div>
+        <HintButton hints={hints} t={t} />
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         {en
@@ -620,14 +710,30 @@ function Step2Input({
   onSubmit,
   t,
   en,
+  scenario,
 }: {
   submitting: boolean
   onSubmit: (input: StepUserInput) => void
   t: (s: string) => string
   en: boolean
+  scenario: Scenario
 }) {
   const [selected, setSelected] = useState<string[]>([])
   const [reasoning, setReasoning] = useState('')
+
+  const hints = en
+    ? [
+        `The scenario type is "${scenario.taskType}". Think about which methods are best suited for this type of problem.`,
+        'Consider: Is this a root-cause analysis? An optimization? A decision-making problem? A planning task?',
+        'Some methods work well together — e.g. SWOT + Decision Matrix, or Fishbone + 5 Whys.',
+        'When explaining your choice, mention what the method helps you do that other methods cannot.',
+      ]
+    : [
+        `场景类型是"${scenario.taskType}"。想想哪些方法最适合这类问题。`,
+        '思考：这是根因分析？优化改进？决策问题？还是规划任务？',
+        '有些方法可以组合使用——例如 SWOT + 决策矩阵，或鱼骨图 + 5 Why。',
+        '解释选择时，说明这个方法能帮你做到什么，而其他方法做不到。',
+      ]
 
   function toggle(id: string) {
     setSelected((prev) => (prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]))
@@ -635,10 +741,13 @@ function Step2Input({
 
   return (
     <div className="mt-5 rounded-lg border border-border p-4">
-      <div className="text-sm font-medium">
-        {en
-          ? 'Based on your problem definition, which analysis method(s) would you use?'
-          : '根据你的问题定义，你会选择什么分析方法？'}
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-medium">
+          {en
+            ? 'Based on your problem definition, which analysis method(s) would you use?'
+            : '根据你的问题定义，你会选择什么分析方法？'}
+        </div>
+        <HintButton hints={hints} t={t} />
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         {en
@@ -695,14 +804,38 @@ function Step3Input({
   selectedMethods,
   t,
   en,
+  scenario,
 }: {
   submitting: boolean
   onSubmit: (input: StepUserInput) => void
   selectedMethods: string[]
   t: (s: string) => string
   en: boolean
+  scenario: Scenario
 }) {
   const [value, setValue] = useState('')
+
+  const methodNames = selectedMethods
+    .map((id) => {
+      const spec = methodRegistry.find((m) => m.id === id)
+      return spec ? (en ? spec.name.en : spec.name.zh) : null
+    })
+    .filter(Boolean)
+    .join('、')
+
+  const hints = en
+    ? [
+        "Follow the method steps listed below in order — don't skip any.",
+        `Connect each step directly to the scenario "${scenario.title}". Use specific details from the background info.`,
+        "Don't just list the steps — show your actual analysis. What did you find? What data supports it?",
+        `If you chose multiple methods (${methodNames}), show how they complement each other.`,
+      ]
+    : [
+        '按照下方列出的方法步骤依次进行——不要跳过任何一步。',
+        `每一步都要紧密联系场景"${scenario.title}"，使用背景信息中的具体细节。`,
+        '不要只列出步骤——展示你的实际分析。你发现了什么？有什么数据支持？',
+        `如果选了多个方法（${methodNames}），展示它们如何互补配合。`,
+      ]
 
   const methodGuide = selectedMethods
     .map((id) => {
@@ -717,8 +850,11 @@ function Step3Input({
 
   return (
     <div className="mt-5 rounded-lg border border-border p-4">
-      <div className="text-sm font-medium">
-        {en ? 'Now apply your chosen method to this scenario step by step.' : '现在请逐步将所选方法应用于场景。'}
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-medium">
+          {en ? 'Now apply your chosen method to this scenario step by step.' : '现在请逐步将所选方法应用于场景。'}
+        </div>
+        <HintButton hints={hints} t={t} />
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         {en
@@ -758,20 +894,39 @@ function Step4Input({
   onSubmit,
   t,
   en,
+  scenario,
 }: {
   submitting: boolean
   onSubmit: (input: StepUserInput) => void
   t: (s: string) => string
   en: boolean
+  scenario: Scenario
 }) {
   const [value, setValue] = useState('')
 
+  const hints = en
+    ? [
+        'Start with a one-sentence summary of your key finding.',
+        `Tie your recommendation back to the original problem in "${scenario.title}".`,
+        'Be specific and actionable — who should do what, by when, and why?',
+        'Consider risks or trade-offs of your recommendation. Are there alternative approaches?',
+      ]
+    : [
+        '先用一句话概括你的核心发现。',
+        `把你的建议和"${scenario.title}"中的原始问题联系起来。`,
+        '建议要具体可执行——谁、做什么、什么时候、为什么？',
+        '考虑建议的风险或权衡取舍。是否有替代方案？',
+      ]
+
   return (
     <div className="mt-5 rounded-lg border border-border p-4">
-      <div className="text-sm font-medium">
-        {en
-          ? 'Based on your analysis, what is your conclusion or recommendation?'
-          : '基于你的分析，你的结论或建议是什么？'}
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-medium">
+          {en
+            ? 'Based on your analysis, what is your conclusion or recommendation?'
+            : '基于你的分析，你的结论或建议是什么？'}
+        </div>
+        <HintButton hints={hints} t={t} />
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         {en ? 'Summarize what you found and what action should be taken.' : '总结你的发现，提出应该采取的行动。'}
@@ -998,6 +1153,108 @@ function applyUserInput(session: GuidedSession, step: GuidedStepNumber, input: S
       break
   }
   return clone
+}
+
+// ── Completion Actions ───────────────────────────────────────────
+
+function CompletionActions({
+  session,
+  onNewTraining,
+  t,
+  en,
+}: {
+  session: GuidedSession
+  onNewTraining: () => void
+  t: (s: string) => string
+  en: boolean
+}) {
+  const methodId = session.steps.methodSelection?.selectedMethods?.[0]
+  const methodSpec = methodId ? methodRegistry.find((m) => m.id === methodId) : null
+
+  return (
+    <div className="mt-6 rounded-lg border border-border bg-secondary p-5">
+      <h3 className="text-sm font-semibold">{en ? "What's next?" : '接下来？'}</h3>
+      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        <button
+          type="button"
+          onClick={onNewTraining}
+          className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2.5 text-left text-sm transition-colors hover:bg-secondary"
+        >
+          <RotateCcw className="size-4 shrink-0 text-muted-foreground" />
+          <span>{t('再来一局')}</span>
+        </button>
+
+        <Link
+          to="/progress"
+          className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2.5 text-sm transition-colors hover:bg-secondary"
+        >
+          <TrendingUp className="size-4 shrink-0 text-muted-foreground" />
+          <span>{t('查看进度')}</span>
+        </Link>
+
+        {methodSpec && (
+          <Link
+            to={`/methods/${methodSpec.id}`}
+            className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2.5 text-sm transition-colors hover:bg-secondary"
+          >
+            <BookOpen className="size-4 shrink-0 text-muted-foreground" />
+            <span className="flex-1 truncate">{en ? methodSpec.name.en : methodSpec.name.zh}</span>
+            <ArrowRight className="size-3.5 shrink-0 text-muted-foreground" />
+          </Link>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Hint Dialog ──────────────────────────────────────────────────
+
+function HintButton({ hints, t }: { hints: string[]; t: (s: string) => string }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+      >
+        <Lightbulb className="size-3.5" />
+        {t('提示')}
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setOpen(false)}>
+          <div
+            className="relative mx-4 max-h-[80dvh] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-background p-5 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="flex items-center gap-1.5 text-sm font-semibold">
+                <Lightbulb className="size-4 text-warning" />
+                {t('思路提示')}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <ul className="mt-3 space-y-2">
+              {hints.map((hint, i) => (
+                <li key={i} className="flex gap-2 text-sm leading-relaxed text-muted-foreground">
+                  <span className="mt-0.5 shrink-0 text-xs text-foreground/50">{i + 1}.</span>
+                  <span>{hint}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </>
+  )
 }
 
 function applyAiResponse(session: GuidedSession, step: GuidedStepNumber, result: ProcessStepResult): GuidedSession {

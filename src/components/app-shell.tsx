@@ -1,16 +1,19 @@
 import { NavLink, Outlet, useLocation } from 'react-router'
 
+import type { LucideIcon } from 'lucide-react'
+import { BookOpen, Dumbbell, Settings, TrendingUp } from 'lucide-react'
+
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { ThemeSwitcher } from '@/components/theme-switcher'
 import { loadSettings } from '@/lib/settings'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
 
-const navigation: Array<{ to: string; label: string; end: boolean }> = [
-  { to: '/', label: '方法库', end: true },
-  { to: '/practice', label: '场景训练', end: false },
-  { to: '/progress', label: '我的进度', end: false },
-  { to: '/settings', label: '设置', end: false },
+const navigation: Array<{ to: string; label: string; end: boolean; icon: LucideIcon }> = [
+  { to: '/', label: '方法库', end: true, icon: BookOpen },
+  { to: '/practice', label: '场景训练', end: false, icon: Dumbbell },
+  { to: '/progress', label: '我的进度', end: false, icon: TrendingUp },
+  { to: '/settings', label: '设置', end: false, icon: Settings },
 ]
 
 const pageTitles: Record<string, string> = {
@@ -39,23 +42,27 @@ export function AppShell() {
 
         <nav className="flex-1 px-2 py-3" aria-label={t('主要导航')}>
           <div className="space-y-px">
-            {navigation.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  cn(
-                    'block rounded-md px-3 py-1.5 text-sm transition-colors',
-                    isActive
-                      ? 'bg-secondary font-medium text-foreground'
-                      : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
-                  )
-                }
-              >
-                {t(item.label)}
-              </NavLink>
-            ))}
+            {navigation.map((item) => {
+              const Icon = item.icon
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors',
+                      isActive
+                        ? 'bg-secondary font-medium text-foreground'
+                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
+                    )
+                  }
+                >
+                  <Icon className="size-4" />
+                  {t(item.label)}
+                </NavLink>
+              )
+            })}
           </div>
         </nav>
       </aside>
@@ -89,21 +96,25 @@ export function AppShell() {
         className="fixed inset-x-0 bottom-0 z-30 grid h-12 grid-cols-4 border-t border-border bg-background lg:hidden"
         aria-label={t('移动端导航')}
       >
-        {navigation.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center justify-center text-xs',
-                isActive ? 'font-medium text-foreground' : 'text-muted-foreground',
-              )
-            }
-          >
-            {t(item.label)}
-          </NavLink>
-        ))}
+        {navigation.map((item) => {
+          const Icon = item.icon
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) =>
+                cn(
+                  'flex flex-col items-center justify-center gap-0.5 text-[10px]',
+                  isActive ? 'font-medium text-foreground' : 'text-muted-foreground',
+                )
+              }
+            >
+              <Icon className="size-4" />
+              {t(item.label)}
+            </NavLink>
+          )
+        })}
       </nav>
     </div>
   )

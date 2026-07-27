@@ -4,7 +4,7 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { createXai } from '@ai-sdk/xai'
-import { APICallError, NoObjectGeneratedError, generateObject } from 'ai'
+import { APICallError, NoObjectGeneratedError, generateObject, generateText } from 'ai'
 import type { LanguageModel } from 'ai'
 import type { z } from 'zod'
 
@@ -176,4 +176,21 @@ function normalizeLlmError(error: unknown): LlmError {
   }
 
   return new LlmError('LLM_UNKNOWN', error instanceof Error ? error.message : '未知错误')
+}
+
+export async function testConnection(settings: ClaritySettings): Promise<void> {
+  if (!settings.apiKey) {
+    throw new LlmError('LLM_NOT_CONFIGURED', '请先填写 API Key。')
+  }
+  const model = createModel(settings)
+  try {
+    await generateText({
+      model,
+      prompt: 'Say "ok".',
+      maxOutputTokens: 8,
+      abortSignal: AbortSignal.timeout(15000),
+    })
+  } catch (error) {
+    throw normalizeLlmError(error)
+  }
 }

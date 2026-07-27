@@ -441,6 +441,9 @@ const english: Record<string, string> = {
   暂无: 'None yet',
   '还没有练习记录。去场景训练开始你的第一次练习吧！':
     'No practice records yet. Start your first practice in scenario training!',
+  平均得分趋势: 'Avg Score Trend',
+  正确率趋势: 'Accuracy Trend',
+  '前{{n}}次': 'Previous {{n}}',
   按场景类型: 'By scenario type',
   按方法使用: 'By method used',
 
@@ -453,6 +456,10 @@ const english: Record<string, string> = {
   模型: 'Model',
   模型名称: 'Model name',
   保存: 'Save',
+  测试连接: 'Test Connection',
+  '测试中...': 'Testing...',
+  连接成功: 'Connection OK',
+  连接失败: 'Connection Failed',
   数据管理: 'Data',
   '所有练习数据存储在浏览器本地。导出后可迁移到其他设备。':
     'All practice data is stored locally in your browser. Export to migrate to another device.',
@@ -470,6 +477,10 @@ const english: Record<string, string> = {
   'AI 反馈': 'AI Feedback',
   改进建议: 'Improvement tip',
   '通过 5 步引导式分析，掌握分析方法的实际运用。': 'Master analysis methods through 5-step guided practice.',
+  提示: 'Hint',
+  思路提示: 'Thinking Hints',
+  再来一局: 'Start Another Round',
+  查看进度: 'View Progress',
   放弃重来: 'Abandon & Restart',
   开始新训练: 'Start New Training',
   步骤: 'Step',
