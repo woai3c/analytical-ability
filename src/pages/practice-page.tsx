@@ -13,6 +13,7 @@ import {
   X,
 } from 'lucide-react'
 
+import { Markdown } from '@/components/markdown'
 import type { GuidedSession, GuidedStepNumber, Scenario } from '@/data/domain'
 import type { TaskType } from '@/data/domain'
 import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
@@ -582,7 +583,7 @@ function CompletedStep({
           {data.aiResponse && (
             <div>
               <div className="text-xs font-medium text-muted-foreground">{t('教练反馈')}</div>
-              <p className="mt-1 whitespace-pre-wrap leading-relaxed text-muted-foreground">{data.aiResponse}</p>
+              <Markdown text={data.aiResponse} className="mt-1 text-muted-foreground" />
             </div>
           )}
           {stepNum === 5 && session.steps.reflection && (

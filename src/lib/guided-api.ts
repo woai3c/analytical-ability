@@ -135,12 +135,15 @@ function buildStep2Prompt(session: GuidedSession, en: boolean) {
     system: (skipped
       ? [
           en
-            ? 'You are an analytical thinking coach. The learner skipped this step.'
-            : '你是分析思维教练。学习者跳过了此步骤。',
-          skipDirective(en),
+            ? 'You are an analytical thinking coach. The learner skipped the method selection step.'
+            : '你是分析思维教练。学习者跳过了方法选择步骤。',
           en
-            ? 'Recommend the best method(s) for this scenario and explain WHY each method fits.'
-            : '推荐最适合此场景的方法，并解释为什么每种方法适合。',
+            ? 'Recommend the best 1-2 method(s) for this scenario. For each, give a brief reason (2-3 sentences) explaining why it fits THIS specific problem.'
+            : '推荐 1-2 个最适合此场景的方法。对每个方法用 2-3 句话简要解释为什么它适合这个具体问题。',
+          en
+            ? 'IMPORTANT: Only recommend and explain the method choice. Do NOT demonstrate how to apply the method or perform the analysis — that belongs to the next step.'
+            : '重要：只推荐方法并解释选择理由。不要演示如何运用方法或进行具体分析——那是下一步的内容。',
+          en ? 'Keep response concise (under 150 words).' : '回答要简洁（150 字以内）。',
         ]
       : en
         ? [

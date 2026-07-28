@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 
 import { ArrowDown, ArrowUp, Minus } from 'lucide-react'
 
+import { Markdown } from '@/components/markdown'
 import type { TaskType } from '@/data/domain'
 import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
 import { cn } from '@/lib/utils'
@@ -433,7 +434,7 @@ function RecordDetail({ record, t, en }: { record: PracticeRecord; t: (s: string
               {entry.ai && (
                 <div className="mt-2">
                   <span className="text-[10px] font-medium text-muted-foreground">{t('教练反馈')}</span>
-                  <p className="mt-0.5 whitespace-pre-wrap leading-relaxed text-muted-foreground">{entry.ai}</p>
+                  <Markdown text={entry.ai} className="mt-0.5 text-muted-foreground" />
                 </div>
               )}
             </div>
