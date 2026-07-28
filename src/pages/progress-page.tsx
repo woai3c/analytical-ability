@@ -214,7 +214,7 @@ export function ProgressPage() {
 
           <section className="mt-8 border-t border-border pt-6">
             <h2 className="text-sm font-medium">{t('最近练习')}</h2>
-            <div className="mt-3 divide-y divide-border rounded-lg border border-border">
+            <div className="mt-3 divide-y divide-border overflow-hidden rounded-lg border border-border">
               {recentRecords.map((record, i) => {
                 const globalIdx = records.length - 1 - i
                 const isExpanded = expandedIdx === globalIdx
