@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 
 import {
@@ -6,6 +6,7 @@ import {
   BookOpen,
   ChevronDown,
   ChevronRight,
+  ChevronUp,
   Lightbulb,
   Loader2,
   RotateCcw,
@@ -567,9 +568,17 @@ function CompletedStep({
 }) {
   const label = en ? stepLabels[stepNum].en : stepLabels[stepNum].zh
   const data = getStepDisplay(session, stepNum)
+  const headerRef = useRef<HTMLDivElement>(null)
+
+  function handleCollapse() {
+    onToggle()
+    setTimeout(() => {
+      headerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }, 50)
+  }
 
   return (
-    <div className="mt-3 rounded-lg border border-border">
+    <div ref={headerRef} className="mt-3 rounded-lg border border-border">
       <button
         type="button"
         onClick={onToggle}
@@ -598,6 +607,14 @@ function CompletedStep({
           {stepNum === 5 && session.steps.reflection && (
             <ReflectionDisplay reflection={session.steps.reflection} t={t} />
           )}
+          <button
+            type="button"
+            onClick={handleCollapse}
+            className="flex w-full items-center justify-center gap-1 rounded-md py-1.5 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          >
+            <ChevronUp className="size-3" />
+            {t('收起')}
+          </button>
         </div>
       )}
     </div>

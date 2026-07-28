@@ -154,9 +154,7 @@ export function SettingsPage() {
 
   function handleClearAll() {
     localStorage.removeItem(RECORDS_KEY)
-    localStorage.removeItem('clarity-settings')
     sessionStorage.clear()
-    setSettings({ provider: 'deepseek', apiKey: '' })
     setShowClearConfirm(false)
     setImportStatus(t('所有数据已清除'))
     setTimeout(() => setImportStatus(''), 3000)
@@ -300,7 +298,7 @@ export function SettingsPage() {
         <div className="mt-6 border-t border-border pt-4">
           <h3 className="text-sm font-medium text-destructive">{t('危险操作')}</h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            {t('清除所有本地数据，包括 API Key、训练记录和设置。此操作不可撤销。')}
+            {t('清除所有训练记录和进度数据。API Key 和模型设置不受影响。此操作不可撤销。')}
           </p>
           {!showClearConfirm ? (
             <button

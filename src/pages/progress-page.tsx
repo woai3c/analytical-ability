@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
-import { ArrowDown, ArrowUp, Minus } from 'lucide-react'
+import { ArrowDown, ArrowUp, ChevronUp, Minus } from 'lucide-react'
 
 import { Markdown } from '@/components/markdown'
 import type { TaskType } from '@/data/domain'
@@ -222,6 +222,7 @@ export function ProgressPage() {
                   <div key={`${record.scenarioId}-${i}`}>
                     <button
                       type="button"
+                      data-record-idx={globalIdx}
                       onClick={() => setExpandedIdx(isExpanded ? null : globalIdx)}
                       className="flex w-full items-center justify-between px-3.5 py-2.5 text-left transition-colors hover:bg-secondary"
                     >
@@ -244,7 +245,18 @@ export function ProgressPage() {
                         {record.score}
                       </span>
                     </button>
-                    {isExpanded && <RecordDetail record={record} t={t} en={en} />}
+                    {isExpanded && (
+                      <RecordDetail
+                        record={record}
+                        t={t}
+                        en={en}
+                        onCollapse={() => {
+                          setExpandedIdx(null)
+                          const btn = document.querySelector(`[data-record-idx="${globalIdx}"]`)
+                          if (btn) setTimeout(() => btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50)
+                        }}
+                      />
+                    )}
                   </div>
                 )
               })}
@@ -368,7 +380,17 @@ const stepLabelsProgress = {
   5: { zh: '综合评审', en: 'Final Review' },
 } as const
 
-function RecordDetail({ record, t, en }: { record: PracticeRecord; t: (s: string) => string; en: boolean }) {
+function RecordDetail({
+  record,
+  t,
+  en,
+  onCollapse,
+}: {
+  record: PracticeRecord
+  t: (s: string) => string
+  en: boolean
+  onCollapse: () => void
+}) {
   const steps = record.steps
 
   if (!steps && !record.scenarioDescription) {
@@ -456,6 +478,14 @@ function RecordDetail({ record, t, en }: { record: PracticeRecord; t: (s: string
           )}
         </>
       )}
+      <button
+        type="button"
+        onClick={onCollapse}
+        className="flex w-full items-center justify-center gap-1 rounded-md py-1.5 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+      >
+        <ChevronUp className="size-3" />
+        {t('收起')}
+      </button>
     </div>
   )
 }
