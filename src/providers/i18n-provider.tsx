@@ -468,6 +468,12 @@ const english: Record<string, string> = {
   导入成功: 'Import successful',
   文件解析失败: 'Failed to parse file',
   文件格式不兼容: 'Incompatible file format',
+  危险操作: 'Danger zone',
+  '清除所有本地数据，包括 API Key、训练记录和设置。此操作不可撤销。':
+    'Clear all local data including API Key, training records, and settings. This cannot be undone.',
+  清除所有数据: 'Clear all data',
+  确认清除: 'Confirm clear',
+  所有数据已清除: 'All data cleared',
   '还没有练习记录。': 'No practice records yet.',
   '请先配置 AI API Key 才能使用场景训练。': 'Please configure your AI API Key first to use scenario training.',
   前往设置: 'Go to Settings',

@@ -137,7 +137,7 @@ export function PracticePage() {
     sessionStorage.removeItem(LOADING_KEY)
     return false
   })
-  const [submitting, setSubmitting] = useState(false)
+  const [submitting, setSubmitting] = useState<'submit' | 'skip' | false>(false)
   const [error, setError] = useState('')
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null)
   const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner')
@@ -325,8 +325,8 @@ function GuidedTraining({
   setSession: (s: GuidedSession | null) => void
   tokenUsage: TokenUsage | null
   setTokenUsage: (u: TokenUsage | null) => void
-  submitting: boolean
-  setSubmitting: (b: boolean) => void
+  submitting: 'submit' | 'skip' | false
+  setSubmitting: (b: 'submit' | 'skip' | false) => void
   error: string
   setError: (s: string) => void
   onAbandon: () => void
@@ -339,7 +339,8 @@ function GuidedTraining({
   const isCompleted = session.completedAt !== null
 
   async function submitCurrentStep(userInput: StepUserInput) {
-    setSubmitting(true)
+    const isSkip = 'skipped' in userInput && userInput.skipped
+    setSubmitting(isSkip ? 'skip' : 'submit')
     setError('')
 
     const updated = applyUserInput(session, session.currentStep, userInput)
@@ -498,11 +499,19 @@ function StepProgress({
           )
         })}
       </div>
-      <div className="mt-2 text-sm font-medium">
-        {completed
-          ? t('训练完成')
-          : `${t('步骤')} ${currentStep}/5：${en ? stepLabels[currentStep].en : stepLabels[currentStep].zh}`}
+      <div className="mt-1.5 flex gap-1">
+        {([1, 2, 3, 4, 5] as const).map((step) => {
+          const isCurrent = !completed && step === currentStep
+          return (
+            <div key={step} className="flex-1 text-center">
+              <span className={cn('text-[10px]', isCurrent ? 'font-medium text-foreground' : 'text-muted-foreground')}>
+                {en ? stepLabels[step].en : stepLabels[step].zh}
+              </span>
+            </div>
+          )
+        })}
       </div>
+      {completed && <div className="mt-1 text-sm font-medium">{t('训练完成')}</div>}
     </div>
   )
 }
@@ -612,7 +621,7 @@ function ActiveStep({
   t,
 }: {
   session: GuidedSession
-  submitting: boolean
+  submitting: 'submit' | 'skip' | false
   onSubmit: (input: StepUserInput) => void
   en: boolean
   t: (s: string) => string
@@ -652,7 +661,7 @@ function Step1Input({
   en,
   scenario,
 }: {
-  submitting: boolean
+  submitting: 'submit' | 'skip' | false
   onSubmit: (input: StepUserInput) => void
   t: (s: string) => string
   en: boolean
@@ -703,8 +712,8 @@ function Step1Input({
           t={t}
         />
         <SubmitButton
-          disabled={!value.trim() || submitting}
-          loading={submitting}
+          disabled={!value.trim() || !!submitting}
+          loading={submitting === 'submit'}
           onClick={() => onSubmit({ step: 1, userAnswer: value.trim() })}
           t={t}
         />
@@ -720,7 +729,7 @@ function Step2Input({
   en,
   scenario,
 }: {
-  submitting: boolean
+  submitting: 'submit' | 'skip' | false
   onSubmit: (input: StepUserInput) => void
   t: (s: string) => string
   en: boolean
@@ -808,8 +817,8 @@ function Step2Input({
           t={t}
         />
         <SubmitButton
-          disabled={selected.length === 0 || !reasoning.trim() || submitting}
-          loading={submitting}
+          disabled={selected.length === 0 || !reasoning.trim() || !!submitting}
+          loading={submitting === 'submit'}
           onClick={() => onSubmit({ step: 2, selectedMethods: selected, reasoning: reasoning.trim() })}
           t={t}
         />
@@ -826,7 +835,7 @@ function Step3Input({
   en,
   scenario,
 }: {
-  submitting: boolean
+  submitting: 'submit' | 'skip' | false
   onSubmit: (input: StepUserInput) => void
   selectedMethods: string[]
   t: (s: string) => string
@@ -904,8 +913,8 @@ function Step3Input({
           t={t}
         />
         <SubmitButton
-          disabled={!value.trim() || submitting}
-          loading={submitting}
+          disabled={!value.trim() || !!submitting}
+          loading={submitting === 'submit'}
           onClick={() => onSubmit({ step: 3, userWork: value.trim() })}
           t={t}
         />
@@ -921,7 +930,7 @@ function Step4Input({
   en,
   scenario,
 }: {
-  submitting: boolean
+  submitting: 'submit' | 'skip' | false
   onSubmit: (input: StepUserInput) => void
   t: (s: string) => string
   en: boolean
@@ -970,8 +979,8 @@ function Step4Input({
           t={t}
         />
         <SubmitButton
-          disabled={!value.trim() || submitting}
-          loading={submitting}
+          disabled={!value.trim() || !!submitting}
+          loading={submitting === 'submit'}
           onClick={() => onSubmit({ step: 4, userAnswer: value.trim() })}
           t={t}
         />
@@ -985,7 +994,7 @@ function Step5Input({
   onSubmit,
   t,
 }: {
-  submitting: boolean
+  submitting: 'submit' | 'skip' | false
   onSubmit: (input: StepUserInput) => void
   t: (s: string) => string
 }) {
@@ -995,8 +1004,8 @@ function Step5Input({
       <p className="mt-1 text-xs text-muted-foreground">{t('AI 教练将对你整个分析过程进行综合评审和打分。')}</p>
       <div className="mt-3 flex justify-end">
         <SubmitButton
-          disabled={submitting}
-          loading={submitting}
+          disabled={!!submitting}
+          loading={submitting === 'submit'}
           onClick={() => onSubmit({ step: 5 })}
           t={t}
           label={t('获取评价')}
@@ -1083,7 +1092,7 @@ function SkipButton({
   onClick,
   t,
 }: {
-  submitting: boolean
+  submitting: 'submit' | 'skip' | false
   onClick: () => void
   t: (s: string) => string
 }) {
@@ -1091,10 +1100,11 @@ function SkipButton({
     <button
       type="button"
       onClick={onClick}
-      disabled={submitting}
-      className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
+      disabled={!!submitting}
+      className="inline-flex items-center rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
     >
-      {submitting ? t('处理中...') : t('跳过，看答案')}
+      {submitting === 'skip' && <Loader2 className="mr-1.5 size-3.5 animate-spin" />}
+      {submitting === 'skip' ? t('处理中...') : t('跳过，看答案')}
     </button>
   )
 }

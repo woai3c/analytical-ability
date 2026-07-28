@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 
+import { Trash2 } from 'lucide-react'
+
 import { LlmError, testConnection } from '@/lib/llm'
 import { RECORDS_KEY, loadSettings, saveSettings } from '@/lib/settings'
 import type { ClaritySettings } from '@/lib/settings'
@@ -148,6 +150,18 @@ export function SettingsPage() {
     e.target.value = ''
   }
 
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
+
+  function handleClearAll() {
+    localStorage.removeItem(RECORDS_KEY)
+    localStorage.removeItem('clarity-settings')
+    sessionStorage.clear()
+    setSettings({ provider: 'deepseek', apiKey: '' })
+    setShowClearConfirm(false)
+    setImportStatus(t('所有数据已清除'))
+    setTimeout(() => setImportStatus(''), 3000)
+  }
+
   const isCustom = settings.provider === 'custom'
   const currentProvider = providers.find((p) => p.id === settings.provider)
   const availableModels = currentProvider?.models ?? []
@@ -281,6 +295,40 @@ export function SettingsPage() {
             {t('导入数据')}
           </button>
           <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileChange} className="hidden" />
+        </div>
+
+        <div className="mt-6 border-t border-border pt-4">
+          <h3 className="text-sm font-medium text-destructive">{t('危险操作')}</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t('清除所有本地数据，包括 API Key、训练记录和设置。此操作不可撤销。')}
+          </p>
+          {!showClearConfirm ? (
+            <button
+              type="button"
+              onClick={() => setShowClearConfirm(true)}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-destructive/30 px-4 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+            >
+              <Trash2 className="size-3.5" />
+              {t('清除所有数据')}
+            </button>
+          ) : (
+            <div className="mt-3 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-white"
+              >
+                {t('确认清除')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowClearConfirm(false)}
+                className="rounded-lg border border-border px-4 py-2 text-sm transition-colors hover:bg-secondary"
+              >
+                {t('取消')}
+              </button>
+            </div>
+          )}
         </div>
 
         {importStatus && (
