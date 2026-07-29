@@ -1,10 +1,11 @@
 import type { MethodId } from '../domain'
+import type { LocalizedText } from '../localized-text'
 
-export interface AnimationFrame {
-  label: { zh: string; en: string }
+interface AnimationFrame {
+  label: LocalizedText
 }
 
-type I18n = { zh: string; en: string }
+type I18n = LocalizedText
 
 // ── Fishbone ──────────────────────────────────────────────────────
 
@@ -17,7 +18,7 @@ export interface FishboneFrame extends AnimationFrame {
   }[]
 }
 
-export const fishboneFrames: FishboneFrame[] = [
+const fishboneFrames: FishboneFrame[] = [
   {
     label: { zh: '写下问题（鱼头）', en: 'Write the problem (fish head)' },
     head: { zh: '订单取消率翻倍', en: 'Order cancellation doubled' },
@@ -273,7 +274,7 @@ export interface FiveWhyFrame extends AnimationFrame {
   rootCause?: I18n
 }
 
-export const fiveWhyFrames: FiveWhyFrame[] = [
+const fiveWhyFrames: FiveWhyFrame[] = [
   {
     label: { zh: '写下可观察的问题', en: 'State the observable problem' },
     problem: { zh: '新员工 3 个月内离职率 35%', en: '35% of new hires leave within 3 months' },
@@ -392,7 +393,7 @@ export interface AbcFrame extends AnimationFrame {
   conclusion?: I18n
 }
 
-export const abcFrames: AbcFrame[] = [
+const abcFrames: AbcFrame[] = [
   {
     label: { zh: '列出所有产品', en: 'List all products' },
     metric: { zh: '月销量（杯）', en: 'Monthly Sales (cups)' },
@@ -454,7 +455,7 @@ export interface KjFrame extends AnimationFrame {
   groups: { name: I18n; count: number }[]
 }
 
-export const kjFrames: KjFrame[] = [
+const kjFrames: KjFrame[] = [
   {
     label: { zh: '写出所有卡片', en: 'Write all cards' },
     cards: [
@@ -546,7 +547,7 @@ export interface CausalGraphFrame extends AnimationFrame {
   edges: { from: string; to: string; verified: boolean }[]
 }
 
-export const causalGraphFrames: CausalGraphFrame[] = [
+const causalGraphFrames: CausalGraphFrame[] = [
   {
     label: { zh: '列出关键变量', en: 'List key variables' },
     nodes: [
@@ -595,7 +596,7 @@ export interface McdaFrame extends AnimationFrame {
   winner?: I18n
 }
 
-export const mcdaFrames: McdaFrame[] = [
+const mcdaFrames: McdaFrame[] = [
   {
     label: { zh: '列出候选方案', en: 'List options' },
     criteria: [],
@@ -657,7 +658,7 @@ export interface ValueAnalysisFrame extends AnimationFrame {
   saving?: I18n
 }
 
-export const valueAnalysisFrames: ValueAnalysisFrame[] = [
+const valueAnalysisFrames: ValueAnalysisFrame[] = [
   {
     label: { zh: '列出所有订阅和成本', en: 'List all subscriptions and costs' },
     items: [
@@ -731,7 +732,7 @@ export interface FmeaFrame extends AnimationFrame {
   sorted?: boolean
 }
 
-export const fmeaFrames: FmeaFrame[] = [
+const fmeaFrames: FmeaFrame[] = [
   {
     label: { zh: '列出失效模式', en: 'List failure modes' },
     items: [
@@ -856,7 +857,7 @@ export interface DmaicFrame extends AnimationFrame {
   phases: { name: string; content: I18n | null; active: boolean }[]
 }
 
-export const dmaicFrames: DmaicFrame[] = [
+const dmaicFrames: DmaicFrame[] = [
   {
     label: { zh: 'Define：定义问题', en: 'Define: State the problem' },
     phases: [
@@ -1000,7 +1001,7 @@ export interface PdsaFrame extends AnimationFrame {
   content: { plan: I18n; do_: I18n; study: I18n; act: I18n }
 }
 
-export const pdsaFrames: PdsaFrame[] = [
+const pdsaFrames: PdsaFrame[] = [
   {
     label: { zh: 'Plan：写下假设和预测', en: 'Plan: Write hypothesis' },
     activePhase: 'plan',
@@ -1073,7 +1074,7 @@ export interface ForecastFrame extends AnimationFrame {
   finalProbability?: number
 }
 
-export const forecastFrames: ForecastFrame[] = [
+const forecastFrames: ForecastFrame[] = [
   {
     label: { zh: '写出可验证的预测', en: 'Write verifiable prediction' },
     prediction: { zh: '竞品 X 在 3 个月内降价 ≥10%', en: 'Competitor X cuts price ≥10% within 3 months' },
@@ -1132,7 +1133,7 @@ export interface PertFrame extends AnimationFrame {
   totalDuration?: number
 }
 
-export const pertFrames: PertFrame[] = [
+const pertFrames: PertFrame[] = [
   {
     label: { zh: '列出婚礼筹备的所有任务', en: 'List all wedding prep tasks' },
     tasks: [
@@ -1275,7 +1276,7 @@ export const pertFrames: PertFrame[] = [
 
 // ── Registry ──────────────────────────────────────────────────────
 
-export type AnyAnimationFrame =
+type AnyAnimationFrame =
   | FishboneFrame
   | FiveWhyFrame
   | AbcFrame

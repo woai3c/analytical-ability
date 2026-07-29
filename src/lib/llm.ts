@@ -8,6 +8,7 @@ import { APICallError, NoObjectGeneratedError, generateObject, generateText } fr
 import type { LanguageModel } from 'ai'
 import type { z } from 'zod'
 
+import { findProviderConfig } from '@/data/providers'
 import type { ClaritySettings } from '@/lib/settings'
 import { loadSettings } from '@/lib/settings'
 
@@ -31,50 +32,39 @@ export class LlmError extends Error {
   }
 }
 
-const defaultModels: Record<string, string> = {
-  deepseek: 'deepseek-v4-flash',
-  anthropic: 'claude-sonnet-5',
-  openai: 'gpt-5.6-sol',
-  google: 'gemini-3.5-flash',
-  xai: 'grok-4.3',
-  alibaba: 'qwen3.7-max',
-  zhipu: 'glm-5.2',
-  moonshot: 'kimi-k3',
-  custom: '',
-}
-
 function createModel(settings: ClaritySettings): LanguageModel {
   const { provider, apiKey, baseUrl, model } = settings
-  const modelId = model || defaultModels[provider] || ''
+  const providerConfig = findProviderConfig(provider)
+  const modelId = model || providerConfig?.defaultModel || ''
 
   switch (provider) {
     case 'deepseek':
-      return createDeepSeek({ apiKey })(modelId as any)
+      return createDeepSeek({ apiKey })(modelId)
     case 'anthropic':
-      return createAnthropic({ apiKey })(modelId as any)
+      return createAnthropic({ apiKey })(modelId)
     case 'openai':
-      return createOpenAI({ apiKey })(modelId as any)
+      return createOpenAI({ apiKey })(modelId)
     case 'google':
-      return createGoogleGenerativeAI({ apiKey })(modelId as any)
+      return createGoogleGenerativeAI({ apiKey })(modelId)
     case 'xai':
-      return createXai({ apiKey })(modelId as any)
+      return createXai({ apiKey })(modelId)
     case 'alibaba':
       return createOpenAICompatible({
         name: 'alibaba',
         apiKey,
-        baseURL: baseUrl || 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+        baseURL: baseUrl || providerConfig!.baseUrl!,
       })(modelId)
     case 'zhipu':
       return createOpenAICompatible({
         name: 'zhipu',
         apiKey,
-        baseURL: baseUrl || 'https://open.bigmodel.cn/api/paas/v4',
+        baseURL: baseUrl || providerConfig!.baseUrl!,
       })(modelId)
     case 'moonshot':
       return createOpenAICompatible({
         name: 'moonshot',
         apiKey,
-        baseURL: baseUrl || 'https://api.moonshot.cn/v1',
+        baseURL: baseUrl || providerConfig!.baseUrl!,
       })(modelId)
     case 'custom':
       if (!baseUrl || !modelId) {
@@ -101,7 +91,6 @@ function getModel(): LanguageModel {
 export interface TokenUsage {
   promptTokens: number
   completionTokens: number
-  totalTokens: number
 }
 
 export interface StructuredGenerationResult<T> {
@@ -136,7 +125,6 @@ export async function generateStructured<S extends z.ZodType>(
         usage: {
           promptTokens: usage?.inputTokens ?? 0,
           completionTokens: usage?.outputTokens ?? 0,
-          totalTokens: (usage?.inputTokens ?? 0) + (usage?.outputTokens ?? 0),
         },
       }
     } catch (error) {

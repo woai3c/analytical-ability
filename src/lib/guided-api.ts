@@ -1,6 +1,6 @@
-import type { GuidedSession, GuidedStepNumber, Scenario } from '@/data/domain'
+import type { Difficulty, GuidedSession, GuidedStepNumber, Reflection, Scenario } from '@/data/domain'
 import { reflectionSchema, scenarioSchema, stepResponseSchema } from '@/data/domain'
-import { methodRegistry } from '@/data/methods'
+import { findMethodSpec, methodRegistry } from '@/data/methods'
 
 import type { TokenUsage } from './llm'
 import { generateStructured } from './llm'
@@ -59,7 +59,7 @@ function buildPriorSummary(session: GuidedSession, en: boolean): string {
 
 function getMethodApplicationGuide(methodIds: string[], en: boolean): string {
   const guides = methodIds.map((id) => {
-    const spec = methodRegistry.find((m) => m.id === id)
+    const spec = findMethodSpec(id)
     if (!spec) return ''
     const name = en ? spec.name.en : spec.name.zh
     const steps = spec.steps.map((s, i) => `  ${i + 1}. ${en ? s.en : s.zh}`).join('\n')
@@ -306,12 +306,7 @@ function buildStep5Prompt(session: GuidedSession, en: boolean) {
 
 export interface ProcessStepResult {
   aiResponse: string
-  reflection?: {
-    overallFeedback: string
-    score: number
-    dimensions: Array<{ name: string; score: number; comment: string }>
-    tips: string[]
-  }
+  reflection?: Reflection
   usage: TokenUsage
 }
 
@@ -359,7 +354,7 @@ export async function processStep(session: GuidedSession, step: GuidedStepNumber
 }
 
 export async function generateGuidedScenario(params: {
-  difficulty?: string
+  difficulty?: Difficulty
   methodId?: string
 }): Promise<{ scenario: Scenario; usage: TokenUsage }> {
   const en = isEnglish()

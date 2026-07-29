@@ -1,11 +1,7 @@
 import type { MethodId, TaskType } from '../domain'
+import type { LocalizedText } from '../localized-text'
 
-export interface LocalizedText {
-  zh: string
-  en: string
-}
-
-export interface MethodSpec {
+interface MethodSpec {
   id: MethodId
   name: LocalizedText
   purpose: LocalizedText
@@ -25,8 +21,6 @@ export interface MethodSpec {
   outputs: LocalizedText[]
   /** 误用边界，界面上必须随方法一起展示。 */
   caution: LocalizedText
-  /** 一句话示例场景，帮助用户理解什么时候用这个方法。 */
-  example: LocalizedText
   /** 完整的示例演练：用一个具体场景演示怎么用这个方法。 */
   exampleWalkthrough: LocalizedText
   depth: 'interactive' | 'guided'
@@ -85,10 +79,6 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '鱼骨分支只是候选原因，不能当作已证实的因果结论。',
       en: 'Branches are candidate causes only, never verified causal conclusions.',
     },
-    example: {
-      zh: '线上订单取消率本月突然翻倍，需要列出所有可能的原因类别。',
-      en: 'Online order cancellation rate doubled this month; list all possible cause categories.',
-    },
     exampleWalkthrough: {
       zh: '问题：某电商平台本月订单取消率从 5% 涨到 11%。\n\n鱼头：订单取消率翻倍\n\n人：客服响应慢导致用户等不及 → 新客服刚入职缺少培训\n机：支付接口超时率上升 → 第三方支付网关上周升级\n料：热门商品缺货但前端未及时下架 → 库存同步延迟\n法：满减活动规则复杂用户凑单后放弃 → 营销策略未做用户测试\n环：竞品同期大促吸走流量 → 价格竞争力下降\n\n标记重点验证：支付超时率、库存同步延迟、客服响应时间。',
       en: "Problem: An e-commerce platform's order cancellation rate rose from 5% to 11% this month.\n\nFish head: Order cancellation doubled\n\nPeople: Slow customer service → new hires lack training\nMachine: Payment timeout rate increased → 3rd-party gateway upgraded last week\nMaterial: Popular items out of stock but still listed → inventory sync delay\nMethod: Complex promotion rules → users abandon carts after failed bundling\nEnvironment: Competitor running major sale → price competitiveness dropped\n\nPriority for verification: payment timeout rate, inventory sync delay, customer service response time.",
@@ -144,10 +134,6 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '每一层"为什么"都需要事实支撑，否则追问会退化成猜测。',
       en: 'Each "why" needs factual support, otherwise the chain degrades into guessing.',
     },
-    example: {
-      zh: '新员工入职三个月内离职率高，追问根因到底是培训、薪资还是文化。',
-      en: 'High turnover within 3 months of hire—trace the root cause: training, pay, or culture?',
-    },
     exampleWalkthrough: {
       zh: '现象：新员工 3 个月内离职率 35%（行业平均 15%）\n\nWhy 1：为什么离职？→ 离职面谈显示"工作内容和预期不符"\nWhy 2：为什么不符？→ 入职前 JD 写的是"产品设计"，实际做的是"运营支持"\nWhy 3：为什么 JD 不准确？→ JD 是 2 年前写的，岗位职责早已变化\nWhy 4：为什么没更新？→ 没有人负责定期审核 JD\nWhy 5：为什么没有这个流程？→ HR 团队缺少 JD 审核制度\n\n根因：缺少 JD 定期审核流程\n行动：每季度由用人经理和 HR 共同审核 JD，确保与实际工作一致。',
       en: 'Symptom: 35% turnover within 3 months (industry avg 15%)\n\nWhy 1: Why do they leave? → Exit interviews show "job didn\'t match expectations"\nWhy 2: Why the mismatch? → JD said "product design" but actual work was "ops support"\nWhy 3: Why is the JD wrong? → Written 2 years ago, role has changed since\nWhy 4: Why wasn\'t it updated? → No one owns periodic JD review\nWhy 5: Why no process? → HR lacks a JD audit system\n\nRoot cause: No JD review process\nAction: Quarterly JD review by hiring manager + HR to ensure alignment with actual work.',
@@ -201,10 +187,6 @@ export const methodRegistry: readonly MethodSpec[] = [
     caution: {
       zh: '主题数量不代表影响大小，分组结果需要人工确认。',
       en: 'Theme counts do not equal impact; grouping needs human confirmation.',
-    },
-    example: {
-      zh: '收集了 50 条用户投诉，想找出共性问题分类。',
-      en: 'Collected 50 user complaints; need to group them into common themes.',
     },
     exampleWalkthrough: {
       zh: '场景：收到 50 条 App 用户投诉，想找出共性问题。\n\n步骤：\n1. 每条投诉写一张卡："加载太慢"、"找不到退款入口"、"推送太多"、"闪退"、"客服不回复"...\n2. 自然分组后得到 5 组：\n   · 性能问题（加载慢、闪退、卡顿）— 12 张\n   · 功能找不到（退款入口、设置页、历史订单）— 9 张\n   · 骚扰感（推送多、广告弹窗）— 8 张\n   · 客服体验（不回复、回复慢、态度差）— 15 张\n   · 其他（3 张独立问题）\n3. 结论：客服体验是最大的投诉类别，但"性能问题"可能影响面更广（需结合数据验证）。',
@@ -260,10 +242,6 @@ export const methodRegistry: readonly MethodSpec[] = [
     caution: {
       zh: '80/20 只是排序启发式，不能把固定阈值当作客观规律。',
       en: '80/20 is a ranking heuristic; fixed thresholds are not a law of nature.',
-    },
-    example: {
-      zh: '仓库有 200 种商品，想找出哪 20% 的品类贡献了 80% 的销售额。',
-      en: '200 SKUs in warehouse; find which 20% drive 80% of revenue.',
     },
     exampleWalkthrough: {
       zh: '场景：一家奶茶店有 25 种产品，想知道该重点备料哪些。\n\n按月销量排序后：\n1. 杨枝甘露 — 3200 杯（22%，累计 22%）→ A\n2. 珍珠奶茶 — 2800 杯（19%，累计 41%）→ A\n3. 芒果冰沙 — 2100 杯（14%，累计 55%）→ A\n4. 柠檬茶 — 1500 杯（10%，累计 65%）→ A\n5. 抹茶拿铁 — 1200 杯（8%，累计 73%）→ A\n...\n前 5 种产品（20%）贡献了 73% 的销量。\n\n结论：A 类这 5 种原料必须保证充足供应不断货，C 类的 10 种长尾产品可以按需少量备货。',
@@ -328,10 +306,6 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '相关不等于因果；声称"改变 X 导致 Y"需要实验或明确假设。',
       en: 'Correlation is not causation; claiming "X causes Y" needs experiments or explicit assumptions.',
     },
-    example: {
-      zh: '广告投放增加后销量上升了，但同期竞品涨价了——如何区分真正原因？',
-      en: 'Sales rose after ad spend increased, but competitors also raised prices—how to separate causes?',
-    },
     exampleWalkthrough: {
       zh: '场景：公司发现"参加培训的员工绩效更高"，想论证应该增加培训预算。\n\n画因果图：\n· 培训 → 绩效？（可能）\n· 但也许：上进心强的员工 → 主动参加培训 AND 上进心强 → 绩效高\n· 混杂变量：员工上进心\n\n图示：\n  上进心 → 参加培训\n  上进心 → 高绩效\n  培训 → 高绩效（待验证）\n\n结论：不能直接说"培训提高绩效"，因为可能是自选择偏差。需要做对照实验（如随机指派培训）来验证培训本身的因果效应。',
       en: 'Scenario: Company observes "employees who attend training perform better" and wants to justify more training budget.\n\nCausal graph:\n· Training → Performance? (possible)\n· But maybe: Motivated employees → Attend training AND Motivated → High performance\n· Confounder: Employee motivation\n\nGraph:\n  Motivation → Attends training\n  Motivation → High performance\n  Training → High performance (unverified)\n\nConclusion: Can\'t claim "training improves performance" directly — may be self-selection bias. Need a controlled experiment (e.g., random assignment to training) to verify the causal effect of training itself.',
@@ -387,10 +361,6 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '不允许只显示一个神秘总分；权重和最低可接受值必须可见。',
       en: 'No opaque single score; weights and minimum acceptable values stay visible.',
     },
-    example: {
-      zh: '选租房：离公司近但贵 vs 便宜但通勤久 vs 中间但老旧，怎么系统比较？',
-      en: 'Choosing an apartment: close but expensive vs cheap but long commute vs middle but old—how to compare?',
-    },
     exampleWalkthrough: {
       zh: '场景：选一个项目管理工具，候选 A（贵但功能全）、B（便宜但功能少）、C（开源免费但需要自己运维）。\n\n标准和权重：功能完整性 40%、成本 30%、维护难度 20%、团队学习成本 10%\n\n评分（0-10）：\n        功能  成本  维护  学习\nA:       9     3     8     7  → 加权 = 9×0.4 + 3×0.3 + 8×0.2 + 7×0.1 = 6.8\nB:       5     9     8     9  → 加权 = 5×0.4 + 9×0.3 + 8×0.2 + 9×0.1 = 7.2\nC:       7     10    3     4  → 加权 = 7×0.4 + 10×0.3 + 3×0.2 + 4×0.1 = 6.8\n\n结论：B 略胜。但如果把"功能完整性"权重调到 50%，A 反超 → 结论不够稳健，需要团队讨论功能到底有多重要。',
       en: 'Scenario: Choosing a project management tool — A (expensive, full-featured), B (cheap, fewer features), C (free open-source, self-hosted).\n\nCriteria & weights: Features 40%, Cost 30%, Maintenance 20%, Learning curve 10%\n\nScores (0-10):\n       Features  Cost  Maintenance  Learning\nA:       9        3       8           7  → Weighted = 6.8\nB:       5        9       8           9  → Weighted = 7.2\nC:       7       10       3           4  → Weighted = 6.8\n\nConclusion: B wins slightly. But if "Features" weight rises to 50%, A overtakes → conclusion is fragile, team needs to discuss how critical full features really are.',
@@ -443,10 +413,6 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '"便宜"不等于"值得"；先确认功能对目标的贡献再砍成本。',
       en: 'Cheap is not the same as worthwhile; confirm contribution to the goal before cutting cost.',
     },
-    example: {
-      zh: '团队用了 8 个 SaaS 工具，月费 5000 元，哪些可以砍掉或合并？',
-      en: 'Team uses 8 SaaS tools at $700/mo total; which can be dropped or consolidated?',
-    },
     exampleWalkthrough: {
       zh: '场景：个人每月支出审查，发现有 6 个订阅服务共 ¥500/月。\n\n| 服务 | 月费 | 贡献 | 判断 |\n| 视频会员 | ¥25 | 高（每天用）| 保留 |\n| 音乐会员 | ¥15 | 高 | 保留 |\n| 云存储 | ¥20 | 中 | 保留 |\n| 健身 App | ¥50 | 低（3 个月没用）| 砍掉 |\n| AI 工具 A | ¥200 | 中 | 找平替（工具 B ¥60 功能够用）|\n| 杂志订阅 | ¥190 | 低 | 砍掉 |\n\n结论：砍 2 个 + 替换 1 个，月省 ¥380（76%），核心体验不受影响。',
       en: 'Scenario: Monthly personal subscription audit — 6 services totaling $70/mo.\n\n| Service | Cost | Contribution | Decision |\n| Video streaming | $4 | High (daily use) | Keep |\n| Music | $2 | High | Keep |\n| Cloud storage | $3 | Medium | Keep |\n| Fitness app | $7 | Low (unused 3 months) | Cut |\n| AI tool A | $28 | Medium | Replace with tool B at $8 |\n| Magazine | $26 | Low | Cut |\n\nResult: Cut 2 + replace 1, saving $53/mo (76%) with no impact on core experience.',
@@ -495,10 +461,6 @@ export const methodRegistry: readonly MethodSpec[] = [
     caution: {
       zh: '缺少领域经验时不能宣称风险已全覆盖；RPN 只是排序工具。',
       en: 'Without domain expertise do not claim risks are fully covered; RPN is a ranking aid only.',
-    },
-    example: {
-      zh: '新产品下周上线，提前列出可能出问题的地方和应急方案。',
-      en: 'New product launches next week; list what could go wrong and contingency plans.',
     },
     exampleWalkthrough: {
       zh: '场景：下周上线新支付功能。\n\n| 失效模式 | 后果 | S | O | D | RPN | 措施 |\n| 第三方支付 API 超时 | 用户付款失败 | 9 | 4 | 3 | 108 | 设置超时重试 + 备用通道 |\n| 金额计算精度错误 | 多扣/少扣钱 | 10 | 2 | 2 | 40 | 单元测试覆盖边界值 |\n| 并发下订单重复扣款 | 用户投诉 + 退款 | 9 | 3 | 5 | 135 | 加幂等锁 |\n| 上线后回滚失败 | 长时间故障 | 8 | 2 | 6 | 96 | 灰度发布 + 演练回滚 |\n\n按 RPN 排序：重复扣款 (135) > API 超时 (108) > 回滚 (96) > 精度 (40)\n优先解决前两项。',
@@ -555,10 +517,6 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '原因已清楚的小问题不要套完整 DMAIC，直接用 PDSA。',
       en: 'Do not wrap small, well-understood problems in full DMAIC; use PDSA.',
     },
-    example: {
-      zh: '客服平均响应时间 48 小时，目标降到 12 小时，怎么系统改进？',
-      en: 'Customer support avg response is 48h, target is 12h—how to systematically improve?',
-    },
     exampleWalkthrough: {
       zh: '场景：客服平均响应时间 48 小时，目标 12 小时。\n\nD：目标——响应时间从 48h 降到 12h，影响所有付费用户\nM：收集 30 天数据——中位数 52h，P90 是 96h，周一最严重\nA：根因——周一积压来自周末无人值班 + 工单分配不均（3 人处理 80% 工单）\nI：增加周末轮班 1 人 + 自动按技能分配工单 + 设置 SLA 警报\nC：每日看板监控响应时间，超 24h 自动升级\n\n实施两周后：中位数降到 14h，继续优化中。',
       en: 'Scenario: Support response time avg 48h, target 12h.\n\nD: Goal — reduce from 48h to 12h, affects all paying users\nM: 30-day data — median 52h, P90 is 96h, worst on Mondays\nA: Root causes — Monday backlog from no weekend coverage + uneven ticket distribution (3 people handle 80%)\nI: Add 1 weekend shift + auto-assign by skill + SLA alerts\nC: Daily dashboard monitoring response time, auto-escalate if >24h\n\nAfter 2 weeks: median dropped to 14h, still optimizing.',
@@ -614,10 +572,6 @@ export const methodRegistry: readonly MethodSpec[] = [
     caution: {
       zh: '试点样本不代表所有场景；先比较预测与结果再扩大投入。',
       en: 'A pilot sample does not represent all scenarios; compare prediction vs result before scaling.',
-    },
-    example: {
-      zh: '想把周报改成异步文档，先在一个小组试行两周看效果。',
-      en: 'Want to replace weekly meetings with async docs; pilot with one team for 2 weeks.',
     },
     exampleWalkthrough: {
       zh: '场景：觉得每天站会浪费时间，想改成异步文字更新。\n\nPlan：假设——取消站会改为 Slack 日报后，开发时间每天多 30 分钟；试验范围——后端组 4 人，两周。\nDo：执行两周，第一周有人忘记发日报、第二周适应了。\nStudy：实际——开发时间确实多了约 25 分钟/人/天，但出现 2 次信息遗漏导致重复工作。\nAct：调整——保留异步日报 + 每周一次 15 分钟同步，再试两周。\n\n第二轮：信息遗漏降为 0，效率保持。→ 推广到全组。',
@@ -679,10 +633,6 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '不允许只给"高/中/低"；概率必须可到期验证。',
       en: 'No bare "high/medium/low"; probabilities must be resolvable at a deadline.',
     },
-    example: {
-      zh: '预测竞品三个月内会不会降价，给一个具体概率而不是"可能"。',
-      en: 'Predict whether competitor will cut prices within 3 months—give a number, not "maybe".',
-    },
     exampleWalkthrough: {
       zh: '场景：预测"竞品 X 在 3 个月内降价 10% 以上"。\n\n1. 基准率：过去 3 年同行业竞品在任意 3 个月窗口降价 ≥10% 的比例 ≈ 15%\n2. 本次特殊因素：\n   · 竞品刚融资（+），有钱打价格战 → 上调\n   · 他们上季度利润下滑（+）→ 可能降价引流 → 上调\n   · 但他们刚发了高端新品（-）→ 可能维持高价策略 → 下调\n3. 综合判断：从基准 15% 上调到 35%\n4. 记录：35%，截止 10 月 26 日\n\n到期后复盘：如果没降价，这个 35% 的判断是合理的（65% 概率不降价就是说大多数情况不会降）。多次积累后看校准曲线。',
       en: 'Scenario: Predict "Competitor X will cut prices ≥10% within 3 months."\n\n1. Base rate: In the past 3 years, competitors cut ≥10% in any 3-month window ~15% of the time\n2. Situation-specific factors:\n   · Competitor just raised funding (+) — may wage price war → adjust up\n   · Their profit dropped last quarter (+) → may cut to drive volume → adjust up\n   · But they just launched a premium product (-) → may maintain high pricing → adjust down\n3. Final estimate: Adjust from 15% base to 35%\n4. Record: 35%, deadline Oct 26\n\nPost-deadline review: If no cut happened, the 35% judgment was reasonable (65% said it wouldn\'t). Accumulate over time to check calibration curve.',
@@ -739,10 +689,6 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '工期必须由执行者确认，LLM 只能提出候选任务拆分。',
       en: 'Durations must be confirmed by the people doing the work; the LLM only drafts task breakdowns.',
     },
-    example: {
-      zh: '要在两个月内上线 MVP，有设计、开发、测试三条线，怎么排期？',
-      en: 'Ship MVP in 2 months with design, dev, and QA tracks—how to schedule?',
-    },
     exampleWalkthrough: {
       zh: '场景：8 周内上线 MVP。\n\n任务拆解：\nA. 需求确认（1 周）→ 无依赖\nB. UI 设计（2 周）→ 依赖 A\nC. 后端开发（4 周）→ 依赖 A\nD. 前端开发（3 周）→ 依赖 B\nE. 联调测试（1 周）→ 依赖 C 和 D\nF. 修复 + 上线（1 周）→ 依赖 E\n\n路径分析：\n路径 1：A→B→D→E→F = 1+2+3+1+1 = 8 周\n路径 2：A→C→E→F = 1+4+1+1 = 7 周\n\n关键路径：路径 1（8 周），刚好卡住 deadline。\n结论：UI 设计和前端不能延期，否则必定超期。后端有 1 周浮动。',
       en: 'Scenario: Ship MVP in 8 weeks.\n\nTask breakdown:\nA. Requirements (1 wk) → no dependency\nB. UI design (2 wks) → depends on A\nC. Backend dev (4 wks) → depends on A\nD. Frontend dev (3 wks) → depends on B\nE. Integration test (1 wk) → depends on C and D\nF. Fix + deploy (1 wk) → depends on E\n\nPath analysis:\nPath 1: A→B→D→E→F = 1+2+3+1+1 = 8 weeks\nPath 2: A→C→E→F = 1+4+1+1 = 7 weeks\n\nCritical path: Path 1 (8 weeks), exactly meets deadline.\nConclusion: UI design and frontend cannot slip or we miss the deadline. Backend has 1 week of float.',
@@ -751,12 +697,14 @@ export const methodRegistry: readonly MethodSpec[] = [
   },
 ]
 
-export const methodRegistryMap: ReadonlyMap<MethodId, MethodSpec> = new Map(
-  methodRegistry.map((spec) => [spec.id, spec]),
-)
+const methodRegistryMap: ReadonlyMap<MethodId, MethodSpec> = new Map(methodRegistry.map((spec) => [spec.id, spec]))
+
+export function findMethodSpec(id: string): MethodSpec | undefined {
+  return methodRegistryMap.get(id as MethodId)
+}
 
 export function getMethodSpec(id: MethodId): MethodSpec {
-  const spec = methodRegistryMap.get(id)
+  const spec = findMethodSpec(id)
   if (!spec) throw new Error(`Unknown method id: ${id}`)
   return spec
 }

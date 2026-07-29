@@ -3,55 +3,22 @@ import { Link } from 'react-router'
 
 import { ArrowDown, ArrowUp, ChevronUp, Minus } from 'lucide-react'
 
+import { FilterChip } from '@/components/filter-chip'
 import { Markdown } from '@/components/markdown'
 import type { TaskType } from '@/data/domain'
-import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
+import { progressStepLabels } from '@/data/guided-steps'
+import { findMethodSpec, methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
+import type { PracticeRecord } from '@/data/practice-record'
+import { loadPracticeRecords } from '@/lib/practice-records'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
-
-interface StepRecord {
-  problemDefinition?: { userAnswer: string; aiResponse: string } | null
-  methodSelection?: { selectedMethods: string[]; reasoning: string; aiResponse: string } | null
-  methodApplication?: { userWork: string; aiResponse: string } | null
-  conclusion?: { userAnswer: string; aiResponse: string } | null
-  reflection?: {
-    aiFeedback: string
-    score: number
-    dimensions: Array<{ name: string; score: number; comment: string }>
-    tips: string[]
-  } | null
-}
-
-interface PracticeRecord {
-  scenarioId: string
-  scenarioTitle: string
-  scenarioDescription?: string
-  scenarioContext?: string
-  applicableMethods?: string[]
-  taskType: string
-  selectedMethods: string[]
-  correct: boolean
-  score: number
-  feedback?: string
-  improvementTip?: string
-  methodExplanations?: Array<{ methodId: string; explanation: string; isBestFit: boolean }>
-  completedAt: string
-  steps?: StepRecord
-}
-
-function loadRecords(): PracticeRecord[] {
-  try {
-    return JSON.parse(localStorage.getItem('clarity-practice-records') ?? '[]')
-  } catch {
-    return []
-  }
-}
+import type { Translate } from '@/providers/i18n-provider'
 
 export function ProgressPage() {
   const { language, t } = useI18n()
   const en = language === 'en'
   const labels = en ? taskTypeLabelsEn : taskTypeLabels
-  const records = useMemo(() => loadRecords(), [])
+  const records = useMemo(() => loadPracticeRecords(), [])
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
 
   const [methodFilter, setMethodFilter] = useState<string | null>(null)
@@ -114,35 +81,16 @@ export function ProgressPage() {
       {/* Method filter */}
       {records.length > 0 && (
         <div className="mt-5 flex flex-wrap gap-1.5">
-          <button
-            type="button"
-            onClick={() => setMethodFilter(null)}
-            className={cn(
-              'rounded-full border px-3 py-1 text-xs transition-colors',
-              methodFilter === null
-                ? 'border-foreground bg-foreground text-background'
-                : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
-            )}
-          >
+          <FilterChip active={methodFilter === null} onClick={() => setMethodFilter(null)}>
             {t('全部')}
-          </button>
+          </FilterChip>
           {methodRegistry.map((method) => {
             const name = en ? method.name.en : method.name.zh
             const isActive = methodFilter === method.id
             return (
-              <button
-                key={method.id}
-                type="button"
-                onClick={() => setMethodFilter(method.id)}
-                className={cn(
-                  'rounded-full border px-3 py-1 text-xs transition-colors',
-                  isActive
-                    ? 'border-foreground bg-foreground text-background'
-                    : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
-                )}
-              >
+              <FilterChip key={method.id} active={isActive} onClick={() => setMethodFilter(method.id)}>
                 {name}
-              </button>
+              </FilterChip>
             )
           })}
         </div>
@@ -193,7 +141,7 @@ export function ProgressPage() {
                   .sort(([, a], [, b]) => b.total - a.total)
                   .slice(0, 8)
                   .map(([methodId, stats]) => {
-                    const spec = methodRegistry.find((m) => m.id === methodId)
+                    const spec = findMethodSpec(methodId)
                     const name = spec ? (en ? spec.name.en : spec.name.zh) : methodId
                     const pct = Math.round((stats.correct / stats.total) * 100)
                     return (
@@ -285,7 +233,7 @@ function ProgressBar({ value }: { value: number }) {
   )
 }
 
-function TrendComparison({ records, t }: { records: PracticeRecord[]; t: (s: string) => string }) {
+function TrendComparison({ records, t }: { records: PracticeRecord[]; t: Translate }) {
   const n = Math.min(5, Math.floor(records.length / 2))
   if (n === 0) return null
 
@@ -339,7 +287,7 @@ function TrendCard({
   previous: string
   delta: number
   suffix: string
-  t: (s: string) => string
+  t: Translate
   n: number
 }) {
   const TrendIcon = delta > 0 ? ArrowUp : delta < 0 ? ArrowDown : Minus
@@ -372,14 +320,6 @@ function formatDate(iso: string): string {
   }
 }
 
-const stepLabelsProgress = {
-  1: { zh: '定义问题', en: 'Define Problem' },
-  2: { zh: '选择方法', en: 'Select Method' },
-  3: { zh: '运用方法', en: 'Apply Method' },
-  4: { zh: '得出结论', en: 'Draw Conclusion' },
-  5: { zh: '综合评审', en: 'Final Review' },
-} as const
-
 function RecordDetail({
   record,
   t,
@@ -387,7 +327,7 @@ function RecordDetail({
   onCollapse,
 }: {
   record: PracticeRecord
-  t: (s: string) => string
+  t: Translate
   en: boolean
   onCollapse: () => void
 }) {
@@ -410,7 +350,7 @@ function RecordDetail({
         num: 2,
         user: `${steps.methodSelection.selectedMethods
           .map((id) => {
-            const spec = methodRegistry.find((m) => m.id === id)
+            const spec = findMethodSpec(id)
             return spec ? (en ? spec.name.en : spec.name.zh) : id
           })
           .join('、')}\n${steps.methodSelection.reasoning}`,
@@ -439,9 +379,8 @@ function RecordDetail({
 
       {stepEntries.length > 0 ? (
         stepEntries.map((entry) => {
-          const label = en
-            ? stepLabelsProgress[entry.num as keyof typeof stepLabelsProgress].en
-            : stepLabelsProgress[entry.num as keyof typeof stepLabelsProgress].zh
+          const stepNum = entry.num as keyof typeof progressStepLabels
+          const label = en ? progressStepLabels[stepNum].en : progressStepLabels[stepNum].zh
           return (
             <div key={entry.num} className="rounded-lg border border-border-subtle bg-secondary/50 p-3">
               <h4 className="text-xs font-semibold">

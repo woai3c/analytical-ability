@@ -7,16 +7,17 @@ import { LanguageSwitcher } from '@/components/language-switcher'
 import { ThemeSwitcher } from '@/components/theme-switcher'
 import { loadSettings } from '@/lib/settings'
 import { cn } from '@/lib/utils'
+import type { TranslationKey } from '@/locales/en'
 import { useI18n } from '@/providers/i18n-provider'
 
-const navigation: Array<{ to: string; label: string; end: boolean; icon: LucideIcon }> = [
+const navigation: Array<{ to: string; label: TranslationKey; end: boolean; icon: LucideIcon }> = [
   { to: '/', label: '方法库', end: true, icon: BookOpen },
   { to: '/practice', label: '场景训练', end: false, icon: Dumbbell },
   { to: '/progress', label: '我的进度', end: false, icon: TrendingUp },
   { to: '/settings', label: '设置', end: false, icon: Settings },
 ]
 
-const pageTitles: Record<string, string> = {
+const pageTitles: Record<string, TranslationKey> = {
   '/': '方法库',
   '/practice': '场景训练',
   '/progress': '我的进度',
@@ -27,7 +28,7 @@ export function AppShell() {
   const location = useLocation()
   const { t } = useI18n()
 
-  const currentTitle =
+  const currentTitle: TranslationKey =
     pageTitles[location.pathname] ?? (location.pathname.startsWith('/methods/') ? '方法详情' : 'Clarity')
 
   const settings = loadSettings()

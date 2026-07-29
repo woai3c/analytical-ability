@@ -13,7 +13,7 @@ export const taskTypes = [
   'learning',
 ] as const
 
-export const taskTypeSchema = z.enum(taskTypes)
+const taskTypeSchema = z.enum(taskTypes)
 export type TaskType = z.infer<typeof taskTypeSchema>
 
 // ── 分析方法目录 ─────────────────────────────────────────────────
@@ -33,13 +33,13 @@ export const methodIds = [
   'pert',
 ] as const
 
-export const methodIdSchema = z.enum(methodIds)
+const methodIdSchema = z.enum(methodIds)
 export type MethodId = z.infer<typeof methodIdSchema>
 
 // ── 场景训练 ─────────────────────────────────────────────────────
 
-export const difficultyLevels = ['beginner', 'intermediate', 'advanced'] as const
-export const difficultySchema = z.enum(difficultyLevels)
+const difficultyLevels = ['beginner', 'intermediate', 'advanced'] as const
+const difficultySchema = z.enum(difficultyLevels)
 export type Difficulty = z.infer<typeof difficultySchema>
 
 /** 一个训练场景：描述真实情境，用户需要选择合适的分析方法并运用。 */
@@ -75,8 +75,6 @@ export const stepResponseSchema = z.object({
   feedback: z.string().min(1),
   hint: z.string().optional(),
 })
-
-export type StepResponse = z.infer<typeof stepResponseSchema>
 
 export const reflectionSchema = z.object({
   overallFeedback: z.string().min(1),

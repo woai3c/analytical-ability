@@ -1,38 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
+import { FilterChip } from '@/components/filter-chip'
+import { taskTypes } from '@/data/domain'
 import type { TaskType } from '@/data/domain'
 import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
-import { RECORDS_KEY } from '@/lib/settings'
-import { cn } from '@/lib/utils'
+import { countPracticedMethods } from '@/lib/practice-records'
 import { useI18n } from '@/providers/i18n-provider'
-
-function loadPracticeCounts(): Record<string, number> {
-  try {
-    const raw = localStorage.getItem(RECORDS_KEY)
-    if (!raw) return {}
-    const records = JSON.parse(raw) as Array<{ selectedMethods?: string[] }>
-    const counts: Record<string, number> = {}
-    for (const r of records) {
-      for (const m of r.selectedMethods ?? []) {
-        counts[m] = (counts[m] ?? 0) + 1
-      }
-    }
-    return counts
-  } catch {
-    return {}
-  }
-}
-
-const allTaskTypes: TaskType[] = [
-  'diagnosis',
-  'improvement',
-  'selection',
-  'planning',
-  'prediction',
-  'exploration',
-  'learning',
-]
 
 const DEPTH_LABEL = { interactive: '交互式', guided: '引导式' } as const
 const DEPTH_LABEL_EN = { interactive: 'Interactive', guided: 'Guided' } as const
@@ -42,7 +16,7 @@ export function MethodsPage() {
   const [activeFilter, setActiveFilter] = useState<TaskType | null>(null)
   const en = language === 'en'
   const labels = en ? taskTypeLabelsEn : taskTypeLabels
-  const practiceCounts = useMemo(() => loadPracticeCounts(), [])
+  const practiceCounts = useMemo(() => countPracticedMethods(), [])
 
   const filtered = useMemo(() => {
     if (!activeFilter) return methodRegistry
@@ -60,7 +34,7 @@ export function MethodsPage() {
         <FilterChip active={activeFilter === null} onClick={() => setActiveFilter(null)}>
           {t('全部')}
         </FilterChip>
-        {allTaskTypes.map((type) => (
+        {taskTypes.map((type) => (
           <FilterChip key={type} active={activeFilter === type} onClick={() => setActiveFilter(type)}>
             {labels[type]}
           </FilterChip>
@@ -107,30 +81,5 @@ export function MethodsPage() {
         })}
       </div>
     </div>
-  )
-}
-
-function FilterChip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'rounded-full border px-3 py-1 text-xs transition-colors',
-        active
-          ? 'border-foreground bg-foreground text-background'
-          : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
-      )}
-    >
-      {children}
-    </button>
   )
 }
