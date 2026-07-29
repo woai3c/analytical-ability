@@ -87,6 +87,14 @@ describe('guided session transformations', () => {
       startedAt: '2026-01-02T03:04:05.000Z',
       completedAt: null,
     })
+
+    const focusedSession = buildNewSession(
+      scenario,
+      { promptTokens: 12, completionTokens: 7 },
+      'intermediate',
+      'fishbone',
+    )
+    expect(focusedSession.focusMethodId).toBe('fishbone')
   })
 
   it('stores every editable step without mutating the previous session', () => {

@@ -108,6 +108,8 @@ export interface GuidedSession {
   id: string
   scenario: Scenario
   difficulty: Difficulty
+  /** 用户主动选择的专项训练方法；随机训练时为空，避免提前泄露推荐方法。 */
+  focusMethodId?: MethodId
   currentStep: GuidedStepNumber
   steps: GuidedStepData
   tokenUsage: { promptTokens: number; completionTokens: number }

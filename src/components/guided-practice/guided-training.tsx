@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
 
-import { ArrowRight, BookOpen, ChevronDown, ChevronRight, ChevronUp, RotateCcw, TrendingUp } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronUp, RotateCcw, TrendingUp } from 'lucide-react'
 
 import { ActiveStep } from '@/components/guided-practice/active-step'
 import { Markdown } from '@/components/markdown'
+import { MethodIntroductionButton } from '@/components/method-introduction'
 import { guidedStepNumbers } from '@/data/domain'
 import type { Difficulty, GuidedSession, GuidedStepNumber, Scenario, TaskType } from '@/data/domain'
 import { guidedStepLabels } from '@/data/guided-steps'
@@ -50,6 +51,13 @@ export function GuidedTraining({
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set())
 
   const isCompleted = session.completedAt !== null
+  const selectedMethodIds = session.steps.methodSelection?.selectedMethods ?? []
+  const trainingMethodIds =
+    selectedMethodIds.length > 0
+      ? selectedMethodIds
+      : session.focusMethodId
+        ? [session.focusMethodId]
+        : session.scenario.applicableMethods
 
   async function submitCurrentStep(userInput: StepUserInput) {
     const isSkip = 'skipped' in userInput && userInput.skipped
@@ -101,26 +109,31 @@ export function GuidedTraining({
   return (
     <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold">{t('场景训练')}</h1>
-        {!isCompleted && (
-          <button
-            type="button"
-            onClick={onAbandon}
-            className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          >
-            {t('放弃重来')}
-          </button>
-        )}
-        {isCompleted && (
-          <button
-            type="button"
-            onClick={onAbandon}
-            className="rounded-lg bg-foreground px-3 py-1.5 text-xs font-medium text-background"
-          >
-            {t('开始新训练')}
-          </button>
-        )}
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <MethodIntroductionButton methodIds={trainingMethodIds} en={en} t={t} className="rounded-lg px-3 py-1.5">
+            {t('完整方法说明')}
+          </MethodIntroductionButton>
+          {!isCompleted && (
+            <button
+              type="button"
+              onClick={onAbandon}
+              className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            >
+              {t('放弃重来')}
+            </button>
+          )}
+          {isCompleted && (
+            <button
+              type="button"
+              onClick={onAbandon}
+              className="rounded-lg bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+            >
+              {t('开始新训练')}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Progress bar */}
@@ -184,44 +197,55 @@ function StepProgress({
   en: boolean
   t: Translate
 }) {
+  const completedLineWidth = completed ? 100 : ((currentStep - 1) / (guidedStepNumbers.length - 1)) * 100
+
   return (
     <div className="mt-6">
-      <div className="flex items-center gap-1">
-        {guidedStepNumbers.map((step) => {
-          const isDone = completed || step < currentStep
-          const isCurrent = !completed && step === currentStep
-          return (
-            <div key={step} className="flex flex-1 items-center">
-              <div
-                className={cn(
-                  'flex size-6 items-center justify-center rounded-full text-xs font-medium',
-                  isDone && 'bg-foreground text-background',
-                  isCurrent && 'border-2 border-foreground text-foreground',
-                  !isDone && !isCurrent && 'border border-border text-muted-foreground',
-                )}
-              >
-                {isDone ? '✓' : step}
-              </div>
-              {step < 5 && (
-                <div
-                  className={cn('mx-1 h-px flex-1', step < currentStep || completed ? 'bg-foreground' : 'bg-border')}
-                />
-              )}
-            </div>
-          )
-        })}
-      </div>
-      <div className="mt-1.5 flex gap-1">
-        {guidedStepNumbers.map((step) => {
-          const isCurrent = !completed && step === currentStep
-          return (
-            <div key={step} className="flex-1 text-center">
-              <span className={cn('text-[10px]', isCurrent ? 'font-medium text-foreground' : 'text-muted-foreground')}>
-                {en ? guidedStepLabels[step].en : guidedStepLabels[step].zh}
-              </span>
-            </div>
-          )
-        })}
+      <div className="px-3">
+        <div data-testid="step-progress" className="relative h-16 sm:h-12">
+          <div className="absolute inset-x-0 top-3 h-px bg-border" />
+          <div
+            className="absolute left-0 top-3 h-px bg-foreground transition-[width]"
+            style={{ width: `${completedLineWidth}%` }}
+          />
+          <ol className="relative h-full">
+            {guidedStepNumbers.map((step, index) => {
+              const isDone = completed || step < currentStep
+              const isCurrent = !completed && step === currentStep
+              const position = (index / (guidedStepNumbers.length - 1)) * 100
+
+              return (
+                <li
+                  key={step}
+                  aria-current={isCurrent ? 'step' : undefined}
+                  className="absolute top-0 flex w-16 -translate-x-1/2 flex-col items-center sm:w-20"
+                  style={{ left: `${position}%` }}
+                >
+                  <div
+                    data-testid={`step-marker-${step}`}
+                    className={cn(
+                      'relative z-10 flex size-6 items-center justify-center rounded-full bg-background text-xs font-medium',
+                      isDone && 'bg-foreground text-background',
+                      isCurrent && 'border-2 border-foreground text-foreground',
+                      !isDone && !isCurrent && 'border border-border text-muted-foreground',
+                    )}
+                  >
+                    {isDone ? '✓' : step}
+                  </div>
+                  <span
+                    data-testid={`step-label-${step}`}
+                    className={cn(
+                      'mt-2 w-full text-center text-[10px] leading-tight',
+                      isCurrent ? 'font-medium text-foreground' : 'text-muted-foreground',
+                    )}
+                  >
+                    {en ? guidedStepLabels[step].en : guidedStepLabels[step].zh}
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
+        </div>
       </div>
       {completed && <div className="mt-1 text-sm font-medium">{t('训练完成')}</div>}
     </div>
@@ -450,14 +474,14 @@ function CompletionActions({
         </Link>
 
         {methodSpec && (
-          <Link
-            to={`/methods/${methodSpec.id}`}
-            className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2.5 text-sm transition-colors hover:bg-secondary"
+          <MethodIntroductionButton
+            methodIds={[methodSpec.id]}
+            en={en}
+            t={t}
+            className="flex w-full items-center rounded-lg border-border bg-background px-3 py-2.5 text-left text-sm hover:bg-secondary"
           >
-            <BookOpen className="size-4 shrink-0 text-muted-foreground" />
             <span className="flex-1 truncate">{en ? methodSpec.name.en : methodSpec.name.zh}</span>
-            <ArrowRight className="size-3.5 shrink-0 text-muted-foreground" />
-          </Link>
+          </MethodIntroductionButton>
         )}
       </div>
     </div>

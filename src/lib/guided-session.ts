@@ -1,4 +1,4 @@
-import type { Difficulty, GuidedSession, GuidedStepNumber, Reflection, Scenario } from '@/data/domain'
+import type { Difficulty, GuidedSession, GuidedStepNumber, MethodId, Reflection, Scenario } from '@/data/domain'
 import type { TokenUsage } from '@/lib/llm'
 
 export type StepUserInput =
@@ -13,11 +13,17 @@ interface StepProcessingResult {
   reflection?: Reflection
 }
 
-export function buildNewSession(scenario: Scenario, usage: TokenUsage, difficulty: Difficulty): GuidedSession {
+export function buildNewSession(
+  scenario: Scenario,
+  usage: TokenUsage,
+  difficulty: Difficulty,
+  focusMethodId?: MethodId,
+): GuidedSession {
   return {
     id: `gs-${Date.now()}`,
     scenario,
     difficulty,
+    ...(focusMethodId ? { focusMethodId } : {}),
     currentStep: 1,
     steps: {
       problemDefinition: null,

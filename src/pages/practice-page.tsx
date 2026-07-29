@@ -5,8 +5,8 @@ import { Loader2 } from 'lucide-react'
 
 import { FilterChip } from '@/components/filter-chip'
 import { DifficultySelector, GuidedTraining } from '@/components/guided-practice/guided-training'
-import type { Difficulty, GuidedSession, Scenario } from '@/data/domain'
-import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
+import type { Difficulty, GuidedSession, MethodId, Scenario } from '@/data/domain'
+import { findMethodSpec, methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
 import { generateGuidedScenario } from '@/lib/guided-api'
 import { buildNewSession } from '@/lib/guided-session'
 import { clearGuidedSession, loadGuidedSession, saveGuidedSession } from '@/lib/guided-session-store'
@@ -18,6 +18,7 @@ import { useI18n } from '@/providers/i18n-provider'
 // the same generation request instead of losing it.
 let inflightGeneration: Promise<{ scenario: Scenario; usage: TokenUsage }> | null = null
 let inflightDifficulty: Difficulty = 'beginner'
+let inflightMethodId: MethodId | undefined
 
 // ── Main Component ───────────────────────────────────────────────
 
@@ -36,26 +37,31 @@ export function PracticePage() {
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null)
   const [difficulty, setDifficulty] = useState<Difficulty>('beginner')
 
-  const methodParam = searchParams.get('method') ?? undefined
-  const [selectedMethod, setSelectedMethod] = useState<string | undefined>(methodParam)
+  const requestedMethod = searchParams.get('method') ?? undefined
+  const methodParam = requestedMethod ? findMethodSpec(requestedMethod)?.id : undefined
+  const [selectedMethod, setSelectedMethod] = useState<MethodId | undefined>(methodParam)
 
   // On mount: if there's an in-flight generation from before navigation, re-attach to it
   useEffect(() => {
     if (!inflightGeneration) return
     let cancelled = false
+    const attachedDifficulty = inflightDifficulty
+    const attachedMethodId = inflightMethodId
     inflightGeneration
       .then(({ scenario, usage }) => {
         if (cancelled) return
-        const s = buildNewSession(scenario, usage, inflightDifficulty)
+        const s = buildNewSession(scenario, usage, attachedDifficulty, attachedMethodId)
         setSession(s)
         setTokenUsage(usage)
         saveGuidedSession(s)
         inflightGeneration = null
+        inflightMethodId = undefined
       })
       .catch((e) => {
         if (cancelled) return
         setError(e instanceof LlmError ? e.message : t('加载场景失败，请重试。'))
         inflightGeneration = null
+        inflightMethodId = undefined
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -70,6 +76,7 @@ export function PracticePage() {
     setLoading(true)
     setError('')
     inflightDifficulty = difficulty
+    inflightMethodId = selectedMethod
 
     const promise = generateGuidedScenario({
       difficulty,
@@ -80,12 +87,14 @@ export function PracticePage() {
     try {
       const { scenario, usage } = await promise
       inflightGeneration = null
-      const s = buildNewSession(scenario, usage, difficulty)
+      inflightMethodId = undefined
+      const s = buildNewSession(scenario, usage, difficulty, selectedMethod)
       setSession(s)
       setTokenUsage(usage)
       saveGuidedSession(s)
     } catch (e) {
       inflightGeneration = null
+      inflightMethodId = undefined
       setError(e instanceof LlmError ? e.message : t('加载场景失败，请重试。'))
     } finally {
       setLoading(false)
