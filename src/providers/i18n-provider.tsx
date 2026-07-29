@@ -3,7 +3,7 @@ import { type ReactNode, createContext, useContext, useEffect, useMemo, useState
 import { english } from '@/locales/en'
 import type { TranslationKey } from '@/locales/en'
 
-export type Language = 'zh-CN' | 'en'
+type Language = 'zh-CN' | 'en'
 type Variables = Record<string, string | number>
 export type Translate = (key: TranslationKey, variables?: Variables) => string
 

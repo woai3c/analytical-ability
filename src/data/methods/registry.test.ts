@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
-import { methodIds } from '../domain'
+import { methodIds } from '../domain-constants'
 import { animationRegistry } from './animation-data'
+import { methodCatalog } from './catalog'
 import { findMethodSpec, getMethodSpec, methodRegistry } from './registry'
 
 describe('method content registries', () => {
   it('defines exactly one resolvable method specification for every method id', () => {
+    expect(methodCatalog.map((method) => method.id)).toStrictEqual(methodIds)
+
     const registeredIds = methodRegistry.map((method) => method.id)
 
     expect(registeredIds).toEqual(methodIds)
@@ -13,7 +16,9 @@ describe('method content registries', () => {
 
     for (const methodId of methodIds) {
       const method = getMethodSpec(methodId)
+      const catalogEntry = methodCatalog.find((entry) => entry.id === methodId)
 
+      expect(method).toMatchObject(catalogEntry!)
       expect(findMethodSpec(methodId)).toBe(method)
       expect(method.name.zh).not.toBe('')
       expect(method.name.en).not.toBe('')

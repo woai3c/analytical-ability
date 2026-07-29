@@ -42,8 +42,6 @@
     "@commitlint/config-conventional": "^20.5.0",
     "@playwright/test": "^1.62.0",
     "@tailwindcss/vite": "^4.0.0",
-    "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/react": "^16.0.0",
     "@trivago/prettier-plugin-sort-imports": "^6.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",

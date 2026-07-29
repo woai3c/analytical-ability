@@ -1,8 +1,8 @@
 import { Link, useParams } from 'react-router'
 
 import { MethodDetailsContent, MethodSummary } from '@/components/method-introduction'
-import { methodIds } from '@/data/domain'
-import type { MethodId } from '@/data/domain'
+import { methodIds } from '@/data/domain-constants'
+import type { MethodId } from '@/data/domain-constants'
 import { useI18n } from '@/providers/i18n-provider'
 
 export function MethodDetailPage() {

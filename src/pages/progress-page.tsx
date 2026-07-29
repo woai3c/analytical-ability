@@ -7,12 +7,36 @@ import { FilterChip } from '@/components/filter-chip'
 import { Markdown } from '@/components/markdown'
 import type { TaskType } from '@/data/domain'
 import { progressStepLabels } from '@/data/guided-steps'
-import { findMethodSpec, methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
+import { findMethodCatalogEntry, methodCatalog } from '@/data/methods/catalog'
+import { taskTypeLabels, taskTypeLabelsEn } from '@/data/methods/labels'
 import type { PracticeRecord } from '@/data/practice-record'
 import { loadPracticeRecords } from '@/lib/practice-records'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/providers/i18n-provider'
 import type { Translate } from '@/providers/i18n-provider'
+
+interface AccuracyStats {
+  total: number
+  correct: number
+}
+
+function summarizeAccuracy(
+  records: PracticeRecord[],
+  getKeys: (record: PracticeRecord) => readonly string[],
+): Record<string, AccuracyStats> {
+  const summary: Record<string, AccuracyStats> = {}
+
+  for (const record of records) {
+    for (const key of getKeys(record)) {
+      const stats = summary[key] ?? { total: 0, correct: 0 }
+      stats.total++
+      if (record.correct) stats.correct++
+      summary[key] = stats
+    }
+  }
+
+  return summary
+}
 
 export function ProgressPage() {
   const { language, t } = useI18n()
@@ -32,29 +56,12 @@ export function ProgressPage() {
   const correctCount = filteredRecords.filter((r) => r.correct).length
   const accuracy = totalPractices > 0 ? Math.round((correctCount / totalPractices) * 100) : 0
 
-  const byTaskType = useMemo(() => {
-    const map: Record<string, { total: number; correct: number }> = {}
-    for (const r of filteredRecords) {
-      const entry = map[r.taskType] ?? { total: 0, correct: 0 }
-      entry.total++
-      if (r.correct) entry.correct++
-      map[r.taskType] = entry
-    }
-    return map
-  }, [filteredRecords])
+  const byTaskType = useMemo(() => summarizeAccuracy(filteredRecords, (record) => [record.taskType]), [filteredRecords])
 
-  const byMethod = useMemo(() => {
-    const map: Record<string, { total: number; correct: number }> = {}
-    for (const r of filteredRecords) {
-      for (const m of r.selectedMethods) {
-        const entry = map[m] ?? { total: 0, correct: 0 }
-        entry.total++
-        if (r.correct) entry.correct++
-        map[m] = entry
-      }
-    }
-    return map
-  }, [filteredRecords])
+  const byMethod = useMemo(
+    () => summarizeAccuracy(filteredRecords, (record) => record.selectedMethods),
+    [filteredRecords],
+  )
 
   const recentRecords = filteredRecords.slice(-10).reverse()
 
@@ -84,7 +91,7 @@ export function ProgressPage() {
           <FilterChip active={methodFilter === null} onClick={() => setMethodFilter(null)}>
             {t('全部')}
           </FilterChip>
-          {methodRegistry.map((method) => {
+          {methodCatalog.map((method) => {
             const name = en ? method.name.en : method.name.zh
             const isActive = methodFilter === method.id
             return (
@@ -118,18 +125,7 @@ export function ProgressPage() {
               <h2 className="text-sm font-medium">{t('按场景类型')}</h2>
               <div className="mt-3 space-y-2.5">
                 {Object.entries(byTaskType).map(([type, stats]) => {
-                  const pct = Math.round((stats.correct / stats.total) * 100)
-                  return (
-                    <div key={type}>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">{labels[type as TaskType] ?? type}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {stats.correct}/{stats.total}
-                        </span>
-                      </div>
-                      <ProgressBar value={pct} />
-                    </div>
-                  )
+                  return <AccuracyRow key={type} label={labels[type as TaskType] ?? type} stats={stats} />
                 })}
               </div>
             </section>
@@ -141,20 +137,9 @@ export function ProgressPage() {
                   .sort(([, a], [, b]) => b.total - a.total)
                   .slice(0, 8)
                   .map(([methodId, stats]) => {
-                    const spec = findMethodSpec(methodId)
+                    const spec = findMethodCatalogEntry(methodId)
                     const name = spec ? (en ? spec.name.en : spec.name.zh) : methodId
-                    const pct = Math.round((stats.correct / stats.total) * 100)
-                    return (
-                      <div key={methodId}>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">{name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {stats.correct}/{stats.total}
-                          </span>
-                        </div>
-                        <ProgressBar value={pct} />
-                      </div>
-                    )
+                    return <AccuracyRow key={methodId} label={name} stats={stats} />
                   })}
               </div>
             </section>
@@ -229,6 +214,22 @@ function ProgressBar({ value }: { value: number }) {
   return (
     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary">
       <div className="h-full rounded-full bg-foreground/20" style={{ width: `${value}%` }} />
+    </div>
+  )
+}
+
+function AccuracyRow({ label, stats }: { label: string; stats: AccuracyStats }) {
+  const percentage = Math.round((stats.correct / stats.total) * 100)
+
+  return (
+    <div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="text-xs text-muted-foreground">
+          {stats.correct}/{stats.total}
+        </span>
+      </div>
+      <ProgressBar value={percentage} />
     </div>
   )
 }
@@ -350,7 +351,7 @@ function RecordDetail({
         num: 2,
         user: `${steps.methodSelection.selectedMethods
           .map((id) => {
-            const spec = findMethodSpec(id)
+            const spec = findMethodCatalogEntry(id)
             return spec ? (en ? spec.name.en : spec.name.zh) : id
           })
           .join('、')}\n${steps.methodSelection.reasoning}`,

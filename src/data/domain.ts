@@ -1,46 +1,22 @@
 import { z } from 'zod'
 
+import { difficultyLevels, methodIds, taskTypes } from './domain-constants'
+import type { Difficulty, GuidedStepNumber, MethodId } from './domain-constants'
+
+export type { Difficulty, GuidedStepNumber, MethodId, TaskType } from './domain-constants'
+
 // ── 任务/场景类型 ─────────────────────────────────────────────────
 // 保留用于方法路由和场景分类。
 
-export const taskTypes = [
-  'diagnosis',
-  'improvement',
-  'selection',
-  'planning',
-  'prediction',
-  'exploration',
-  'learning',
-] as const
-
 const taskTypeSchema = z.enum(taskTypes)
-export type TaskType = z.infer<typeof taskTypeSchema>
 
 // ── 分析方法目录 ─────────────────────────────────────────────────
 
-export const methodIds = [
-  'fishbone',
-  'five-why',
-  'kj',
-  'abc',
-  'causal-graph',
-  'mcda',
-  'value-analysis',
-  'fmea',
-  'dmaic',
-  'pdsa',
-  'forecast',
-  'pert',
-] as const
-
 const methodIdSchema = z.enum(methodIds)
-export type MethodId = z.infer<typeof methodIdSchema>
 
 // ── 场景训练 ─────────────────────────────────────────────────────
 
-const difficultyLevels = ['beginner', 'intermediate', 'advanced'] as const
 const difficultySchema = z.enum(difficultyLevels)
-export type Difficulty = z.infer<typeof difficultySchema>
 
 /** 一个训练场景：描述真实情境，用户需要选择合适的分析方法并运用。 */
 export const scenarioSchema = z.object({
@@ -67,9 +43,6 @@ export const scenarioSchema = z.object({
 export type Scenario = z.infer<typeof scenarioSchema>
 
 // ── 引导式训练 ─────────────────────────────────────────────────
-
-export const guidedStepNumbers = [1, 2, 3, 4, 5] as const
-export type GuidedStepNumber = (typeof guidedStepNumbers)[number]
 
 export const stepResponseSchema = z.object({
   feedback: z.string().min(1),

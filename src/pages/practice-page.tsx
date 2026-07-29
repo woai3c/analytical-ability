@@ -7,7 +7,6 @@ import { FilterChip } from '@/components/filter-chip'
 import { DifficultySelector, GuidedTraining } from '@/components/guided-practice/guided-training'
 import type { Difficulty, GuidedSession, MethodId, Scenario } from '@/data/domain'
 import { findMethodSpec, methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
-import { generateGuidedScenario } from '@/lib/guided-api'
 import { buildNewSession } from '@/lib/guided-session'
 import { clearGuidedSession, loadGuidedSession, saveGuidedSession } from '@/lib/guided-session-store'
 import { LlmError } from '@/lib/llm'
@@ -78,10 +77,12 @@ export function PracticePage() {
     inflightDifficulty = difficulty
     inflightMethodId = selectedMethod
 
-    const promise = generateGuidedScenario({
-      difficulty,
-      ...(selectedMethod ? { methodId: selectedMethod } : {}),
-    })
+    const promise = import('@/lib/guided-api').then(({ generateGuidedScenario }) =>
+      generateGuidedScenario({
+        difficulty,
+        ...(selectedMethod ? { methodId: selectedMethod } : {}),
+      }),
+    )
     inflightGeneration = promise
 
     try {

@@ -1,11 +1,9 @@
-import type { MethodId, TaskType } from '../domain'
+import type { MethodId } from '../domain-constants'
 import type { LocalizedText } from '../localized-text'
+import type { MethodCatalogEntry } from './catalog'
+import { getMethodCatalogEntry } from './catalog'
 
-interface MethodSpec {
-  id: MethodId
-  name: LocalizedText
-  purpose: LocalizedText
-  taskTypes: TaskType[]
+interface MethodSpec extends MethodCatalogEntry {
   /** 方法的完整介绍：起源、核心思想、适用场景。 */
   introduction: LocalizedText
   /** 什么时候该用这个方法——具体的触发信号。 */
@@ -23,15 +21,11 @@ interface MethodSpec {
   caution: LocalizedText
   /** 完整的示例演练：用一个具体场景演示怎么用这个方法。 */
   exampleWalkthrough: LocalizedText
-  depth: 'interactive' | 'guided'
 }
 
 export const methodRegistry: readonly MethodSpec[] = [
   {
-    id: 'fishbone',
-    name: { zh: '鱼骨分析', en: 'Fishbone diagram' },
-    purpose: { zh: '把问题按类别展开成候选原因树', en: 'Expand a problem into a tree of candidate causes by category' },
-    taskTypes: ['diagnosis'],
+    ...getMethodCatalogEntry('fishbone'),
     introduction: {
       zh: '鱼骨图（又称石川图、因果图）由日本质量管理专家石川馨于 1960 年代提出。核心思想是：面对一个问题时，不要急着猜答案，而是先按 6 大类别系统地展开所有可能的原因，这 6 类被称为"6M"：\n\n· 人（Man）——执行操作的人员，包括技能水平、培训、经验、态度等\n· 机（Machine）——使用的设备、工具、系统、软件，包括老化、故障、配置等\n· 料（Material）——原材料、输入数据、供应商质量等\n· 法（Method）——操作流程、规范、标准、制度等\n· 环（Environment）——外部环境因素，如温度、市场变化、竞争对手、政策等\n· 测（Measurement）——度量和检测手段，数据是否准确、监控是否到位等\n\n鱼骨图的价值在于防止遗漏——团队往往只关注最显眼的原因，鱼骨图强制你扫描每个类别。适合问题刚出现、原因不明确、需要头脑风暴列出候选原因的阶段。',
       en: 'The fishbone diagram (also called Ishikawa or cause-and-effect diagram) was developed by Kaoru Ishikawa in the 1960s. The core idea: when facing a problem, don\'t jump to conclusions—systematically list all possible causes organized by 6 categories, known as the "6Ms":\n\n· Man (People) — the people performing the work: skill level, training, experience, attitudes\n· Machine — equipment, tools, systems, software: aging, breakdowns, configurations\n· Material — raw materials, input data, supplier quality\n· Method — processes, procedures, standards, policies\n· Environment — external factors: temperature, market changes, competitors, regulations\n· Measurement — metrics and detection: is the data accurate? Is monitoring in place?\n\nIts value lies in preventing blind spots: teams tend to fixate on the most obvious cause, and the fishbone forces you to scan every category. Best used when a problem has just surfaced, root causes are unclear, and you need structured brainstorming.',
@@ -83,16 +77,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '问题：某电商平台本月订单取消率从 5% 涨到 11%。\n\n鱼头：订单取消率翻倍\n\n人：客服响应慢导致用户等不及 → 新客服刚入职缺少培训\n机：支付接口超时率上升 → 第三方支付网关上周升级\n料：热门商品缺货但前端未及时下架 → 库存同步延迟\n法：满减活动规则复杂用户凑单后放弃 → 营销策略未做用户测试\n环：竞品同期大促吸走流量 → 价格竞争力下降\n\n标记重点验证：支付超时率、库存同步延迟、客服响应时间。',
       en: "Problem: An e-commerce platform's order cancellation rate rose from 5% to 11% this month.\n\nFish head: Order cancellation doubled\n\nPeople: Slow customer service → new hires lack training\nMachine: Payment timeout rate increased → 3rd-party gateway upgraded last week\nMaterial: Popular items out of stock but still listed → inventory sync delay\nMethod: Complex promotion rules → users abandon carts after failed bundling\nEnvironment: Competitor running major sale → price competitiveness dropped\n\nPriority for verification: payment timeout rate, inventory sync delay, customer service response time.",
     },
-    depth: 'interactive',
   },
   {
-    id: 'five-why',
-    name: { zh: '5 Why 追问', en: '5 Whys' },
-    purpose: {
-      zh: '沿单条因果链向下追问，直到可行动的根因',
-      en: 'Chase one causal chain down to an actionable root cause',
-    },
-    taskTypes: ['diagnosis'],
+    ...getMethodCatalogEntry('five-why'),
     introduction: {
       zh: '5 Why 由丰田生产系统创始人大野耐一推广，是精益管理的基础工具。核心逻辑：对一个问题反复问"为什么"（通常 5 次左右），穿透表面现象直达根因。它的前提是你已经锁定了一条可能的因果链（如鱼骨图筛选后的重点），需要深挖到可以直接行动的层面。注意：不是机械地问 5 次，而是每一层都用事实验证，问到"我可以对这个原因采取行动"为止。',
       en: 'The 5 Whys was popularized by Taiichi Ohno, father of the Toyota Production System. Core logic: repeatedly ask "why?" (typically around 5 times) to penetrate surface symptoms and reach the root cause. Prerequisite: you\'ve already identified a likely causal chain (e.g., from a fishbone analysis) and need to drill down to an actionable level. Note: it\'s not about mechanically asking 5 times—each layer must be fact-checked, and you stop when you reach a cause you can directly act on.',
@@ -138,16 +125,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '现象：新员工 3 个月内离职率 35%（行业平均 15%）\n\nWhy 1：为什么离职？→ 离职面谈显示"工作内容和预期不符"\nWhy 2：为什么不符？→ 入职前 JD 写的是"产品设计"，实际做的是"运营支持"\nWhy 3：为什么 JD 不准确？→ JD 是 2 年前写的，岗位职责早已变化\nWhy 4：为什么没更新？→ 没有人负责定期审核 JD\nWhy 5：为什么没有这个流程？→ HR 团队缺少 JD 审核制度\n\n根因：缺少 JD 定期审核流程\n行动：每季度由用人经理和 HR 共同审核 JD，确保与实际工作一致。',
       en: 'Symptom: 35% turnover within 3 months (industry avg 15%)\n\nWhy 1: Why do they leave? → Exit interviews show "job didn\'t match expectations"\nWhy 2: Why the mismatch? → JD said "product design" but actual work was "ops support"\nWhy 3: Why is the JD wrong? → Written 2 years ago, role has changed since\nWhy 4: Why wasn\'t it updated? → No one owns periodic JD review\nWhy 5: Why no process? → HR lacks a JD audit system\n\nRoot cause: No JD review process\nAction: Quarterly JD review by hiring manager + HR to ensure alignment with actual work.',
     },
-    depth: 'interactive',
   },
   {
-    id: 'kj',
-    name: { zh: 'KJ 法 / 亲和图', en: 'KJ method / affinity diagram' },
-    purpose: {
-      zh: '从零散材料（访谈、评论、笔记）中归纳出主题',
-      en: 'Surface themes from scattered notes, interviews, and comments',
-    },
-    taskTypes: ['exploration', 'diagnosis'],
+    ...getMethodCatalogEntry('kj'),
     introduction: {
       zh: 'KJ 法由日本人类学家川喜田二郎发明，用于从大量零散信息中发现结构。做法是把每条信息写成一张卡片，然后不预设分类地将相似卡片自然聚拢成组，再给每组命名。它特别适合：你有一堆原始材料（用户访谈、竞品评论、问题反馈）但还不知道该怎么组织时。KJ 法的关键是"先分组后命名"——避免用预设框架强行塞信息。',
       en: 'The KJ method was invented by Japanese anthropologist Jiro Kawakita to find structure in large amounts of scattered information. Write each piece of information on a card, then naturally group similar cards without predefined categories, and finally name each group. Best used when you have raw materials (user interviews, reviews, feedback) but don\'t yet know how to organize them. The key principle is "group first, name later" — avoid forcing information into predefined frameworks.',
@@ -192,16 +172,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '场景：收到 50 条 App 用户投诉，想找出共性问题。\n\n步骤：\n1. 每条投诉写一张卡："加载太慢"、"找不到退款入口"、"推送太多"、"闪退"、"客服不回复"...\n2. 自然分组后得到 5 组：\n   · 性能问题（加载慢、闪退、卡顿）— 12 张\n   · 功能找不到（退款入口、设置页、历史订单）— 9 张\n   · 骚扰感（推送多、广告弹窗）— 8 张\n   · 客服体验（不回复、回复慢、态度差）— 15 张\n   · 其他（3 张独立问题）\n3. 结论：客服体验是最大的投诉类别，但"性能问题"可能影响面更广（需结合数据验证）。',
       en: 'Scenario: Received 50 app user complaints, need to find common themes.\n\nSteps:\n1. One card per complaint: "too slow", "can\'t find refund", "too many notifications", "crashes", "support never replies"...\n2. Natural grouping yields 5 clusters:\n   · Performance (slow, crashes, lag) — 12 cards\n   · Can\'t find features (refund, settings, order history) — 9 cards\n   · Feels intrusive (too many pushes, popup ads) — 8 cards\n   · Support experience (no reply, slow, rude) — 15 cards\n   · Misc (3 standalone issues)\n3. Conclusion: Support experience is the largest complaint category, but "performance" may affect more users (needs data validation).',
     },
-    depth: 'interactive',
   },
   {
-    id: 'abc',
-    name: { zh: 'ABC / Pareto 分析', en: 'ABC / Pareto analysis' },
-    purpose: {
-      zh: '按价值口径排序，找出最值得优先处理的少数项',
-      en: 'Rank items by a value metric to find the vital few',
-    },
-    taskTypes: ['improvement', 'exploration'],
+    ...getMethodCatalogEntry('abc'),
     introduction: {
       zh: 'ABC 分析基于帕累托原则（80/20 法则）：少数项目往往贡献了大部分价值。做法是按某个统一指标（收入、频次、成本）对所有项目排序，计算累计占比，把前 70-80% 标为 A 类（重点管理）、接下来 15-20% 为 B 类、最后为 C 类。适合你面对一长串项目不知道先做哪个时，快速找出"关键少数"。注意：80/20 只是经验规则，不是自然法则。',
       en: 'ABC analysis is based on the Pareto principle (80/20 rule): a few items often contribute most of the value. Rank all items by a single metric (revenue, frequency, cost), compute cumulative share, and label the top 70-80% as A (manage closely), next 15-20% as B, rest as C. Use it when facing a long list and you need to identify the "vital few" quickly. Note: 80/20 is a heuristic, not a law of nature.',
@@ -247,16 +220,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '场景：一家奶茶店有 25 种产品，想知道该重点备料哪些。\n\n按月销量排序后：\n1. 杨枝甘露 — 3200 杯（22%，累计 22%）→ A\n2. 珍珠奶茶 — 2800 杯（19%，累计 41%）→ A\n3. 芒果冰沙 — 2100 杯（14%，累计 55%）→ A\n4. 柠檬茶 — 1500 杯（10%，累计 65%）→ A\n5. 抹茶拿铁 — 1200 杯（8%，累计 73%）→ A\n...\n前 5 种产品（20%）贡献了 73% 的销量。\n\n结论：A 类这 5 种原料必须保证充足供应不断货，C 类的 10 种长尾产品可以按需少量备货。',
       en: 'Scenario: A bubble tea shop has 25 products; which ones need priority stocking?\n\nSorted by monthly sales:\n1. Mango Pomelo — 3200 cups (22%, cumulative 22%) → A\n2. Pearl Milk Tea — 2800 cups (19%, cumulative 41%) → A\n3. Mango Smoothie — 2100 cups (14%, cumulative 55%) → A\n4. Lemon Tea — 1500 cups (10%, cumulative 65%) → A\n5. Matcha Latte — 1200 cups (8%, cumulative 73%) → A\n...\nTop 5 items (20%) contribute 73% of sales.\n\nConclusion: A-class ingredients must be stocked without fail; C-class long-tail items can be ordered in small quantities on demand.',
     },
-    depth: 'guided',
   },
   {
-    id: 'causal-graph',
-    name: { zh: '基础因果图', en: 'Causal graph (DAG)' },
-    purpose: {
-      zh: '显式画出变量间假设的因果方向，暴露混杂因素',
-      en: 'Make assumed causal directions explicit and expose confounders',
-    },
-    taskTypes: ['diagnosis', 'prediction'],
+    ...getMethodCatalogEntry('causal-graph'),
     introduction: {
       zh: '因果图是一种把"我认为 A 会影响 B"这种假设显式画出来的工具，学术名称叫 DAG（有向无环图，即箭头只朝一个方向、不形成闭环的图）。当你观察到两个变量相关时，可能有三种情况：A 导致了 B、B 导致了 A、或者有个你没注意到的第三个因素 C 同时影响了它们（这个 C 就叫"混杂变量"，是造成虚假因果判断的常见原因）。因果图强迫你把每条假设的方向用箭头画清楚，从而暴露那些隐藏的混杂变量。适合你需要区分"两件事总是一起出现"（相关）和"A 真的导致了 B"（因果）的场景。',
       en: 'A causal graph is a tool to make your "I think A influences B" assumptions explicit. Its academic name is DAG (Directed Acyclic Graph — a diagram where arrows only go in one direction and never form loops). When two variables are correlated, there are three possibilities: A causes B, B causes A, or there\'s a hidden third factor C affecting both (this C is called a "confounder" — a common source of false causal conclusions). Causal graphs force you to draw each assumed direction with arrows, exposing these hidden confounders. Use it when you need to distinguish "these two things always appear together" (correlation) from "A actually causes B" (causation).',
@@ -310,16 +276,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '场景：公司发现"参加培训的员工绩效更高"，想论证应该增加培训预算。\n\n画因果图：\n· 培训 → 绩效？（可能）\n· 但也许：上进心强的员工 → 主动参加培训 AND 上进心强 → 绩效高\n· 混杂变量：员工上进心\n\n图示：\n  上进心 → 参加培训\n  上进心 → 高绩效\n  培训 → 高绩效（待验证）\n\n结论：不能直接说"培训提高绩效"，因为可能是自选择偏差。需要做对照实验（如随机指派培训）来验证培训本身的因果效应。',
       en: 'Scenario: Company observes "employees who attend training perform better" and wants to justify more training budget.\n\nCausal graph:\n· Training → Performance? (possible)\n· But maybe: Motivated employees → Attend training AND Motivated → High performance\n· Confounder: Employee motivation\n\nGraph:\n  Motivation → Attends training\n  Motivation → High performance\n  Training → High performance (unverified)\n\nConclusion: Can\'t claim "training improves performance" directly — may be self-selection bias. Need a controlled experiment (e.g., random assignment to training) to verify the causal effect of training itself.',
     },
-    depth: 'guided',
   },
   {
-    id: 'mcda',
-    name: { zh: 'MCDA 多准则决策分析', en: 'Multi-criteria decision analysis' },
-    purpose: {
-      zh: '在多个冲突目标下透明地比较方案并检验结论稳健性',
-      en: 'Compare options across conflicting goals transparently and test robustness',
-    },
-    taskTypes: ['selection'],
+    ...getMethodCatalogEntry('mcda'),
     introduction: {
       zh: 'MCDA 解决的是"鱼和熊掌不可兼得"的问题：当你有多个评价标准且它们互相冲突时（便宜 vs 质量高 vs 交付快），如何系统地比较方案？做法分三步：\n\n1. 给每个标准赋"权重"——权重就是"这个标准有多重要"，用百分比表示，所有标准的权重加起来等于 100%。比如你觉得价格最重要占 50%，质量占 30%，速度占 20%\n2. 给每个方案在每个标准上打分（比如 0-10 分）\n3. 计算加权总分——每项得分乘以它的权重再加总。比如方案 A 价格得 8 分 × 50% + 质量 6 分 × 30% + 速度 7 分 × 20% = 7.2 分\n\n关键不是追求"唯一正确答案"，而是让决策过程透明可审视：别人能看到你为什么选了这个，权重调一调结论会不会翻转（这叫"敏感性分析"）。',
       en: 'MCDA addresses "you can\'t have it all": when you have multiple conflicting criteria (cheap vs high quality vs fast delivery), how do you systematically compare options? Three steps:\n\n1. Assign "weights" to each criterion — a weight represents "how important is this criterion," expressed as a percentage, all weights summing to 100%. For example: price matters most at 50%, quality at 30%, speed at 20%\n2. Score each option on each criterion (e.g., 0-10)\n3. Compute weighted totals — multiply each score by its weight and add up. For example: Option A gets price 8 × 50% + quality 6 × 30% + speed 7 × 20% = 7.2\n\nThe goal isn\'t finding "the one right answer" but making the decision process transparent and auditable: others can see why you chose this, and whether tweaking weights flips the conclusion (this is called "sensitivity analysis").',
@@ -365,16 +324,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '场景：选一个项目管理工具，候选 A（贵但功能全）、B（便宜但功能少）、C（开源免费但需要自己运维）。\n\n标准和权重：功能完整性 40%、成本 30%、维护难度 20%、团队学习成本 10%\n\n评分（0-10）：\n        功能  成本  维护  学习\nA:       9     3     8     7  → 加权 = 9×0.4 + 3×0.3 + 8×0.2 + 7×0.1 = 6.8\nB:       5     9     8     9  → 加权 = 5×0.4 + 9×0.3 + 8×0.2 + 9×0.1 = 7.2\nC:       7     10    3     4  → 加权 = 7×0.4 + 10×0.3 + 3×0.2 + 4×0.1 = 6.8\n\n结论：B 略胜。但如果把"功能完整性"权重调到 50%，A 反超 → 结论不够稳健，需要团队讨论功能到底有多重要。',
       en: 'Scenario: Choosing a project management tool — A (expensive, full-featured), B (cheap, fewer features), C (free open-source, self-hosted).\n\nCriteria & weights: Features 40%, Cost 30%, Maintenance 20%, Learning curve 10%\n\nScores (0-10):\n       Features  Cost  Maintenance  Learning\nA:       9        3       8           7  → Weighted = 6.8\nB:       5        9       8           9  → Weighted = 7.2\nC:       7       10       3           4  → Weighted = 6.8\n\nConclusion: B wins slightly. But if "Features" weight rises to 50%, A overtakes → conclusion is fragile, team needs to discuss how critical full features really are.',
     },
-    depth: 'interactive',
   },
   {
-    id: 'value-analysis',
-    name: { zh: '价值分析', en: 'Value analysis' },
-    purpose: {
-      zh: '逐项检查功能是否值得它的成本，寻找更省的替代做法',
-      en: 'Check whether each function is worth its cost and find cheaper alternatives',
-    },
-    taskTypes: ['selection', 'improvement'],
+    ...getMethodCatalogEntry('value-analysis'),
     introduction: {
       zh: '价值分析的核心问题是"这个功能值得花这么多钱吗？"。它要求你把每个功能/支出拆开看：这个东西为目标贡献了什么？成本是多少？有没有更便宜的方式达到同样效果？适合你感觉"钱花了不少但效果不明显"的时候做一次体检式审视。',
       en: 'Value analysis asks: "Is this function worth what it costs?" Break each function/expense apart: What does it contribute to the goal? What does it cost? Is there a cheaper way to achieve the same effect? Use it when you feel "spending a lot but results are unclear" — it\'s like a financial health check.',
@@ -417,16 +369,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '场景：个人每月支出审查，发现有 6 个订阅服务共 ¥500/月。\n\n| 服务 | 月费 | 贡献 | 判断 |\n| 视频会员 | ¥25 | 高（每天用）| 保留 |\n| 音乐会员 | ¥15 | 高 | 保留 |\n| 云存储 | ¥20 | 中 | 保留 |\n| 健身 App | ¥50 | 低（3 个月没用）| 砍掉 |\n| AI 工具 A | ¥200 | 中 | 找平替（工具 B ¥60 功能够用）|\n| 杂志订阅 | ¥190 | 低 | 砍掉 |\n\n结论：砍 2 个 + 替换 1 个，月省 ¥380（76%），核心体验不受影响。',
       en: 'Scenario: Monthly personal subscription audit — 6 services totaling $70/mo.\n\n| Service | Cost | Contribution | Decision |\n| Video streaming | $4 | High (daily use) | Keep |\n| Music | $2 | High | Keep |\n| Cloud storage | $3 | Medium | Keep |\n| Fitness app | $7 | Low (unused 3 months) | Cut |\n| AI tool A | $28 | Medium | Replace with tool B at $8 |\n| Magazine | $26 | Low | Cut |\n\nResult: Cut 2 + replace 1, saving $53/mo (76%) with no impact on core experience.',
     },
-    depth: 'guided',
   },
   {
-    id: 'fmea',
-    name: { zh: 'FMEA 失效模式分析', en: 'FMEA' },
-    purpose: {
-      zh: '事前列出方案可能的失败方式，按严重度×发生度×可探测度排序',
-      en: 'List failure modes upfront, ranked by severity × occurrence × detection',
-    },
-    taskTypes: ['planning', 'selection', 'improvement'],
+    ...getMethodCatalogEntry('fmea'),
     introduction: {
       zh: 'FMEA（失效模式与效果分析）是一种"事前验尸"工具：在方案执行前，系统性地想象"哪里可能出错"，然后对每种失效方式从三个维度打分：\n\n· 严重度 S（Severity）——如果这个问题真的发生了，后果有多严重？（1 = 几乎没影响，10 = 灾难性后果）\n· 发生度 O（Occurrence）——这个问题发生的可能性有多大？（1 = 几乎不可能，10 = 几乎肯定会发生）\n· 可探测度 D（Detection）——如果问题发生了，你能多快发现它？（1 = 立即能发现，10 = 完全发现不了）\n\n三个分数相乘得到 RPN（Risk Priority Number，风险优先数）= S × O × D。RPN 越高，表示这个风险越需要优先处理。它的价值在于把"可能出问题"从模糊焦虑变成可排序的待办清单。',
       en: 'FMEA (Failure Mode and Effects Analysis) is a "pre-mortem" tool: before execution, systematically imagine "what could go wrong," then score each failure mode on three dimensions:\n\n· Severity (S) — if this failure happens, how bad is the impact? (1 = negligible, 10 = catastrophic)\n· Occurrence (O) — how likely is this failure to happen? (1 = extremely unlikely, 10 = almost certain)\n· Detection (D) — if the failure occurs, how quickly can you detect it? (1 = instantly detectable, 10 = completely undetectable)\n\nMultiply all three to get the RPN (Risk Priority Number) = S × O × D. Higher RPN means higher priority for attention. Its value: turning vague worry about "things might go wrong" into a sorted, actionable list.',
@@ -466,16 +411,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '场景：下周上线新支付功能。\n\n| 失效模式 | 后果 | S | O | D | RPN | 措施 |\n| 第三方支付 API 超时 | 用户付款失败 | 9 | 4 | 3 | 108 | 设置超时重试 + 备用通道 |\n| 金额计算精度错误 | 多扣/少扣钱 | 10 | 2 | 2 | 40 | 单元测试覆盖边界值 |\n| 并发下订单重复扣款 | 用户投诉 + 退款 | 9 | 3 | 5 | 135 | 加幂等锁 |\n| 上线后回滚失败 | 长时间故障 | 8 | 2 | 6 | 96 | 灰度发布 + 演练回滚 |\n\n按 RPN 排序：重复扣款 (135) > API 超时 (108) > 回滚 (96) > 精度 (40)\n优先解决前两项。',
       en: 'Scenario: New payment feature launching next week.\n\n| Failure Mode | Effect | S | O | D | RPN | Mitigation |\n| 3rd-party API timeout | Payment fails | 9 | 4 | 3 | 108 | Retry + fallback gateway |\n| Amount calculation error | Over/under charge | 10 | 2 | 2 | 40 | Unit tests on edge cases |\n| Concurrent duplicate charge | Complaints + refunds | 9 | 3 | 5 | 135 | Idempotency lock |\n| Rollback failure | Extended outage | 8 | 2 | 6 | 96 | Canary deploy + rollback drill |\n\nSorted by RPN: Duplicate charge (135) > API timeout (108) > Rollback (96) > Precision (40)\nPrioritize fixing the first two.',
     },
-    depth: 'guided',
   },
   {
-    id: 'dmaic',
-    name: { zh: 'DMAIC 改进流程', en: 'DMAIC' },
-    purpose: {
-      zh: '用 Define-Measure-Analyze-Improve-Control 系统改善已有流程',
-      en: 'Improve an existing process via Define-Measure-Analyze-Improve-Control',
-    },
-    taskTypes: ['improvement'],
+    ...getMethodCatalogEntry('dmaic'),
     introduction: {
       zh: 'DMAIC 是六西格玛（一种以数据驱动的质量管理方法）的核心方法论，专门用于改进已存在但表现不佳的流程。五个阶段各有明确目标：\n\n· Define（定义）——明确要改进什么问题、影响了谁、目标是多少\n· Measure（测量）——收集当前表现数据，用数字建立基线（"现在到底有多差"）\n· Analyze（分析）——用诊断工具（如鱼骨图、5 Why）找到导致差距的根本原因\n· Improve（改进）——针对根因设计解决方案并实施，验证效果\n· Control（控制）——建立监控和标准化机制，确保改进成果不会随时间退化\n\n适合你有一个"一直在跑但跑得不好"的流程，需要系统性提升而非推倒重来。',
       en: 'DMAIC is the core methodology of Six Sigma (a data-driven quality management approach) for improving existing but underperforming processes. Each of the five phases has a clear goal:\n\n· Define — clarify what problem to fix, who is affected, and the target\n· Measure — collect current performance data to establish a numerical baseline ("how bad is it right now?")\n· Analyze — use diagnostic tools (fishbone, 5 Whys) to find root causes of the gap\n· Improve — design and implement solutions targeting root causes, verify results\n· Control — establish monitoring and standardization to prevent improvements from decaying over time\n\nUse it when you have a process that "keeps running but runs poorly" and needs systematic improvement rather than a complete redesign.',
@@ -521,16 +459,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '场景：客服平均响应时间 48 小时，目标 12 小时。\n\nD：目标——响应时间从 48h 降到 12h，影响所有付费用户\nM：收集 30 天数据——中位数 52h，P90 是 96h，周一最严重\nA：根因——周一积压来自周末无人值班 + 工单分配不均（3 人处理 80% 工单）\nI：增加周末轮班 1 人 + 自动按技能分配工单 + 设置 SLA 警报\nC：每日看板监控响应时间，超 24h 自动升级\n\n实施两周后：中位数降到 14h，继续优化中。',
       en: 'Scenario: Support response time avg 48h, target 12h.\n\nD: Goal — reduce from 48h to 12h, affects all paying users\nM: 30-day data — median 52h, P90 is 96h, worst on Mondays\nA: Root causes — Monday backlog from no weekend coverage + uneven ticket distribution (3 people handle 80%)\nI: Add 1 weekend shift + auto-assign by skill + SLA alerts\nC: Daily dashboard monitoring response time, auto-escalate if >24h\n\nAfter 2 weeks: median dropped to 14h, still optimizing.',
     },
-    depth: 'guided',
   },
   {
-    id: 'pdsa',
-    name: { zh: 'PDSA 小试验', en: 'PDSA cycle' },
-    purpose: {
-      zh: '先写预测，再小范围测试，用结果决定推广或调整',
-      en: 'Predict, test small, compare, then scale or adjust',
-    },
-    taskTypes: ['improvement', 'learning'],
+    ...getMethodCatalogEntry('pdsa'),
     introduction: {
       zh: 'PDSA（Plan-Do-Study-Act）是最小的改进循环：先预测结果，再小范围试，把实际结果和预测比较，然后决定下一步。和 DMAIC 的区别是 PDSA 更轻量，适合"试一试看看行不行"的场景。关键纪律：必须先写下预测（"我认为这样做会让 X 指标提高 Y%"），否则事后怎么说都对。',
       en: 'PDSA (Plan-Do-Study-Act) is the smallest improvement cycle: predict the result, test small, compare actual vs predicted, then decide next step. Unlike DMAIC, PDSA is lightweight — suited for "let\'s try and see." Key discipline: you must write down your prediction first ("I believe this will improve X by Y%"), otherwise hindsight bias makes everything seem obvious.',
@@ -577,16 +508,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '场景：觉得每天站会浪费时间，想改成异步文字更新。\n\nPlan：假设——取消站会改为 Slack 日报后，开发时间每天多 30 分钟；试验范围——后端组 4 人，两周。\nDo：执行两周，第一周有人忘记发日报、第二周适应了。\nStudy：实际——开发时间确实多了约 25 分钟/人/天，但出现 2 次信息遗漏导致重复工作。\nAct：调整——保留异步日报 + 每周一次 15 分钟同步，再试两周。\n\n第二轮：信息遗漏降为 0，效率保持。→ 推广到全组。',
       en: 'Scenario: Daily standups feel wasteful; try replacing with async text updates.\n\nPlan: Hypothesis — replacing standup with Slack daily update saves 30 min/day of dev time. Scope: backend team of 4, two weeks.\nDo: Week 1 some people forget to post; Week 2 adapted.\nStudy: Actual — dev time increased ~25 min/person/day, but 2 instances of info gaps caused rework.\nAct: Adjust — keep async daily + add one 15-min weekly sync, try 2 more weeks.\n\nRound 2: Info gaps dropped to 0, efficiency maintained. → Roll out to full team.',
     },
-    depth: 'guided',
   },
   {
-    id: 'forecast',
-    name: { zh: '概率预测与校准', en: 'Probabilistic forecast' },
-    purpose: {
-      zh: '先看基准率，再给情景和概率，事后校准',
-      en: 'Start from base rates, assign scenario probabilities, calibrate later',
-    },
-    taskTypes: ['prediction'],
+    ...getMethodCatalogEntry('forecast'),
     introduction: {
       zh: '概率预测是"用数字表达不确定性"的方法。不说"可能涨价"，而说"我认为 70% 概率三个月内涨价"。关键起点是基准率（base rate）——也就是"类似的事情在历史上发生了多少比例"。比如你想预测"这个创业项目能成功吗"，先查基准率：类似行业的创业公司 5 年存活率大约是 20%。然后根据这个项目的特殊优势或劣势做调整。\n\n事后回顾同样重要：你说 70% 概率的事情里，真的有 70% 发生了吗？如果你说 70% 的事情 90% 都发生了，说明你太保守（低估了概率）。这个校准过程会逐渐提升你对不确定性的判断能力。',
       en: 'Probabilistic forecasting means "expressing uncertainty with numbers." Don\'t say "might increase" — say "I believe there\'s a 70% chance of a price increase within 3 months." The key starting point is the base rate — "how often did similar things happen historically?" For example, if predicting "will this startup succeed," first find the base rate: similar startups have about a 20% five-year survival rate. Then adjust based on this specific company\'s advantages or disadvantages.\n\nPost-review is equally important: of things you said were 70% likely, did 70% actually happen? If 90% happened, you were underconfident (underestimated the probability). This calibration process gradually improves your judgment under uncertainty.',
@@ -637,16 +561,9 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '场景：预测"竞品 X 在 3 个月内降价 10% 以上"。\n\n1. 基准率：过去 3 年同行业竞品在任意 3 个月窗口降价 ≥10% 的比例 ≈ 15%\n2. 本次特殊因素：\n   · 竞品刚融资（+），有钱打价格战 → 上调\n   · 他们上季度利润下滑（+）→ 可能降价引流 → 上调\n   · 但他们刚发了高端新品（-）→ 可能维持高价策略 → 下调\n3. 综合判断：从基准 15% 上调到 35%\n4. 记录：35%，截止 10 月 26 日\n\n到期后复盘：如果没降价，这个 35% 的判断是合理的（65% 概率不降价就是说大多数情况不会降）。多次积累后看校准曲线。',
       en: 'Scenario: Predict "Competitor X will cut prices ≥10% within 3 months."\n\n1. Base rate: In the past 3 years, competitors cut ≥10% in any 3-month window ~15% of the time\n2. Situation-specific factors:\n   · Competitor just raised funding (+) — may wage price war → adjust up\n   · Their profit dropped last quarter (+) → may cut to drive volume → adjust up\n   · But they just launched a premium product (-) → may maintain high pricing → adjust down\n3. Final estimate: Adjust from 15% base to 35%\n4. Record: 35%, deadline Oct 26\n\nPost-deadline review: If no cut happened, the 35% judgment was reasonable (65% said it wouldn\'t). Accumulate over time to check calibration curve.',
     },
-    depth: 'guided',
   },
   {
-    id: 'pert',
-    name: { zh: 'PERT / CPM 排程', en: 'PERT / CPM' },
-    purpose: {
-      zh: '把目标拆成有依赖的任务，找出关键路径和真实周期',
-      en: 'Decompose into dependent tasks, find the critical path and real duration',
-    },
-    taskTypes: ['planning', 'learning'],
+    ...getMethodCatalogEntry('pert'),
     introduction: {
       zh: 'PERT（计划评审技术）和 CPM（关键路径法）是项目排期工具。核心思想：把一个大目标拆成多个任务，标明谁依赖谁（B 必须在 A 做完后才能开始），然后找出最长的那条依赖链——这就是"关键路径"，它决定了项目最短工期。不在关键路径上的任务有"浮动时间"，可以延迟而不影响整体。适合你需要排期但不确定"到底要多久"的场景。',
       en: 'PERT (Program Evaluation and Review Technique) and CPM (Critical Path Method) are project scheduling tools. Core idea: break a big goal into tasks, mark dependencies (B can\'t start until A finishes), then find the longest dependency chain — the "critical path" — which determines minimum project duration. Tasks not on the critical path have "float" — they can be delayed without affecting the whole. Use when you need to schedule but aren\'t sure "how long will this really take."',
@@ -693,7 +610,6 @@ export const methodRegistry: readonly MethodSpec[] = [
       zh: '场景：8 周内上线 MVP。\n\n任务拆解：\nA. 需求确认（1 周）→ 无依赖\nB. UI 设计（2 周）→ 依赖 A\nC. 后端开发（4 周）→ 依赖 A\nD. 前端开发（3 周）→ 依赖 B\nE. 联调测试（1 周）→ 依赖 C 和 D\nF. 修复 + 上线（1 周）→ 依赖 E\n\n路径分析：\n路径 1：A→B→D→E→F = 1+2+3+1+1 = 8 周\n路径 2：A→C→E→F = 1+4+1+1 = 7 周\n\n关键路径：路径 1（8 周），刚好卡住 deadline。\n结论：UI 设计和前端不能延期，否则必定超期。后端有 1 周浮动。',
       en: 'Scenario: Ship MVP in 8 weeks.\n\nTask breakdown:\nA. Requirements (1 wk) → no dependency\nB. UI design (2 wks) → depends on A\nC. Backend dev (4 wks) → depends on A\nD. Frontend dev (3 wks) → depends on B\nE. Integration test (1 wk) → depends on C and D\nF. Fix + deploy (1 wk) → depends on E\n\nPath analysis:\nPath 1: A→B→D→E→F = 1+2+3+1+1 = 8 weeks\nPath 2: A→C→E→F = 1+4+1+1 = 7 weeks\n\nCritical path: Path 1 (8 weeks), exactly meets deadline.\nConclusion: UI design and frontend cannot slip or we miss the deadline. Backend has 1 week of float.',
     },
-    depth: 'interactive',
   },
 ]
 

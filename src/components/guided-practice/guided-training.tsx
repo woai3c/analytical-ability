@@ -6,11 +6,11 @@ import { ChevronDown, ChevronRight, ChevronUp, RotateCcw, TrendingUp } from 'luc
 import { ActiveStep } from '@/components/guided-practice/active-step'
 import { Markdown } from '@/components/markdown'
 import { MethodIntroductionButton } from '@/components/method-introduction'
-import { guidedStepNumbers } from '@/data/domain'
-import type { Difficulty, GuidedSession, GuidedStepNumber, Scenario, TaskType } from '@/data/domain'
+import type { GuidedSession, Scenario } from '@/data/domain'
+import { guidedStepNumbers } from '@/data/domain-constants'
+import type { Difficulty, GuidedStepNumber, TaskType } from '@/data/domain-constants'
 import { guidedStepLabels } from '@/data/guided-steps'
 import { findMethodSpec } from '@/data/methods'
-import { processStep } from '@/lib/guided-api'
 import type { ProcessStepResult } from '@/lib/guided-api'
 import { applyAiResponse, applyUserInput, getStepDisplay } from '@/lib/guided-session'
 import type { StepUserInput } from '@/lib/guided-session'
@@ -69,6 +69,7 @@ export function GuidedTraining({
     saveGuidedSession(updated)
 
     try {
+      const { processStep } = await import('@/lib/guided-api')
       const result: ProcessStepResult = await processStep(updated, session.currentStep)
 
       const withAi = applyAiResponse(updated, session.currentStep, result)

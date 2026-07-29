@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 
 import { FilterChip } from '@/components/filter-chip'
-import { taskTypes } from '@/data/domain'
-import type { TaskType } from '@/data/domain'
-import { methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
+import { taskTypes } from '@/data/domain-constants'
+import type { TaskType } from '@/data/domain-constants'
+import { methodCatalog } from '@/data/methods/catalog'
+import { taskTypeLabels, taskTypeLabelsEn } from '@/data/methods/labels'
 import { countPracticedMethods } from '@/lib/practice-records'
 import { useI18n } from '@/providers/i18n-provider'
 
@@ -19,8 +20,8 @@ export function MethodsPage() {
   const practiceCounts = useMemo(() => countPracticedMethods(), [])
 
   const filtered = useMemo(() => {
-    if (!activeFilter) return methodRegistry
-    return methodRegistry.filter((m) => m.taskTypes.includes(activeFilter))
+    if (!activeFilter) return methodCatalog
+    return methodCatalog.filter((m) => m.taskTypes.includes(activeFilter))
   }, [activeFilter])
 
   return (

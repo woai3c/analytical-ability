@@ -1,10 +1,3 @@
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { createDeepSeek } from '@ai-sdk/deepseek'
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createOpenAI } from '@ai-sdk/openai'
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
-import { createXai } from '@ai-sdk/xai'
-import { APICallError, NoObjectGeneratedError, generateObject, generateText } from 'ai'
 import type { LanguageModel } from 'ai'
 import type { z } from 'zod'
 
@@ -12,7 +5,7 @@ import { findProviderConfig } from '@/data/providers'
 import type { ClaritySettings } from '@/lib/settings'
 import { loadSettings } from '@/lib/settings'
 
-export type LlmErrorCode =
+type LlmErrorCode =
   | 'LLM_NOT_CONFIGURED'
   | 'LLM_AUTH_FAILED'
   | 'LLM_BILLING'
@@ -32,60 +25,64 @@ export class LlmError extends Error {
   }
 }
 
-function createModel(settings: ClaritySettings): LanguageModel {
+async function createModel(settings: ClaritySettings): Promise<LanguageModel> {
   const { provider, apiKey, baseUrl, model } = settings
   const providerConfig = findProviderConfig(provider)
   const modelId = model || providerConfig?.defaultModel || ''
 
   switch (provider) {
-    case 'deepseek':
+    case 'deepseek': {
+      const { createDeepSeek } = await import('@ai-sdk/deepseek')
       return createDeepSeek({ apiKey })(modelId)
-    case 'anthropic':
+    }
+    case 'anthropic': {
+      const { createAnthropic } = await import('@ai-sdk/anthropic')
       return createAnthropic({ apiKey })(modelId)
-    case 'openai':
+    }
+    case 'openai': {
+      const { createOpenAI } = await import('@ai-sdk/openai')
       return createOpenAI({ apiKey })(modelId)
-    case 'google':
+    }
+    case 'google': {
+      const { createGoogleGenerativeAI } = await import('@ai-sdk/google')
       return createGoogleGenerativeAI({ apiKey })(modelId)
-    case 'xai':
+    }
+    case 'xai': {
+      const { createXai } = await import('@ai-sdk/xai')
       return createXai({ apiKey })(modelId)
+    }
     case 'alibaba':
-      return createOpenAICompatible({
-        name: 'alibaba',
-        apiKey,
-        baseURL: baseUrl || providerConfig!.baseUrl!,
-      })(modelId)
     case 'zhipu':
+    case 'moonshot': {
+      const { createOpenAICompatible } = await import('@ai-sdk/openai-compatible')
       return createOpenAICompatible({
-        name: 'zhipu',
+        name: provider,
         apiKey,
         baseURL: baseUrl || providerConfig!.baseUrl!,
       })(modelId)
-    case 'moonshot':
-      return createOpenAICompatible({
-        name: 'moonshot',
-        apiKey,
-        baseURL: baseUrl || providerConfig!.baseUrl!,
-      })(modelId)
-    case 'custom':
+    }
+    case 'custom': {
       if (!baseUrl || !modelId) {
         throw new LlmError('LLM_NOT_CONFIGURED', 'Custom provider requires Base URL and Model name.')
       }
+      const { createOpenAICompatible } = await import('@ai-sdk/openai-compatible')
       return createOpenAICompatible({
         name: 'custom',
         apiKey,
         baseURL: baseUrl,
       })(modelId)
+    }
     default:
       throw new LlmError('LLM_NOT_CONFIGURED', `Unknown provider: ${provider}`)
   }
 }
 
-function getModel(): LanguageModel {
+function getSettings(): ClaritySettings {
   const settings = loadSettings()
   if (!settings || !settings.apiKey) {
     throw new LlmError('LLM_NOT_CONFIGURED', '请先在设置页面配置 API Key。')
   }
-  return createModel(settings)
+  return settings
 }
 
 export interface TokenUsage {
@@ -93,12 +90,12 @@ export interface TokenUsage {
   completionTokens: number
 }
 
-export interface StructuredGenerationResult<T> {
+interface StructuredGenerationResult<T> {
   object: T
   usage: TokenUsage
 }
 
-export interface StructuredGenerationInput<S extends z.ZodType> {
+interface StructuredGenerationInput<S extends z.ZodType> {
   schema: S
   system: string
   prompt: string
@@ -107,7 +104,8 @@ export interface StructuredGenerationInput<S extends z.ZodType> {
 export async function generateStructured<S extends z.ZodType>(
   input: StructuredGenerationInput<S>,
 ): Promise<StructuredGenerationResult<z.infer<S>>> {
-  const model = getModel()
+  const settings = getSettings()
+  const [model, { generateObject, NoObjectGeneratedError }] = await Promise.all([createModel(settings), import('ai')])
 
   let lastError: unknown
   for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -129,14 +127,16 @@ export async function generateStructured<S extends z.ZodType>(
       }
     } catch (error) {
       lastError = error
-      if (!NoObjectGeneratedError.isInstance(error)) throw normalizeLlmError(error)
+      if (!NoObjectGeneratedError.isInstance(error)) throw await normalizeLlmError(error)
     }
   }
-  throw normalizeLlmError(lastError)
+  throw await normalizeLlmError(lastError)
 }
 
-function normalizeLlmError(error: unknown): LlmError {
+async function normalizeLlmError(error: unknown): Promise<LlmError> {
   if (error instanceof LlmError) return error
+
+  const { APICallError, NoObjectGeneratedError } = await import('ai')
 
   if (APICallError.isInstance(error)) {
     const status = error.statusCode ?? 0
@@ -170,8 +170,8 @@ export async function testConnection(settings: ClaritySettings): Promise<void> {
   if (!settings.apiKey) {
     throw new LlmError('LLM_NOT_CONFIGURED', '请先填写 API Key。')
   }
-  const model = createModel(settings)
   try {
+    const [model, { generateText }] = await Promise.all([createModel(settings), import('ai')])
     await generateText({
       model,
       prompt: 'Say "ok".',
@@ -179,6 +179,6 @@ export async function testConnection(settings: ClaritySettings): Promise<void> {
       abortSignal: AbortSignal.timeout(15000),
     })
   } catch (error) {
-    throw normalizeLlmError(error)
+    throw await normalizeLlmError(error)
   }
 }

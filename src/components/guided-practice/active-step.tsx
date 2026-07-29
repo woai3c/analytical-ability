@@ -8,40 +8,38 @@ import type { StepUserInput } from '@/lib/guided-session'
 import { cn } from '@/lib/utils'
 import type { Translate } from '@/providers/i18n-provider'
 
-export function ActiveStep({
-  session,
-  submitting,
-  onSubmit,
-  en,
-  t,
-}: {
+type SubmissionState = 'submit' | 'skip' | false
+
+interface ActiveStepProps {
   session: GuidedSession
-  submitting: 'submit' | 'skip' | false
+  submitting: SubmissionState
   onSubmit: (input: StepUserInput) => void
   en: boolean
   t: Translate
-}) {
+}
+
+interface StepInputProps {
+  submitting: SubmissionState
+  onSubmit: (input: StepUserInput) => void
+  t: Translate
+  en: boolean
+  scenario: Scenario
+}
+
+export function ActiveStep({ session, submitting, onSubmit, en, t }: ActiveStepProps) {
   const step = session.currentStep
   const scenario = session.scenario
+  const stepInputProps = { submitting, onSubmit, t, en, scenario }
 
   switch (step) {
     case 1:
-      return <Step1Input submitting={submitting} onSubmit={onSubmit} t={t} en={en} scenario={scenario} />
+      return <Step1Input {...stepInputProps} />
     case 2:
-      return <Step2Input submitting={submitting} onSubmit={onSubmit} t={t} en={en} scenario={scenario} />
+      return <Step2Input {...stepInputProps} />
     case 3:
-      return (
-        <Step3Input
-          submitting={submitting}
-          onSubmit={onSubmit}
-          selectedMethods={session.steps.methodSelection?.selectedMethods ?? []}
-          t={t}
-          en={en}
-          scenario={scenario}
-        />
-      )
+      return <Step3Input {...stepInputProps} selectedMethods={session.steps.methodSelection?.selectedMethods ?? []} />
     case 4:
-      return <Step4Input submitting={submitting} onSubmit={onSubmit} t={t} en={en} scenario={scenario} />
+      return <Step4Input {...stepInputProps} />
     case 5:
       return <Step5Input submitting={submitting} onSubmit={onSubmit} t={t} />
     default:
@@ -67,7 +65,7 @@ function TextStepInput({
   guide?: string
   rows: number
   placeholder: string
-  submitting: 'submit' | 'skip' | false
+  submitting: SubmissionState
   onSubmit: (value: string) => void
   onSkip: () => void
   t: Translate
@@ -106,19 +104,7 @@ function TextStepInput({
   )
 }
 
-function Step1Input({
-  submitting,
-  onSubmit,
-  t,
-  en,
-  scenario,
-}: {
-  submitting: 'submit' | 'skip' | false
-  onSubmit: (input: StepUserInput) => void
-  t: Translate
-  en: boolean
-  scenario: Scenario
-}) {
+function Step1Input({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
   const hints = en
     ? [
         `Re-read the scenario title: "${scenario.title}". What core tension does it describe?`,
@@ -156,19 +142,7 @@ function Step1Input({
   )
 }
 
-function Step2Input({
-  submitting,
-  onSubmit,
-  t,
-  en,
-  scenario,
-}: {
-  submitting: 'submit' | 'skip' | false
-  onSubmit: (input: StepUserInput) => void
-  t: Translate
-  en: boolean
-  scenario: Scenario
-}) {
+function Step2Input({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
   const [selected, setSelected] = useState<string[]>([])
   const [reasoning, setReasoning] = useState('')
 
@@ -268,13 +242,8 @@ function Step3Input({
   t,
   en,
   scenario,
-}: {
-  submitting: 'submit' | 'skip' | false
-  onSubmit: (input: StepUserInput) => void
+}: StepInputProps & {
   selectedMethods: string[]
-  t: Translate
-  en: boolean
-  scenario: Scenario
 }) {
   const methodNames = selectedMethods
     .map((id) => {
@@ -333,19 +302,7 @@ function Step3Input({
   )
 }
 
-function Step4Input({
-  submitting,
-  onSubmit,
-  t,
-  en,
-  scenario,
-}: {
-  submitting: 'submit' | 'skip' | false
-  onSubmit: (input: StepUserInput) => void
-  t: Translate
-  en: boolean
-  scenario: Scenario
-}) {
+function Step4Input({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
   const hints = en
     ? [
         'Start with a one-sentence summary of your key finding.',
@@ -386,7 +343,7 @@ function Step5Input({
   onSubmit,
   t,
 }: {
-  submitting: 'submit' | 'skip' | false
+  submitting: SubmissionState
   onSubmit: (input: StepUserInput) => void
   t: Translate
 }) {
@@ -435,15 +392,7 @@ function SubmitButton({
   )
 }
 
-function SkipButton({
-  submitting,
-  onClick,
-  t,
-}: {
-  submitting: 'submit' | 'skip' | false
-  onClick: () => void
-  t: Translate
-}) {
+function SkipButton({ submitting, onClick, t }: { submitting: SubmissionState; onClick: () => void; t: Translate }) {
   return (
     <button
       type="button"

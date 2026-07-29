@@ -5,8 +5,6 @@ import { findMethodSpec, methodRegistry } from '@/data/methods'
 import type { TokenUsage } from './llm'
 import { generateStructured } from './llm'
 
-export type { GuidedSession, GuidedStepNumber }
-
 function isEnglish(): boolean {
   return document.documentElement.lang === 'en'
 }

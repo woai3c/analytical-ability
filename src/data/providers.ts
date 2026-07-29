@@ -1,4 +1,4 @@
-export interface ProviderConfig {
+interface ProviderConfig {
   id: string
   label: string
   placeholder: string

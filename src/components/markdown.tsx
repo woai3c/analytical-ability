@@ -1,25 +1,22 @@
 import type { ReactNode } from 'react'
 
+import { parseTextBlocks } from '@/lib/text-blocks'
+
 /**
  * Lightweight Markdown renderer for AI-generated feedback.
  * Handles: **bold**, - bullet lists, 1. numbered lists, paragraphs.
  * No external dependencies required.
  */
 export function Markdown({ text, className }: { text: string; className?: string }) {
-  const blocks = text.split('\n\n')
   const elements: ReactNode[] = []
 
-  for (let i = 0; i < blocks.length; i++) {
-    const block = blocks[i]!.trim()
-    if (!block) continue
-
-    const lines = block.split('\n')
+  for (const { key, lines } of parseTextBlocks(text)) {
     const isBulletList = lines.every((l) => /^[-*]\s/.test(l.trim()))
     const isNumberedList = lines.every((l) => /^\d+[.)]\s/.test(l.trim()))
 
     if (isBulletList) {
       elements.push(
-        <ul key={i} className="my-1.5 space-y-1 pl-4">
+        <ul key={key} className="my-1.5 space-y-1 pl-4">
           {lines.map((line, j) => (
             <li key={j} className="list-disc leading-relaxed">
               <InlineMarkdown text={line.trim().replace(/^[-*]\s+/, '')} />
@@ -29,7 +26,7 @@ export function Markdown({ text, className }: { text: string; className?: string
       )
     } else if (isNumberedList) {
       elements.push(
-        <ol key={i} className="my-1.5 space-y-1 pl-4">
+        <ol key={key} className="my-1.5 space-y-1 pl-4">
           {lines.map((line, j) => (
             <li key={j} className="list-decimal leading-relaxed">
               <InlineMarkdown text={line.trim().replace(/^\d+[.)]\s+/, '')} />
@@ -39,7 +36,7 @@ export function Markdown({ text, className }: { text: string; className?: string
       )
     } else {
       elements.push(
-        <p key={i} className="my-1.5 leading-relaxed">
+        <p key={key} className="my-1.5 leading-relaxed">
           {lines.map((line, j) => (
             <span key={j}>
               {j > 0 && <br />}

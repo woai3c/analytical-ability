@@ -1,30 +1,65 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
 import { BookOpen, X } from 'lucide-react'
 
-import { MethodAnimation } from '@/components/method-animations/method-animation'
 import type { MethodId } from '@/data/domain'
 import { findMethodSpec, getMethodSpec, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
+import { parseTextBlocks } from '@/lib/text-blocks'
 import { cn } from '@/lib/utils'
 import type { Translate } from '@/providers/i18n-provider'
 
+const MethodAnimation = lazy(() =>
+  import('@/components/method-animations/method-animation').then((module) => ({
+    default: module.MethodAnimation,
+  })),
+)
+
+function DeferredMethodAnimation({ methodId }: { methodId: MethodId }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [shouldLoad, setShouldLoad] = useState(() => !('IntersectionObserver' in window))
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    if (!('IntersectionObserver' in window)) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return
+        setShouldLoad(true)
+        observer.disconnect()
+      },
+      { rootMargin: '300px' },
+    )
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={containerRef}>
+      {shouldLoad ? (
+        <Suspense fallback={<div className="min-h-64 animate-pulse rounded-lg bg-secondary" aria-hidden="true" />}>
+          <MethodAnimation methodId={methodId} />
+        </Suspense>
+      ) : (
+        <div className="min-h-64 rounded-lg bg-secondary/50" aria-hidden="true" />
+      )}
+    </div>
+  )
+}
+
 function RichText({ text }: { text: string }) {
-  const blocks = text.split('\n\n')
   const elements: ReactNode[] = []
 
-  for (let i = 0; i < blocks.length; i++) {
-    const block = blocks[i]!.trim()
-    if (!block) continue
-
-    const lines = block.split('\n')
+  for (const { key, text: block, lines } of parseTextBlocks(text)) {
     const isBulletList = lines.every((line) => /^[·\-]\s/.test(line))
     const isNumberedList = lines.every((line) => /^\d+\.\s/.test(line))
 
     if (isBulletList) {
       elements.push(
-        <ul key={i} className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+        <ul key={key} className="mt-2 space-y-1.5 text-sm text-muted-foreground">
           {lines.map((line, j) => (
             <li key={j} className="flex gap-2 leading-relaxed">
               <span className="shrink-0 text-muted-foreground/60">·</span>
@@ -35,7 +70,7 @@ function RichText({ text }: { text: string }) {
       )
     } else if (isNumberedList) {
       elements.push(
-        <ol key={i} className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+        <ol key={key} className="mt-2 space-y-1.5 text-sm text-muted-foreground">
           {lines.map((line, j) => {
             const match = line.match(/^(\d+)\.\s(.*)/)
             return (
@@ -49,7 +84,7 @@ function RichText({ text }: { text: string }) {
       )
     } else {
       elements.push(
-        <p key={i} className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+        <p key={key} className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
           {block}
         </p>,
       )
@@ -100,28 +135,21 @@ export function MethodDetailsContent({
 }) {
   const spec = getMethodSpec(methodId)
   const Heading = headingLevel
+  const richTextSections = [
+    { title: t('方法介绍'), text: en ? spec.introduction.en : spec.introduction.zh },
+    { title: t('什么时候用'), text: en ? spec.whenToUse.en : spec.whenToUse.zh },
+    { title: t('什么时候不用'), text: en ? spec.whenNotToUse.en : spec.whenNotToUse.zh },
+    { title: t('和其他方法的区别'), text: en ? spec.vsOtherMethods.en : spec.vsOtherMethods.zh },
+  ]
 
   return (
     <>
-      <section className="mt-8 border-t border-border pt-6">
-        <Heading className="text-sm font-medium">{t('方法介绍')}</Heading>
-        <RichText text={en ? spec.introduction.en : spec.introduction.zh} />
-      </section>
-
-      <section className="mt-8 border-t border-border pt-6">
-        <Heading className="text-sm font-medium">{t('什么时候用')}</Heading>
-        <RichText text={en ? spec.whenToUse.en : spec.whenToUse.zh} />
-      </section>
-
-      <section className="mt-8 border-t border-border pt-6">
-        <Heading className="text-sm font-medium">{t('什么时候不用')}</Heading>
-        <RichText text={en ? spec.whenNotToUse.en : spec.whenNotToUse.zh} />
-      </section>
-
-      <section className="mt-8 border-t border-border pt-6">
-        <Heading className="text-sm font-medium">{t('和其他方法的区别')}</Heading>
-        <RichText text={en ? spec.vsOtherMethods.en : spec.vsOtherMethods.zh} />
-      </section>
+      {richTextSections.map((section) => (
+        <section key={section.title} className="mt-8 border-t border-border pt-6">
+          <Heading className="text-sm font-medium">{section.title}</Heading>
+          <RichText text={section.text} />
+        </section>
+      ))}
 
       <section className="mt-8 border-t border-border pt-6">
         <Heading className="text-sm font-medium">{t('操作步骤')}</Heading>
@@ -165,7 +193,7 @@ export function MethodDetailsContent({
         </div>
         <p className="mt-5 text-xs text-muted-foreground">{t('点击播放，看这个方法从零到完成的全过程。')}</p>
         <div className="mt-2">
-          <MethodAnimation methodId={methodId} />
+          <DeferredMethodAnimation methodId={methodId} />
         </div>
       </section>
 
