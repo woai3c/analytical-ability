@@ -52,10 +52,13 @@ test('loads practice records and reveals saved analysis details', async ({ page 
           score: 88,
           completedAt: '2026-07-28T12:00:00.000Z',
           steps: {
-            problemDefinition: {
-              userAnswer: 'The failure happens only with one payment option.',
+            methodSelection: {
+              selectedMethods: ['fishbone'],
+              reasoning: 'The failure happens only with one payment option.',
               aiResponse: 'The scope is specific and measurable.',
             },
+            analysis: null,
+            reflection: null,
           },
         },
       ]),
@@ -93,10 +96,8 @@ test('shows the complete selected method introduction inside practice', async ({
         difficulty: 'beginner',
         currentStep: 1,
         steps: {
-          problemDefinition: null,
           methodSelection: null,
-          methodApplication: null,
-          conclusion: null,
+          analysis: null,
           reflection: null,
         },
         tokenUsage: { promptTokens: 10, completionTokens: 10 },
@@ -111,7 +112,7 @@ test('shows the complete selected method introduction inside practice', async ({
 
   const progressGeometry = await page.getByTestId('step-progress').evaluate((progress) => {
     const progressRect = progress.getBoundingClientRect()
-    const markerCenters = Array.from({ length: 5 }, (_, index) => {
+    const markerCenters = Array.from({ length: 3 }, (_, index) => {
       const marker = progress.querySelector(`[data-testid="step-marker-${index + 1}"]`)
       const label = progress.querySelector(`[data-testid="step-label-${index + 1}"]`)
       if (!(marker instanceof HTMLElement) || !(label instanceof HTMLElement)) throw new Error('Missing progress step')
@@ -126,7 +127,7 @@ test('shows the complete selected method introduction inside practice', async ({
 
     return {
       startGap: markerCenters[0]!.marker - progressRect.left,
-      endGap: progressRect.right - markerCenters[4]!.marker,
+      endGap: progressRect.right - markerCenters[2]!.marker,
       alignmentGaps: markerCenters.map(({ marker, label }) => Math.abs(marker - label)),
     }
   })
