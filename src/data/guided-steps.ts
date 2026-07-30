@@ -6,7 +6,3 @@ export const guidedStepLabels: Record<GuidedStepNumber, LocalizedText> = {
   2: { zh: '分析与结论', en: 'Analyze & Conclude' },
   3: { zh: '综合评审', en: 'Review' },
 }
-
-export const progressStepLabels: Record<GuidedStepNumber, LocalizedText> = {
-  ...guidedStepLabels,
-}

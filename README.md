@@ -41,7 +41,7 @@ Clarity turns analytical methods into guided practice, helping you build the hab
 ### Practice with AI
 
 - **Scenario Training** — Practice with realistic AI-generated scenarios across different domains
-- **Guided Analysis** — Complete a structured five-step reasoning process instead of jumping directly to an answer
+- **Guided Analysis** — Choose a method, apply it step by step, and receive a comprehensive review
 - **Immediate Feedback** — Receive targeted feedback on strengths, missing evidence, weak assumptions, and possible next steps
 - **Built-in Hints** — Get progressive guidance when you are unsure how to continue
 
@@ -55,15 +55,13 @@ Clarity turns analytical methods into guided practice, helping you build the hab
 ## How It Works
 
 ```text
-Choose an analytical method
-        ↓
 Read a realistic scenario
         ↓
-Complete the guided analysis
+Select an analysis method and explain why    ← (skipped in focused training)
         ↓
-Receive AI feedback
+Apply the method and draw conclusions
         ↓
-Review your progress and practice again
+Receive a comprehensive AI review
 ```
 
 ## Get Started

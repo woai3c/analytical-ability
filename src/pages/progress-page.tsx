@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, ChevronUp, Minus } from 'lucide-react'
 import { FilterChip } from '@/components/filter-chip'
 import { Markdown } from '@/components/markdown'
 import type { TaskType } from '@/data/domain'
-import { progressStepLabels } from '@/data/guided-steps'
+import { guidedStepLabels } from '@/data/guided-steps'
 import { findMethodCatalogEntry, methodCatalog } from '@/data/methods/catalog'
 import { taskTypeLabels, taskTypeLabelsEn } from '@/data/methods/labels'
 import type { PracticeRecord } from '@/data/practice-record'
@@ -347,7 +347,7 @@ function RecordDetail({
     if (steps.methodSelection)
       stepEntries.push({
         num: 1,
-        label: en ? progressStepLabels[1].en : progressStepLabels[1].zh,
+        label: en ? guidedStepLabels[1].en : guidedStepLabels[1].zh,
         user: `${steps.methodSelection.selectedMethods
           .map((id) => {
             const spec = findMethodCatalogEntry(id)
@@ -359,14 +359,14 @@ function RecordDetail({
     if (steps.analysis)
       stepEntries.push({
         num: 2,
-        label: en ? progressStepLabels[2].en : progressStepLabels[2].zh,
+        label: en ? guidedStepLabels[2].en : guidedStepLabels[2].zh,
         user: steps.analysis.userWork,
         ai: steps.analysis.aiResponse,
       })
     if (steps.reflection)
       stepEntries.push({
         num: 3,
-        label: en ? progressStepLabels[3].en : progressStepLabels[3].zh,
+        label: en ? guidedStepLabels[3].en : guidedStepLabels[3].zh,
         user: '',
         ai: steps.reflection.aiFeedback,
       })
