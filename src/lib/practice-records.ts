@@ -45,9 +45,7 @@ function createGuidedPracticeRecord(session: GuidedSession): PracticeRecord {
     methodExplanations: [],
     completedAt: session.completedAt ?? new Date().toISOString(),
     guided: true,
-    problemDefinition: session.steps.problemDefinition?.userAnswer,
-    methodApplication: session.steps.methodApplication?.userWork,
-    conclusion: session.steps.conclusion?.userAnswer,
+    analysis: session.steps.analysis?.userWork,
     dimensions: session.steps.reflection?.dimensions,
     steps: session.steps,
   }

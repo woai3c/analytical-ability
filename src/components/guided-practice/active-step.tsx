@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { Lightbulb, Loader2, X } from 'lucide-react'
 
 import type { GuidedSession, Scenario } from '@/data/domain'
-import { findMethodSpec, methodRegistry } from '@/data/methods'
+import type { TaskType } from '@/data/domain-constants'
+import { findMethodSpec, methodRegistry, taskTypeLabels, taskTypeLabelsEn } from '@/data/methods'
 import type { StepUserInput } from '@/lib/guided-session'
 import { cn } from '@/lib/utils'
 import type { Translate } from '@/providers/i18n-provider'
@@ -33,15 +34,13 @@ export function ActiveStep({ session, submitting, onSubmit, en, t }: ActiveStepP
 
   switch (step) {
     case 1:
-      return <Step1Input {...stepInputProps} />
+      return <Step1MethodSelect {...stepInputProps} />
     case 2:
-      return <Step2Input {...stepInputProps} />
+      return (
+        <Step2Analysis {...stepInputProps} selectedMethods={session.steps.methodSelection?.selectedMethods ?? []} />
+      )
     case 3:
-      return <Step3Input {...stepInputProps} selectedMethods={session.steps.methodSelection?.selectedMethods ?? []} />
-    case 4:
-      return <Step4Input {...stepInputProps} />
-    case 5:
-      return <Step5Input submitting={submitting} onSubmit={onSubmit} t={t} />
+      return <Step3Review submitting={submitting} onSubmit={onSubmit} t={t} />
     default:
       return null
   }
@@ -104,59 +103,26 @@ function TextStepInput({
   )
 }
 
-function Step1Input({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
-  const hints = en
-    ? [
-        `Re-read the scenario title: "${scenario.title}". What core tension does it describe?`,
-        'Identify the main stakeholder — who needs to make a decision or take action?',
-        'Look for constraints in the background info — budget, time, resources, or trade-offs.',
-        'Try framing it as: "[Stakeholder] needs to [goal] but is constrained by [limitation]."',
-      ]
-    : [
-        `重新阅读场景标题："${scenario.title}"。它描述了什么核心矛盾？`,
-        '找出主要利益相关者——谁需要做决策或采取行动？',
-        '在背景信息中寻找约束条件——预算、时间、资源或权衡取舍。',
-        '尝试用这个句式概括："[谁] 需要 [做什么]，但受到 [什么限制]。"',
-      ]
-
-  return (
-    <TextStepInput
-      question={
-        en
-          ? 'Read the scenario above. In your own words, what is the core problem?'
-          : '阅读上方场景。用你自己的话，核心问题是什么？'
-      }
-      description={
-        en
-          ? 'Think about: Who faces the problem? What decision must be made? What constraints exist?'
-          : '想一想：谁面临这个问题？需要做什么决策？有哪些约束条件？'
-      }
-      hints={hints}
-      rows={4}
-      placeholder={t('在这里写下你对核心问题的理解...')}
-      submitting={submitting}
-      onSubmit={(value) => onSubmit({ step: 1, userAnswer: value })}
-      onSkip={() => onSubmit({ step: 1, userAnswer: en ? '(skipped)' : '（跳过）', skipped: true })}
-      t={t}
-    />
-  )
-}
-
-function Step2Input({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
+/** 步骤 1（随机训练）：阅读场景 + 选择方法 + 说明理由 */
+function Step1MethodSelect({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
   const [selected, setSelected] = useState<string[]>([])
   const [reasoning, setReasoning] = useState('')
 
+  const taskLabel = en
+    ? (taskTypeLabelsEn[scenario.taskType as TaskType] ?? scenario.taskType)
+    : (taskTypeLabels[scenario.taskType as TaskType] ?? scenario.taskType)
+
   const hints = en
     ? [
-        `The scenario type is "${scenario.taskType}". Think about which methods are best suited for this type of problem.`,
+        `This scenario is about "${taskLabel}". Think about which methods are best suited for this type of problem.`,
         'Consider: Is this a root-cause analysis? An optimization? A decision-making problem? A planning task?',
-        'Some methods work well together — e.g. SWOT + Decision Matrix, or Fishbone + 5 Whys.',
+        'Some methods work well together — e.g. Fishbone + 5 Whys, or ABC + MCDA.',
         'When explaining your choice, mention what the method helps you do that other methods cannot.',
       ]
     : [
-        `场景类型是"${scenario.taskType}"。想想哪些方法最适合这类问题。`,
+        `这个场景属于"${taskLabel}"类问题。想想哪些方法最适合这类问题。`,
         '思考：这是根因分析？优化改进？决策问题？还是规划任务？',
-        '有些方法可以组合使用——例如 SWOT + 决策矩阵，或鱼骨图 + 5 Why。',
+        '有些方法可以组合使用——例如鱼骨图 + 5 Why，或 ABC + MCDA。',
         '解释选择时，说明这个方法能帮你做到什么，而其他方法做不到。',
       ]
 
@@ -169,8 +135,8 @@ function Step2Input({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
       <div className="flex items-center justify-between">
         <div className="text-sm font-medium">
           {en
-            ? 'Based on your problem definition, which analysis method(s) would you use?'
-            : '根据你的问题定义，你会选择什么分析方法？'}
+            ? 'Read the scenario above, then choose an analysis method and explain why.'
+            : '阅读上面的场景，选择分析方法并说明理由。'}
         </div>
         <HintButton hints={hints} t={t} />
       </div>
@@ -216,7 +182,7 @@ function Step2Input({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
           submitting={submitting}
           onClick={() =>
             onSubmit({
-              step: 2,
+              step: 1,
               selectedMethods: scenario.applicableMethods ?? [],
               reasoning: en ? '(skipped)' : '（跳过）',
               skipped: true,
@@ -227,7 +193,7 @@ function Step2Input({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
         <SubmitButton
           disabled={selected.length === 0 || !reasoning.trim() || !!submitting}
           loading={submitting === 'submit'}
-          onClick={() => onSubmit({ step: 2, selectedMethods: selected, reasoning: reasoning.trim() })}
+          onClick={() => onSubmit({ step: 1, selectedMethods: selected, reasoning: reasoning.trim() })}
           t={t}
         />
       </div>
@@ -235,7 +201,8 @@ function Step2Input({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
   )
 }
 
-function Step3Input({
+/** 步骤 2（随机）/ 步骤 1（专项）：分析与结论 */
+function Step2Analysis({
   submitting,
   onSubmit,
   selectedMethods,
@@ -257,13 +224,15 @@ function Step3Input({
     ? [
         "Follow the method steps listed below in order — don't skip any.",
         `Connect each step directly to the scenario "${scenario.title}". Use specific details from the background info.`,
-        "Don't just list the steps — show your actual analysis. What did you find? What data supports it?",
+        "This is a practice scenario — you don't need real data. It's OK to reason based on the information given and your best judgment.",
+        'After the analysis, write your conclusion: key findings + recommended actions.',
         `If you chose multiple methods (${methodNames}), show how they complement each other.`,
       ]
     : [
         '按照下方列出的方法步骤依次进行——不要跳过任何一步。',
         `每一步都要紧密联系场景"${scenario.title}"，使用背景信息中的具体细节。`,
-        '不要只列出步骤——展示你的实际分析。你发现了什么？有什么数据支持？',
+        '这是训练场景——你不需要真实数据。可以根据场景提供的信息和你的合理判断来推理。',
+        '分析完成后，写出你的结论：核心发现 + 建议行动。',
         `如果选了多个方法（${methodNames}），展示它们如何互补配合。`,
       ]
 
@@ -280,65 +249,34 @@ function Step3Input({
 
   return (
     <TextStepInput
-      question={en ? 'Now apply your chosen method to this scenario step by step.' : '现在请逐步将所选方法应用于场景。'}
+      question={
+        en
+          ? 'Apply the method to analyze the scenario, then draw your conclusion.'
+          : '运用方法分析场景，然后得出你的结论。'
+      }
       description={
         en
-          ? 'Follow the method steps below. Write out your analysis process.'
-          : '按照下面的方法步骤，写出你的分析过程。'
+          ? 'Follow the method steps below. After the analysis, summarize your key findings and propose specific action recommendations.'
+          : '按照下面的方法步骤来分析。分析完成后，总结核心发现并提出具体的行动建议。'
       }
       hints={hints}
       guide={methodGuide}
-      rows={8}
+      rows={10}
       placeholder={
         en
-          ? 'Write your analysis here, following the method steps above...'
-          : '在这里写出你的分析过程，按照上面的方法步骤...'
+          ? 'Analysis:\nStep 1: ...\nStep 2: ...\n\nConclusion:\nKey findings: ...\nRecommended actions: ...'
+          : '分析过程：\n步骤1：...\n步骤2：...\n\n结论：\n核心发现：...\n建议行动：...'
       }
       submitting={submitting}
-      onSubmit={(value) => onSubmit({ step: 3, userWork: value })}
-      onSkip={() => onSubmit({ step: 3, userWork: en ? '(skipped)' : '（跳过）', skipped: true })}
+      onSubmit={(value) => onSubmit({ step: 2, userWork: value })}
+      onSkip={() => onSubmit({ step: 2, userWork: en ? '(skipped)' : '（跳过）', skipped: true })}
       t={t}
     />
   )
 }
 
-function Step4Input({ submitting, onSubmit, t, en, scenario }: StepInputProps) {
-  const hints = en
-    ? [
-        'Start with a one-sentence summary of your key finding.',
-        `Tie your recommendation back to the original problem in "${scenario.title}".`,
-        'Be specific and actionable — who should do what, by when, and why?',
-        'Consider risks or trade-offs of your recommendation. Are there alternative approaches?',
-      ]
-    : [
-        '先用一句话概括你的核心发现。',
-        `把你的建议和"${scenario.title}"中的原始问题联系起来。`,
-        '建议要具体可执行——谁、做什么、什么时候、为什么？',
-        '考虑建议的风险或权衡取舍。是否有替代方案？',
-      ]
-
-  return (
-    <TextStepInput
-      question={
-        en
-          ? 'Based on your analysis, what is your conclusion or recommendation?'
-          : '基于你的分析，你的结论或建议是什么？'
-      }
-      description={
-        en ? 'Summarize what you found and what action should be taken.' : '总结你的发现，提出应该采取的行动。'
-      }
-      hints={hints}
-      rows={4}
-      placeholder={en ? 'Your conclusion and action recommendations...' : '你的结论和行动建议...'}
-      submitting={submitting}
-      onSubmit={(value) => onSubmit({ step: 4, userAnswer: value })}
-      onSkip={() => onSubmit({ step: 4, userAnswer: en ? '(skipped)' : '（跳过）', skipped: true })}
-      t={t}
-    />
-  )
-}
-
-function Step5Input({
+/** 步骤 3（随机）/ 步骤 2（专项）：综合评审 */
+function Step3Review({
   submitting,
   onSubmit,
   t,
@@ -355,7 +293,7 @@ function Step5Input({
         <SubmitButton
           disabled={!!submitting}
           loading={submitting === 'submit'}
-          onClick={() => onSubmit({ step: 5 })}
+          onClick={() => onSubmit({ step: 3 })}
           t={t}
           label={t('获取评价')}
         />
@@ -364,7 +302,7 @@ function Step5Input({
   )
 }
 
-// ── Reflection Display ───────────────────────────────────────────
+// ── Shared UI Components ────────────────────────────────────────
 
 function SubmitButton({
   disabled,

@@ -16,10 +16,7 @@ export interface PracticeRecord {
   completedAt: string
   steps?: Partial<GuidedStepData>
 
-  /** Legacy fields kept for backup compatibility. */
   guided?: boolean
-  problemDefinition?: string | undefined
-  methodApplication?: string | undefined
-  conclusion?: string | undefined
+  analysis?: string | undefined
   dimensions?: Array<{ name: string; score: number; comment: string }> | undefined
 }

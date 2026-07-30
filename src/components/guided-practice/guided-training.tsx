@@ -80,7 +80,7 @@ export function GuidedTraining({
       }
       withAi.tokenUsage = { promptTokens: newUsage.promptTokens, completionTokens: newUsage.completionTokens }
 
-      if (session.currentStep < 5) {
+      if (session.currentStep < 3) {
         withAi.currentStep = (session.currentStep + 1) as GuidedStepNumber
       } else {
         withAi.completedAt = new Date().toISOString()
@@ -198,7 +198,8 @@ function StepProgress({
   en: boolean
   t: Translate
 }) {
-  const completedLineWidth = completed ? 100 : ((currentStep - 1) / (guidedStepNumbers.length - 1)) * 100
+  const visibleSteps = [...guidedStepNumbers]
+  const completedLineWidth = completed ? 100 : (visibleSteps.indexOf(currentStep) / (visibleSteps.length - 1)) * 100
 
   return (
     <div className="mt-6">
@@ -210,10 +211,10 @@ function StepProgress({
             style={{ width: `${completedLineWidth}%` }}
           />
           <ol className="relative h-full">
-            {guidedStepNumbers.map((step, index) => {
+            {visibleSteps.map((step, index) => {
               const isDone = completed || step < currentStep
               const isCurrent = !completed && step === currentStep
-              const position = (index / (guidedStepNumbers.length - 1)) * 100
+              const position = (index / (visibleSteps.length - 1)) * 100
 
               return (
                 <li
@@ -293,7 +294,7 @@ function CompletedStep({
   t: Translate
 }) {
   const label = en ? guidedStepLabels[stepNum].en : guidedStepLabels[stepNum].zh
-  const data = getStepDisplay(session, stepNum)
+  const data = getStepDisplay(session, stepNum, en)
   const headerRef = useRef<HTMLDivElement>(null)
 
   function handleCollapse() {
@@ -330,7 +331,7 @@ function CompletedStep({
               <Markdown text={data.aiResponse} className="mt-1 text-muted-foreground" />
             </div>
           )}
-          {stepNum === 5 && session.steps.reflection && (
+          {stepNum === 3 && session.steps.reflection && (
             <ReflectionDisplay reflection={session.steps.reflection} t={t} />
           )}
           <button
@@ -410,13 +411,14 @@ export function DifficultySelector({
 
   return (
     <div className="flex overflow-hidden rounded-lg border border-border">
-      {options.map((opt) => (
+      {options.map((opt, i) => (
         <button
           key={opt.id}
           type="button"
           onClick={() => onChange(opt.id)}
           className={cn(
             'px-2.5 py-1.5 text-xs transition-colors',
+            i > 0 && 'border-l border-border',
             value === opt.id
               ? 'bg-foreground text-background'
               : 'text-muted-foreground hover:bg-secondary hover:text-foreground',

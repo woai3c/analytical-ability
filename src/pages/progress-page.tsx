@@ -342,13 +342,12 @@ function RecordDetail({
     )
   }
 
-  const stepEntries: Array<{ num: number; user: string; ai: string }> = []
+  const stepEntries: Array<{ num: number; label: string; user: string; ai: string }> = []
   if (steps) {
-    if (steps.problemDefinition)
-      stepEntries.push({ num: 1, user: steps.problemDefinition.userAnswer, ai: steps.problemDefinition.aiResponse })
     if (steps.methodSelection)
       stepEntries.push({
-        num: 2,
+        num: 1,
+        label: en ? progressStepLabels[1].en : progressStepLabels[1].zh,
         user: `${steps.methodSelection.selectedMethods
           .map((id) => {
             const spec = findMethodCatalogEntry(id)
@@ -357,13 +356,17 @@ function RecordDetail({
           .join('、')}\n${steps.methodSelection.reasoning}`,
         ai: steps.methodSelection.aiResponse,
       })
-    if (steps.methodApplication)
-      stepEntries.push({ num: 3, user: steps.methodApplication.userWork, ai: steps.methodApplication.aiResponse })
-    if (steps.conclusion)
-      stepEntries.push({ num: 4, user: steps.conclusion.userAnswer, ai: steps.conclusion.aiResponse })
+    if (steps.analysis)
+      stepEntries.push({
+        num: 2,
+        label: en ? progressStepLabels[2].en : progressStepLabels[2].zh,
+        user: steps.analysis.userWork,
+        ai: steps.analysis.aiResponse,
+      })
     if (steps.reflection)
       stepEntries.push({
-        num: 5,
+        num: 3,
+        label: en ? progressStepLabels[3].en : progressStepLabels[3].zh,
         user: '',
         ai: steps.reflection.aiFeedback,
       })
@@ -380,12 +383,10 @@ function RecordDetail({
 
       {stepEntries.length > 0 ? (
         stepEntries.map((entry) => {
-          const stepNum = entry.num as keyof typeof progressStepLabels
-          const label = en ? progressStepLabels[stepNum].en : progressStepLabels[stepNum].zh
           return (
             <div key={entry.num} className="rounded-lg border border-border-subtle bg-secondary/50 p-3">
               <h4 className="text-xs font-semibold">
-                {t('步骤')} {entry.num}：{label}
+                {t('步骤')} {entry.num}：{entry.label}
               </h4>
               {entry.user && (
                 <div className="mt-2">

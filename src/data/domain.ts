@@ -65,10 +65,11 @@ export const reflectionSchema = z.object({
 export type Reflection = z.infer<typeof reflectionSchema>
 
 export interface GuidedStepData {
-  problemDefinition: { userAnswer: string; aiResponse: string } | null
+  /** 步骤 1（随机训练）：选择方法 + 理由。专项训练时自动填入。 */
   methodSelection: { selectedMethods: string[]; reasoning: string; aiResponse: string } | null
-  methodApplication: { userWork: string; aiResponse: string } | null
-  conclusion: { userAnswer: string; aiResponse: string } | null
+  /** 步骤 2（随机）/ 步骤 1（专项）：运用方法分析 + 得出结论，合并为一步。 */
+  analysis: { userWork: string; aiResponse: string } | null
+  /** 最终步骤：综合评审（AI 自动生成）。 */
   reflection: {
     aiFeedback: string
     score: number

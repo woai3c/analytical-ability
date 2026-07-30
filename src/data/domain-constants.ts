@@ -30,5 +30,5 @@ export type MethodId = (typeof methodIds)[number]
 export const difficultyLevels = ['beginner', 'intermediate', 'advanced'] as const
 export type Difficulty = (typeof difficultyLevels)[number]
 
-export const guidedStepNumbers = [1, 2, 3, 4, 5] as const
+export const guidedStepNumbers = [1, 2, 3] as const
 export type GuidedStepNumber = (typeof guidedStepNumbers)[number]

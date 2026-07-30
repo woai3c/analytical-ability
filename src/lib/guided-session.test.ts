@@ -43,10 +43,8 @@ function createSession(): GuidedSession {
     difficulty: 'beginner',
     currentStep: 1,
     steps: {
-      problemDefinition: null,
       methodSelection: null,
-      methodApplication: null,
-      conclusion: null,
+      analysis: null,
       reflection: null,
     },
     tokenUsage: { promptTokens: 10, completionTokens: 5 },
@@ -65,7 +63,7 @@ afterEach(() => {
 })
 
 describe('guided session transformations', () => {
-  it('builds a new session with the generated scenario and usage', () => {
+  it('builds a new random-training session starting at step 1', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-01-02T03:04:05.000Z'))
 
@@ -77,16 +75,19 @@ describe('guided session transformations', () => {
       difficulty: 'intermediate',
       currentStep: 1,
       steps: {
-        problemDefinition: null,
         methodSelection: null,
-        methodApplication: null,
-        conclusion: null,
+        analysis: null,
         reflection: null,
       },
       tokenUsage: { promptTokens: 12, completionTokens: 7 },
       startedAt: '2026-01-02T03:04:05.000Z',
       completedAt: null,
     })
+  })
+
+  it('builds a focused-training session starting at step 2 with method pre-selected', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-02T03:04:05.000Z'))
 
     const focusedSession = buildNewSession(
       scenario,
@@ -95,48 +96,37 @@ describe('guided session transformations', () => {
       'fishbone',
     )
     expect(focusedSession.focusMethodId).toBe('fishbone')
+    expect(focusedSession.currentStep).toBe(2)
+    expect(focusedSession.steps.methodSelection).toEqual({
+      selectedMethods: ['fishbone'],
+      reasoning: '',
+      aiResponse: '',
+    })
   })
 
   it('stores every editable step without mutating the previous session', () => {
     const session = createSession()
-    const withProblem = applyUserInput(session, 1, {
+    const withMethods = applyUserInput(session, 1, {
       step: 1,
-      userAnswer: 'The core problem',
-    })
-    const withMethods = applyUserInput(withProblem, 2, {
-      step: 2,
       selectedMethods: ['fishbone', 'five-why'],
       reasoning: 'Use breadth, then depth.',
     })
-    const withApplication = applyUserInput(withMethods, 3, {
-      step: 3,
-      userWork: 'Candidate causes',
+    const withAnalysis = applyUserInput(withMethods, 2, {
+      step: 2,
+      userWork: 'Analysis and conclusion combined.',
     })
-    const withConclusion = applyUserInput(withApplication, 4, {
-      step: 4,
-      userAnswer: 'Verify the leading cause.',
-    })
-    const unchangedReflection = applyUserInput(withConclusion, 5, { step: 5 })
+    const unchangedReflection = applyUserInput(withAnalysis, 3, { step: 3 })
 
-    expect(session.steps.problemDefinition).toBeNull()
     expect(session.steps.methodSelection).toBeNull()
-    expect(withProblem).not.toBe(session)
+    expect(withMethods).not.toBe(session)
     expect(unchangedReflection.steps).toEqual({
-      problemDefinition: {
-        userAnswer: 'The core problem',
-        aiResponse: '',
-      },
       methodSelection: {
         selectedMethods: ['fishbone', 'five-why'],
         reasoning: 'Use breadth, then depth.',
         aiResponse: '',
       },
-      methodApplication: {
-        userWork: 'Candidate causes',
-        aiResponse: '',
-      },
-      conclusion: {
-        userAnswer: 'Verify the leading cause.',
+      analysis: {
+        userWork: 'Analysis and conclusion combined.',
         aiResponse: '',
       },
       reflection: null,
@@ -145,21 +135,17 @@ describe('guided session transformations', () => {
 
   it('applies AI responses to every step and builds the final reflection', () => {
     let session = createSession()
-    session = applyUserInput(session, 1, { step: 1, userAnswer: 'The core problem' })
-    session = applyUserInput(session, 2, {
-      step: 2,
+    session = applyUserInput(session, 1, {
+      step: 1,
       selectedMethods: ['fishbone', 'five-why'],
       reasoning: 'Use breadth, then depth.',
     })
-    session = applyUserInput(session, 3, { step: 3, userWork: 'Candidate causes' })
-    session = applyUserInput(session, 4, { step: 4, userAnswer: 'Verify the leading cause.' })
+    session = applyUserInput(session, 2, { step: 2, userWork: 'Analysis and conclusion.' })
 
     const originalSteps = session.steps
-    session = applyAiResponse(session, 1, { aiResponse: 'Clear definition.' })
-    session = applyAiResponse(session, 2, { aiResponse: 'Good choice.' })
-    session = applyAiResponse(session, 3, { aiResponse: 'Thorough application.' })
-    session = applyAiResponse(session, 4, { aiResponse: 'Actionable conclusion.' })
-    session = applyAiResponse(session, 5, {
+    session = applyAiResponse(session, 1, { aiResponse: 'Good choice.' })
+    session = applyAiResponse(session, 2, { aiResponse: 'Thorough analysis.' })
+    session = applyAiResponse(session, 3, {
       aiResponse: 'Overall feedback',
       reflection: {
         overallFeedback: 'Overall feedback',
@@ -169,15 +155,13 @@ describe('guided session transformations', () => {
       },
     })
 
-    expect(originalSteps.problemDefinition?.aiResponse).toBe('')
-    expect(session.steps.problemDefinition?.aiResponse).toBe('Clear definition.')
+    expect(originalSteps.methodSelection?.aiResponse).toBe('')
     expect(session.steps.methodSelection).toEqual({
       selectedMethods: ['fishbone', 'five-why'],
       reasoning: 'Use breadth, then depth.',
       aiResponse: 'Good choice.',
     })
-    expect(session.steps.methodApplication?.aiResponse).toBe('Thorough application.')
-    expect(session.steps.conclusion?.aiResponse).toBe('Actionable conclusion.')
+    expect(session.steps.analysis?.aiResponse).toBe('Thorough analysis.')
     expect(session.steps.reflection).toEqual({
       aiFeedback: 'Overall feedback',
       score: 82,
@@ -188,14 +172,12 @@ describe('guided session transformations', () => {
 
   it('returns the display value for each completed step', () => {
     const session = createSession()
-    session.steps.problemDefinition = { userAnswer: 'Problem', aiResponse: 'Definition feedback' }
     session.steps.methodSelection = {
       selectedMethods: ['fishbone', 'five-why'],
       reasoning: 'Reasoning',
       aiResponse: 'Selection feedback',
     }
-    session.steps.methodApplication = { userWork: 'Analysis', aiResponse: 'Application feedback' }
-    session.steps.conclusion = { userAnswer: 'Conclusion', aiResponse: 'Conclusion feedback' }
+    session.steps.analysis = { userWork: 'Analysis and conclusion', aiResponse: 'Analysis feedback' }
     session.steps.reflection = {
       aiFeedback: 'Overall feedback',
       score: 82,
@@ -203,23 +185,15 @@ describe('guided session transformations', () => {
       tips: [],
     }
 
-    expect(getStepDisplay(session, 1)).toEqual({
-      userAnswer: 'Problem',
-      aiResponse: 'Definition feedback',
-    })
-    expect(getStepDisplay(session, 2)).toEqual({
-      userAnswer: 'fishbone, five-why\nReasoning',
+    expect(getStepDisplay(session, 1, false)).toEqual({
+      userAnswer: '鱼骨分析, 5 Why 追问\nReasoning',
       aiResponse: 'Selection feedback',
     })
-    expect(getStepDisplay(session, 3)).toEqual({
-      userAnswer: 'Analysis',
-      aiResponse: 'Application feedback',
+    expect(getStepDisplay(session, 2)).toEqual({
+      userAnswer: 'Analysis and conclusion',
+      aiResponse: 'Analysis feedback',
     })
-    expect(getStepDisplay(session, 4)).toEqual({
-      userAnswer: 'Conclusion',
-      aiResponse: 'Conclusion feedback',
-    })
-    expect(getStepDisplay(session, 5)).toEqual({ userAnswer: '', aiResponse: 'Overall feedback' })
+    expect(getStepDisplay(session, 3)).toEqual({ userAnswer: '', aiResponse: 'Overall feedback' })
   })
 })
 
